@@ -76,7 +76,7 @@ const properties = [
     sqft: 750,
   },
   {
-    id: 5,
+    id: 6,
     image: "/images/home.png",
     status: "For Sell",
     title: "Cozy Cottage",
@@ -212,9 +212,16 @@ const SeeAllforSell = () => {
             {/* Content Section */}
             <div className="p-4 bg-green-50">
               {/* Title */}
-              <h2 className="text-lg font-bold text-gray-800 mb-1">
-                {property.title}
-              </h2>
+              <div className="flex items-center justify-between">
+  <h2 className="text-lg font-bold text-gray-800 mb-1">
+    {property.title}
+  </h2>
+  <Link href={`/detailsHome/${property.id}`}>
+    <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition-all duration-300">
+      Details
+    </button>
+  </Link>
+</div>
 
               {/* Address */}
               <p className="text-gray-500 text-sm flex items-center gap-2 mb-2">

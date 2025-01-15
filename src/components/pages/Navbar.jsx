@@ -67,6 +67,24 @@ const Navbar = () => {
                       className: "hover:!bg-[#101625]",
                     },
                     {
+                      key: "1",
+                      label: (
+                        <Link href="/mypost" className="hover:!text-white">
+                          MyPost
+                        </Link>
+                      ),
+                      className: "hover:!bg-[#101625]",
+                    },
+                    {
+                      key: "2",
+                      label: (
+                        <Link href="/messages" className="hover:!text-white">
+                       Message
+                      </Link>
+                      ),
+                      className: "hover:!bg-[#101625]",
+                    },
+                    {
                       key: "2",
                       label: (
                         <span

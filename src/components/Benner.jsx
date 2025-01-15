@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Input, Select, Button } from "antd";
-import Navbar from "./Navbar";
+import Navbar from "./pages/Navbar";
 
 const { Option } = Select;
 

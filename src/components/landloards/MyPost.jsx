@@ -1,10 +1,12 @@
+
 "use client";
 
 import React from "react";
 import { Button, Tag } from "antd";
 import { EnvironmentOutlined, HomeOutlined, AppstoreAddOutlined } from "@ant-design/icons";
-import Header from "./customComponent/Header";
+ 
 import Link from "next/link";
+import Header from "../customComponent/Header";
 
 // Sample JSON Data
 const properties = [
@@ -62,28 +64,32 @@ const properties = [
   },
 ];
 
-const PopularRent = () => {
+const MyPosts = () => {
   return (
-    <div className="container mt-12 md:mt-28">
+    <div className="container my-6 min-h-screen md:my-12">
       {/* Heading Section */}
       <div className="text-center mb-8">
-      <Header size="extraLarge" className="text-green-700">
-        Popular for Rent
+      <Header size="large" className="text-green-700">
+        My Posts
       </Header>
          
-        <p className="text-blue-500 text-sm mt-12 md:text-base">
-          You can see here all popular posts
-        </p>
-        <div className="mt-4 text-right ">
+        
+        {/* <div className="mt-4 text-right ">
             <Link href="/seeAllRentHome"> 
           <Button className="text-white hover:bg-green-600 bg-[#1A3459] hover:text-white font-semibold">
             See all
           </Button>
             </Link>   
 
-        </div>
+        </div> */}
       </div>
-
+         <div className=" text-right py-4">
+            <Link href="/addpost">  
+            <Button className="!text-white !bg-[#1A3459] p-4 font-semibold">
+            Add Post
+            </Button>
+            </Link>
+         </div>
       {/* Property Cards Section */}
       <div className="grid grid-cols-1   lg:grid-cols-4 gap-6">
         {properties.map((property) => (
@@ -110,14 +116,13 @@ const PopularRent = () => {
             <div className="p-4 bg-green-50">
               {/* Title */}
               <div className="flex items-center justify-between">
+                <div>
+
   <h2 className="text-lg font-bold text-gray-800 mb-1">
     {property.title}
   </h2>
-  <Link href={`/detailsHome/${property.id}`}>
-    <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition-all duration-300">
-      Details
-    </button>
-  </Link>
+                </div>
+ 
 </div>
               {/* Address */}
               <p className="text-gray-500 text-sm flex items-center gap-2 mb-2">
@@ -154,12 +159,19 @@ const PopularRent = () => {
               </div>
 
               {/* Action Button */}
-              <Button
-                type="primary"
-                className="w-full bg-green-600 hover:bg-green-500 text-white font-semibold"
-              >
-                Message Now
-              </Button>
+              <div>
+
+<Link href={`/detailsHome/${property.id}`}>
+  <button className="px-2 py-1 mr-3 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition-all duration-300">
+    Details
+  </button>
+</Link>
+<Link href={`/editpost`}>
+  <button className="px-2 py-1 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition-all duration-300">
+      Edit
+  </button>
+</Link>
+ </div>
             </div>
           </div>
         ))}
@@ -168,4 +180,4 @@ const PopularRent = () => {
   );
 };
 
-export default PopularRent;
+export default MyPosts;

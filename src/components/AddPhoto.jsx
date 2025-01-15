@@ -4,13 +4,13 @@ import React from 'react';
  
 const AddPhoto = () => {
     return (
-        <div className='flex mt-8 items-center justify-between container'>
+        <div className='md:flex mt-8 items-center justify-between container'>
           
-            <div>
-                <Image src="/images/adds.png" className='h-60 w-[700px]' width={500} height={600} alt="add photo" />
+            <div className=''>
+                <Image src="/images/adds.png" className='h-44 md:h-60 md:w-[700px]' width={500} height={600} alt="add photo" />
             </div>
             <div>
-            <Image src="/images/adds.png" className='h-60 w-[700px]' width={500} height={600} alt="add photo" />
+            <Image src="/images/adds.png" className='h-44 md:h-60 md:w-[700px]' width={500} height={600} alt="add photo" />
             </div>
         </div>
     );

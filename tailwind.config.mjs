@@ -25,7 +25,7 @@ module.exports = {
         small: "1rem", // Small size equivalent to text-lg
         medium: "1.5rem", // Medium size equivalent to text-2xl
         large: "2rem", // Large size equivalent to text-3xl
-        extraLarge: "2.5rem", // Extra large size equivalent to text-4xl
+        extraLarge: "2rem", // Extra large size equivalent to text-4xl
       },
       colors: {
         primary: "#00BF63",
