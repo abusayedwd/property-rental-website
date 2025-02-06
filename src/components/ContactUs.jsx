@@ -11,7 +11,7 @@ const ContactUs = () => {
       <div className="text-center mb-12">
         <p className="text-blue-500 text-[40px] font-[Montserrat] font-semibold">For any help</p>
         
-        <Header size="extraLarge" className="text-green-700 mt-5"> Contact With Us </Header>
+        <Header size="extraLarge" className="text-[#2FC639] mt-5"> Contact With Us </Header>
            
       </div>
 
@@ -20,9 +20,9 @@ const ContactUs = () => {
         {/* Left Section: Image */}
         <div className="relative flex justify-center">
         <img
-              src="/images/contact.png"
+              src="/images/davispAb.jpg"
               alt="House Exterior"
-              className="  mk:relative bottom-6 object-cover rounded-lg shadow-md"
+              className="  mk:relative bottom-6 object-cover md:h-[400px] md:w-[80%] rounded-lg shadow-md"
             /> 
           {/* Decorative Background (Buildings) */}
           <div

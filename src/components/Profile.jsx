@@ -4,12 +4,19 @@ import React, { useState } from "react";
 import { Button, Input, Modal, Form, Image, Space, Upload } from "antd";
 import { LuImagePlus } from "react-icons/lu";
 import { useRouter } from "next/navigation";
+import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
+import url from "@/redux/api/baseUrl";
  
 const Profile = () => {
     const [fileList, setFileList] = useState([]); 
-    const [imageUrl, setImageUrl] = useState();
+    const [imageUrl, setImageUrl] = useState(); 
+    const router = useRouter();
 
-const router = useRouter();
+
+      const {data: profile} = useLogedUserQuery()
+      // console.log(user)
+      const user = profile?.data?.attributes?.user
+      console.log(user)
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
@@ -49,7 +56,7 @@ const router = useRouter();
           <Space size={12}>
       <Image
         width={200}
-        src="/images/user4.jpg"
+        src={url + user?.image?.url}
         placeholder={
           <Image
             preview={false}
@@ -63,14 +70,14 @@ const router = useRouter();
 
           {/* Profile Details */}
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-gray-800">Lindar Jord</h2>
-            <p className="text-gray-600">lindarlord100@gmail.com</p>
+            <h2 className="text-xl font-semibold text-gray-800">{user?.fullName}</h2>
+            <p className="text-gray-600">{user?.email}</p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label className="text-sm text-gray-500">Street Address</label>
                 <Input
-                  value="Uganda"
+                  value={user?.streetName}
                   readOnly
                   className="bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -78,7 +85,7 @@ const router = useRouter();
               <div>
                 <label className="text-sm text-gray-500">District</label>
                 <Input
-                  value="fgfihu"
+                  value={user?.distric}
                   readOnly
                   className="bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -86,7 +93,15 @@ const router = useRouter();
               <div>
                 <label className="text-sm text-gray-500">City</label>
                 <Input
-                  value="Icasilo"
+                  value={user?.city}
+                  readOnly
+                  className="bg-gray-100 border-gray-300 rounded-md"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-gray-500">Phone Number</label>
+                <Input
+                  value={user?.phoneNumber}
                   readOnly
                   className="bg-gray-100 border-gray-300 rounded-md"
                 />
@@ -108,98 +123,7 @@ const router = useRouter();
 </Button>
 </div>
       </div>
-
-      {/* Edit Profile Modal */}
-      <Modal
-        title="Edit Profile"
-        open={isModalOpen}
-        onCancel={closeModal}
-        footer={null}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleFormSubmit}
-          initialValues={{
-            name: "Lindar Jord",
-            email: "lindarlord100@gmail.com",
-            streetAddress: "Uganda",
-            city: "Icasilo",
-            district: "fgfihu",
-          }}
-        >
-             <Upload
-                  name="profile"
-                  showUploadList={false}
-                  onChange={handleUploadChange}
-                >
-                  <img
-                    className="w-44 h-44 rounded-full"
-                    src={imageUrl}
-                    alt="Profile"
-                  />
-                  <Button
-                    className="border-none text-md text-blue-500 absolute bottom-6 flex items-center"
-                    icon={<LuImagePlus size={20} className="mr-2" />}
-                  >
-                    Change Picture
-                  </Button>
-                </Upload>
-
-          <Form.Item
-            label="Name"
-            name="name"
-            rules={[{ required: true, message: "Please enter your name" }]}
-          >
-            <Input placeholder="Enter your name" />
-          </Form.Item>
-
-          <Form.Item
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Please enter your email" },
-              { type: "email", message: "Please enter a valid email" },
-            ]}
-          >
-            <Input placeholder="Enter your email" />
-          </Form.Item>
-
-          <Form.Item
-            label="Street Address"
-            name="streetAddress"
-            rules={[{ required: true, message: "Please enter your address" }]}
-          >
-            <Input placeholder="Enter your street address" />
-          </Form.Item>
-
-          <Form.Item
-            label="City"
-            name="city"
-            rules={[{ required: true, message: "Please enter your city" }]}
-          >
-            <Input placeholder="Enter your city" />
-          </Form.Item>
-
-          <Form.Item
-            label="District"
-            name="district"
-            rules={[{ required: true, message: "Please enter your district" }]}
-          >
-            <Input placeholder="Enter your district" />
-          </Form.Item>
-
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="w-full bg-green-500 hover:bg-green-400 text-white"
-            >
-              Save Changes
-            </Button>
-          </Form.Item>
-        </Form>
-      </Modal>
+ 
     </div>
   );
 };

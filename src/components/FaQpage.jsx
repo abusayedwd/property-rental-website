@@ -36,7 +36,7 @@ const FaQpage = () => {
       {/* Page Title */}
       <div className="text-center mb-12">
         <p className="text-blue-500 text-[40px] font-[Montserrat] font-semibold">Questions & Answers</p>
-        <Header size="extraLarge" className="text-green-700 mt-5"> FAQ </Header>
+        <Header size="extraLarge" className="text-[#2FC639] mt-5"> FAQ </Header>
      
       </div>
 

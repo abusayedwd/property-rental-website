@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React from "react";
 
 const Footer = () => {
@@ -43,12 +44,12 @@ const Footer = () => {
               </a>
             </li>
             <li>
-              <a
-                href="/about-us"
+              <Link
+                href="/aboutus"
                 className="text-sm text-gray-300 hover:text-white transition-colors"
               >
                 About Us
-              </a>
+              </Link>
             </li>
             <li>
               <a
@@ -68,20 +69,20 @@ const Footer = () => {
           </h3>
           <ul className="space-y-2">
             <li>
-              <a
-                href="/privacy-policy"
+              <Link
+                href="/privacy"
                 className="text-sm text-gray-300 hover:text-white transition-colors"
               >
                 Privacy Policy
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                href="/terms-of-use"
+              <Link
+                href="/terms"
                 className="text-sm text-gray-300 hover:text-white transition-colors"
               >
                 Terms of Use
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

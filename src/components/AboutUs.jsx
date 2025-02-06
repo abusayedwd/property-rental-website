@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React from "react";
 
 const AboutUs = () => {
@@ -8,7 +9,7 @@ const AboutUs = () => {
       <div className=" container grid grid-cols-1 md:grid-cols-2 items-center gap-8">
         {/* Left Section: Text Content */}
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-green-700 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-[#2FC639] mb-4">
             About Us
           </h1>
           <p className="text-gray-700 text-base md:text-lg leading-relaxed">
@@ -17,9 +18,9 @@ const AboutUs = () => {
             We simplify the process of renting, buying, and selling properties by offering 
             a user-friendly space where landlords can post their listings, and users can 
             explore a wide range of options with ease.{" "}
-            <a href="#" className="text-green-600 font-medium hover:underline">
+            <Link href="/aboutus" className="text-green-600 font-medium hover:underline">
               See More...
-            </a>
+            </Link>
           </p>
         </div>
 

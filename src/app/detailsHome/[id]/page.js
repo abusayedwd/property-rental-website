@@ -8,8 +8,8 @@ const DetailHome = ({params}) => {
     const { id } = params;
     return (
         <div>
-            <h1>DetailHome {id}</h1>
-            <AddPhoto />
+            {/* <h1>DetailHome {id}</h1> */}
+            {/* <AddPhoto /> */}
             <DetailsPage />
         </div>
     );

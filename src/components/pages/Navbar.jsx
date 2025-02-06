@@ -2,6 +2,9 @@
 
 "use client";
 
+import url from "@/redux/api/baseUrl";
+import { useChangPasswordMutation } from "@/redux/fetures/auth/changePassword";
+import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
 import {
   DownOutlined,
   EyeInvisibleOutlined,
@@ -10,35 +13,86 @@ import {
 } from "@ant-design/icons";
 import { Avatar, Button, Dropdown, Form, Input, Modal } from "antd";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import React, { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 const Navbar = () => {
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false); // For Change Password Modal
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false); // For Logout Confirmation Modal
-
+  const [isModalVisible, setIsModalVisible] = useState(false);
   // Open and close modals
   const openPasswordModal = () => setIsModalOpen(true);
   const closePasswordModal = () => setIsModalOpen(false);
   const openLogoutModal = () => setIsLogoutModalOpen(true);
   const closeLogoutModal = () => setIsLogoutModalOpen(false);
+  const router = useRouter()
+  const {data: user} = useLogedUserQuery()
+  // console.log(user)
+ 
+  
+    const role = user?.data?.attributes?.user?.role;
+    // console.log(role)
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-    closeLogoutModal();
-    // Add your logout logic here (e.g., clear session, navigate to login page)
+    const [changePasswordd, {isLoading}] = useChangPasswordMutation()
+
+
+    const handleLogout = () => {
+      console.log("Logging out...");
+  
+      // Remove user session data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+  
+      closeLogoutModal(); 
+  
+      // Ensure router navigation happens without page reload
+      router.push("/");
   };
+  
+
+
 
   const changePassword = async (values) => {
     const { confirmPassword, ...ChangePassword } = values;
     console.log("Form Values: ", ChangePassword);
-    // Handle password change logic here
+     try{
+      const res = await changePasswordd(ChangePassword).unwrap();
+       console.log(res);
+       if(res?.code == 200){
+        toast.success(res?.message)
+        closePasswordModal(true)
+        router.push('/')
+
+       }
+     }catch(error){
+       console.log(error)
+     }
   };
+
+
+
+
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleOk = () => {
+    setIsModalVisible(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+  };
+
 
   return (
     <div>
       <nav className="bg-[#1A3459] text-white py-4">
+        <Toaster />
         <div className="container mx-auto flex items-center justify-between px-4">
           {/* Logo */}
           <div className="text-2xl font-bold text-green-400">
@@ -48,80 +102,91 @@ const Navbar = () => {
 
           {/* Buttons */}
           <div className="flex items-center md:gap-3 gap-1">
-            <Button className="bg-transparent text-white border-white hover:bg-white hover:text-blue-900">
-              Log In
-            </Button>
-
-            <div>
-              <Dropdown
-                className="px-2"
-                menu={{
-                  items: [
-                    {
-                      key: "1",
-                      label: (
-                        <Link href="/profile" className="hover:!text-white">
-                          Profile
-                        </Link>
-                      ),
-                      className: "hover:!bg-[#101625]",
-                    },
-                    {
-                      key: "1",
-                      label: (
-                        <Link href="/mypost" className="hover:!text-white">
-                          MyPost
-                        </Link>
-                      ),
-                      className: "hover:!bg-[#101625]",
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <Link href="/messages" className="hover:!text-white">
-                       Message
+  {user ? (
+    <div>
+      <Dropdown
+        className="px-2"
+        menu={{
+          items: [
+            {
+              key: "1",
+              label: (
+                <Link href="/profile" className="hover:!text-white">
+                  Profile
+                </Link>
+              ),
+              className: "hover:!bg-[#101625]",
+            },
+            ...(user?.data?.attributes?.user?.role === "landlord"
+              ? [
+                  {
+                    key: "2",
+                    label: (
+                      <Link href="/mypost" className="hover:!text-white">
+                        MyPost
                       </Link>
-                      ),
-                      className: "hover:!bg-[#101625]",
-                    },
-                    {
-                      key: "2",
-                      label: (
-                        <span
-                          onClick={openPasswordModal}
-                          className="hover:!text-white cursor-pointer"
-                        >
-                          Change Password
-                        </span>
-                      ),
-                      className: "hover:!bg-[#101625]",
-                    },
-                    {
-                      key: "3",
-                      label: (
-                        <span
-                          onClick={openLogoutModal}
-                          className="hover:!text-white cursor-pointer"
-                        >
-                          Logout
-                        </span>
-                      ),
-                      className: "hover:!bg-[#101625]",
-                    },
-                  ],
-                }}
-                trigger={["click"]}
-              >
-                <a className="flex items-center text-white cursor-pointer">
-                  <Avatar
-                    src="/images/about.png"
-                    className="mr-2 h-[52px] w-[52px]"
-                  />
-                  absayed <DownOutlined className="ml-1" />
-                </a>
-              </Dropdown>
-            </div>
-          </div>
+                    ),
+                    className: "hover:!bg-[#101625]",
+                  },
+                ]
+              : []),
+            {
+              key: "3",
+              label: (
+                <Link href="/messages" className="hover:!text-white">
+                  Message
+                </Link>
+              ),
+              className: "hover:!bg-[#101625]",
+            },
+            {
+              key: "4",
+              label: (
+                <span
+                  onClick={openPasswordModal}
+                  className="hover:!text-white cursor-pointer"
+                >
+                  Change Password
+                </span>
+              ),
+              className: "hover:!bg-[#101625]",
+            },
+            {
+              key: "5",
+              label: (
+                <span
+                  onClick={openLogoutModal}
+                  className="hover:!text-white cursor-pointer"
+                >
+                  Logout
+                </span>
+              ),
+              className: "hover:!bg-[#101625]",
+            },
+          ],
+        }}
+        trigger={["click"]}
+      >
+        <a className="flex items-center text-white cursor-pointer">
+          <Avatar
+            src={url + user?.data?.attributes?.user?.image?.url}
+            className="mr-2 h-[52px] w-[52px]"
+          />
+          {user?.data?.attributes?.user?.fullName} <DownOutlined className="ml-1" />
+        </a>
+      </Dropdown>
+    </div>
+  ) : (
+    <div>
+      <Link href="/auth/login">
+        <Button className="bg-transparent text-white border-white hover:bg-white hover:text-blue-900">
+          Log In
+        </Button>
+      </Link>
+    </div>
+  )}
+</div>
+
         </div>
 
         {/* Change Password Modal */}
