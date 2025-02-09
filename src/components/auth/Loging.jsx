@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useState } from 'react';
 import { Form, Input, Button, Checkbox } from 'antd';
 import Link from 'next/link';
 import { useLoginMutation } from '@/redux/fetures/auth/login';
@@ -8,7 +8,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 const LoginPage = () => {
 const router = useRouter()
-
+const [error, setError] = useState(' ')
 const [logingData, {isLoading}] = useLoginMutation()
 
 const onFinish = async (values) => {
@@ -70,6 +70,7 @@ const onFinish = async (values) => {
             </Link>
 
           </div>
+          <p className=' text-red-500'>{error}</p>
           <Form.Item>
             <Button
            
