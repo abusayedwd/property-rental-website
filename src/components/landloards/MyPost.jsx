@@ -166,6 +166,9 @@
 // };
 
 // export default MyPosts;
+
+
+
 "use client"
 import React, { useState } from "react";
 import { Button, Tag, Pagination } from "antd";
@@ -174,6 +177,8 @@ import Link from "next/link";
 import Header from "../customComponent/Header";
 import { useGetMypropertyQuery } from "@/redux/fetures/property/getMyproperty";
 import url from "@/redux/api/baseUrl";
+import { useRouter } from "next/navigation";
+import { usePaymentMutation } from "@/redux/fetures/payment/payment";
 // import { loadStripe } from "@stripe/stripe-js";
 
 // const stripePromise = loadStripe("your-public-stripe-key"); // Replace with your actual Stripe publishable key
@@ -181,6 +186,7 @@ import url from "@/redux/api/baseUrl";
 const MyPosts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const router = useRouter()
 
   const { data: myProperty, isLoading } = useGetMypropertyQuery({ page: currentPage, limit: pageSize });
 
@@ -192,22 +198,24 @@ const MyPosts = () => {
     setPageSize(pageSize);
   };
 
+  const [payment, ] = usePaymentMutation()
   // Handle payment for promotion
   const handlePromotionPayment = async (propertyId) => {
-    const stripe = await stripePromise;
-
-    const response = await fetch("http://localhost:5000/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ propertyId, amount: 2 }),
-    });
-
-    const session = await response.json();
-    if (session.id) {
-      await stripe.redirectToCheckout({ sessionId: session.id });
-    } else {
-      alert("Error processing payment");
+    console.log(propertyId)
+      const id = {
+        propertyId
+      }
+    try{
+      const res= await payment(id).unwrap();
+      console.log(res)
+      if(res?.status === 200){
+        router.push(res?.url)
+      }
+    }catch(error){
+      console.log(error)
     }
+    
+ 
   };
 
   return (
@@ -283,20 +291,7 @@ const MyPosts = () => {
                 </div>
 
                 {/* Promotion Section */}
-                <div className="text-right">
-                  {property?.isPromotion ? (
-                    <span className="bg-green-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                      Promoted
-                    </span>
-                  ) : (
-                    <button
-                      className="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition"
-                      onClick={() => handlePromotionPayment(property.id)}
-                    >
-                      Promote Your Property - $2
-                    </button>
-                  )}
-                </div>
+                
 
                 <div className="flex gap-3 mt-3">
                   <Link href={`/detailsHome/${property.id}`}>
@@ -309,6 +304,20 @@ const MyPosts = () => {
                       Edit
                     </button>
                   </Link>
+                  <div className="text-right">
+                  {property?.isPromotion ? (
+                    <span className="bg-green-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                      Promoted
+                    </span>
+                  ) : (
+                    <button
+                      className="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition"
+                      onClick={() => handlePromotionPayment(property?.id)}
+                    >
+                      Promote For - $2
+                    </button>
+                  )}
+                </div>
                 </div>
               </div>
             </div>

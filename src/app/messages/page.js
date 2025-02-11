@@ -1,10 +1,14 @@
+ 
+
 import MessagesPage from '@/components/messages/Meassage';
-import React from 'react';
+import React, { Suspense } from 'react';
 
 const page = () => {
     return (
         <div>
-            <MessagesPage />   
+            <Suspense>
+            <MessagesPage />    
+            </Suspense>
         </div>
     );
 };

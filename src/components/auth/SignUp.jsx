@@ -1,5 +1,5 @@
 "use client"
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Radio, Checkbox } from 'antd';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,12 +9,21 @@ import toast from 'react-hot-toast';
  
 
 const SignUp = () => {
+
   const router = useRouter()
 
-  const pathName = window.location.pathname;
+  const [pathName, setPathName] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setPathName(window.location.pathname);
+    }
+  }, []);
+
   // console.log(pathName)
   // const {data: users} = useGetUsersQuery()
   // console.log(users)
+
   const [register, {isLoading}] =  useSignUpMutation()
 
 

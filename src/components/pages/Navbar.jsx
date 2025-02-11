@@ -46,11 +46,14 @@ const Navbar = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
   
-      closeLogoutModal(); 
+      closeLogoutModal();  
+      setTimeout(() => {
+        window.location.href = "/";
+    }, 500);
   
-      // Ensure router navigation happens without page reload
-      router.push("/");
+     
   };
+  
   
 
 
@@ -341,3 +344,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+ 

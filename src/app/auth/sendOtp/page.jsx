@@ -1,3 +1,4 @@
+ "use client"
 import SendOtp from '@/components/auth/SendOtp';
 import React from 'react';
 

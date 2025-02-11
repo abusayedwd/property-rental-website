@@ -128,11 +128,7 @@ const PopularRent = ({ searchCriteria }) => {
                     <AppstoreAddOutlined />
                     State: {property.state || "N/A"}
                   </div>
-                  {property.isPromotion && (
-                    <Tag color="green" className="mt-2">
-                      Promotion Available
-                    </Tag>
-                  )}
+                   
                 </div>
 
                 {/* Action Buttons */}
