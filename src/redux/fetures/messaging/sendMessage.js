@@ -8,7 +8,8 @@ const sendMessage = apiSlice.injectEndpoints({
                 url: `/messages/sendMessage`,
                 method: "POST",
                 body:  data
-            })
+            }),
+            invalidatesTags: [{type: "Chat"}]
         })
     })
 })

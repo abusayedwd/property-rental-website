@@ -4,14 +4,14 @@
 const { apiSlice } = require("@/redux/api/apiSlice");
 
 
-const getAllMyproperty = apiSlice.injectEndpoints({
+const getAllproperty = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        getAllMyproperty: builder.query({
-            query: () => `/property/getAllProperties`,
+        getAllproperty: builder.query({
+            query: ({ state, subState, propertyType }) => `/property/getAllProperties?state=${state}&subState=${subState}&propertyType=${propertyType}`,
             providesTags: [{type: "Property"}]
         })
 
     })
 })
 
-export const {useGetAllMypropertyQuery} = getAllMyproperty
+export const {useGetAllpropertyQuery} = getAllproperty

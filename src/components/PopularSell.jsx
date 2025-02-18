@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 
 const PopularSell = ({ searchCriteria }) => {
   const router = useRouter()
-  const { data: user } = useLogedUserQuery();
+  // const { data: user } = useLogedUserQuery();
 
   const state = searchCriteria?.selectedState;
  const subState = searchCriteria?.selectedSubState;
@@ -31,7 +31,7 @@ const properties = propertiess?.data?.attributes?.results || [];
   // Filter properties to show only those with propertyType === "sell"
  
   return (
-    <div className="container mt-12 md:mt-28">
+    <div className="container mt-56 md:mt-28">
       {/* Heading Section */}
       <div className="text-center mb-8">
         <Header size="extraLarge" className="text-[#2FC639]">
@@ -50,6 +50,8 @@ const properties = propertiess?.data?.attributes?.results || [];
       </div>
 
       {/* Property Cards Section */}
+
+
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {isLoading ? (
           <p className="text-center text-gray-500">Loading properties...</p>
@@ -127,11 +129,9 @@ const properties = propertiess?.data?.attributes?.results || [];
                   <button
                     className="px-2 py-1 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition-all duration-300"
                     onClick={() => {
-                      if (user) {
+                     
                         router.push(`/detailsHome/${property.id}`);
-                      } else {
-                        router.push("/auth/login");
-                      }
+                     
                     }}
                   >
                     Details
@@ -143,8 +143,14 @@ const properties = propertiess?.data?.attributes?.results || [];
           ))
         )}
       </div>
+
+
+
+      
     </div>
   );
 };
 
 export default PopularSell;
+
+ 

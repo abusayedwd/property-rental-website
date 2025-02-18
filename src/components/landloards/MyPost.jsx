@@ -189,6 +189,7 @@ const MyPosts = () => {
   const router = useRouter()
 
   const { data: myProperty, isLoading } = useGetMypropertyQuery({ page: currentPage, limit: pageSize });
+  console.log(myProperty)
 
   const properties = myProperty?.data?.attributes?.results || [];
   const totalResults = myProperty?.data?.attributes?.totalResults || 0;
@@ -244,7 +245,7 @@ const MyPosts = () => {
             <div key={property.id} className="border rounded-lg shadow-md overflow-hidden bg-white">
               <div className="relative">
                 <img
-                  src={property?.image?.url ? url + property.image.url : "/images/default-home.png"}
+                  src={property?.images ? url + property.images[0]?.url : "/images/default-home.png"}
                   alt={property.houseName}
                   className="w-full h-[200px] object-cover"
                 />

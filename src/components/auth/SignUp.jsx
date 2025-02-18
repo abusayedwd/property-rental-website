@@ -69,50 +69,28 @@ const SignUp = () => {
               <Input placeholder="fullName" className="w-full p-2 border rounded" />
             </Form.Item>
             <Form.Item
+              name="company"
+              rules={[{ required: true, message: 'Please input your Company Name!' }]}
+              className="flex-1"
+            >
+              <Input placeholder="Company Name" className="w-full p-2 border rounded" />
+            </Form.Item>
+          </div>
+
+          {/* Street and Steel Name */}
+          <div className="flex space-x-4">
+          <Form.Item
               name="email"
               rules={[{ required: true, message: 'Please input your email!' }]}
               className="flex-1"
             >
               <Input placeholder="Email" className="w-full p-2 border rounded" />
             </Form.Item>
+           
+             
           </div>
 
-          {/* Street and Steel Name */}
-          <div className="flex space-x-4">
-            <Form.Item
-              name="street"
-              rules={[{ required: true, message: 'Please input your street!' }]}
-              className="flex-1"
-            >
-              <Input placeholder="Street" className="w-full p-2 border rounded" />
-            </Form.Item>
-            <Form.Item
-              name="streetName"
-              rules={[{ required: true, message: 'Please input your steel name!' }]}
-              className="flex-1"
-            >
-              <Input placeholder="Street name" className="w-full p-2 border rounded" />
-            </Form.Item>
-          </div>
-
-          {/* City and District */}
-          <div className="flex space-x-4">
-            <Form.Item
-              name="city"
-              rules={[{ required: true, message: 'Please input your city!' }]}
-              className="flex-1"
-            >
-              <Input placeholder="City" className="w-full p-2 border rounded" />
-            </Form.Item>
-            <Form.Item
-              name="distric"
-              rules={[{ required: true, message: 'Please input your district!' }]}
-              className="flex-1"
-            >
-              <Input placeholder="District" className="w-full p-2 border rounded" />
-            </Form.Item>
-          </div>
-
+          
           {/* Password */}
           <Form.Item
             name="password"
