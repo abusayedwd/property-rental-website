@@ -197,7 +197,7 @@ const Banner = ({ onSearch }) => {
   return (
     <div className="relative">
       <div
-        className="bg-cover bg-center h-[300px] lg:h-[650px] flex items-center justify-center"
+        className="bg-cover bg-center h-[300px] lg:h-[550px] flex items-center justify-center"
         style={{
           backgroundImage: "url('/images/Hero.jpg')",
           backgroundSize: "cover",
@@ -226,7 +226,7 @@ const Banner = ({ onSearch }) => {
       </h2>
           <div className="flex flex-col lg:flex-row">
             <Select
-              className="md:w-full h-10 w-60"
+              className="md:w-full mx-2 h-10 w-60"
               placeholder="Select a state"
               value={selectedState}
               onChange={handleStateChange}
@@ -240,7 +240,7 @@ const Banner = ({ onSearch }) => {
 
             {/* Local Government Selection */}
             <Select
-              className="md:w-full mx-2 h-10 w-60"
+              className="md:w-full mx-2 md:mt-0 md:mb-0 mt-2 mb-2 h-10 w-60"
               placeholder="Select a local government"
               value={selectedSubState}
               onChange={handleSubStateChange}
@@ -255,7 +255,7 @@ const Banner = ({ onSearch }) => {
             </Select>
 
                <Select
-                className="flex-1 h-12 w-60"
+                className="flex-1 mx-2  h-12 w-60"
                 placeholder="For Rent"
                 size="large"
                 defaultValue={transactionType}
@@ -268,7 +268,7 @@ const Banner = ({ onSearch }) => {
             {/* Search Button */}
             <Button
               type="primary"
-              className="bg-green-600 hover:bg-green-500 h-10 mx-2 px-6 text-white font-bold"
+              className="bg-green-600 hover:bg-green-500 h-10 mx-2 mt-6 md:mt-0 px-6 text-white font-bold"
               onClick={handleSearch}
             >
               Search

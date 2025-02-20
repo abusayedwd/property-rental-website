@@ -75,29 +75,29 @@ const Profile = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
-                <label className="text-sm text-gray-500">Street Address</label>
+                <label className="text-sm text-gray-500">Company</label>
                 <Input
-                  value={user?.streetName}
+                  value={user?.company}
                   readOnly
                   className="bg-gray-100 border-gray-300 rounded-md"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="text-sm text-gray-500">District</label>
                 <Input
                   value={user?.distric}
                   readOnly
                   className="bg-gray-100 border-gray-300 rounded-md"
                 />
-              </div>
-              <div>
+              </div> */}
+              {/* <div>
                 <label className="text-sm text-gray-500">City</label>
                 <Input
                   value={user?.city}
                   readOnly
                   className="bg-gray-100 border-gray-300 rounded-md"
                 />
-              </div>
+              </div> */}
               <div>
                 <label className="text-sm text-gray-500">Phone Number</label>
                 <Input

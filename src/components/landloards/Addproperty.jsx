@@ -299,7 +299,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Input, Radio, Button, Upload, message, Select } from "antd";
+import { Input, Radio, Button, Upload, message, Select, Space, DatePicker } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import states from "@/components/statesData";
@@ -309,12 +309,13 @@ import toast, { Toaster } from "react-hot-toast";
 const { Dragger } = Upload;
 const { Option } = Select;
 
-const AddPost = () => {
+const Addproperty = () => {
   const router = useRouter();
   const [selectedState, setSelectedState] = useState(null);
   const [selectedSubState, setSelectedSubState] = useState(null);
   const [openSubState, setOpenSubState] = useState(false);
   const [fileList, setFileList] = useState([]);
+  const [date, setDate] = useState('')
 
   const [addProperty, { isLoading }] = useAddPropertyMutation();
 
@@ -328,7 +329,7 @@ const AddPost = () => {
     baths: "",
     city: "",
     textArea: "",
-    date: "",
+  
   });
 
   const handleStateChange = (value) => {
@@ -397,7 +398,7 @@ const AddPost = () => {
       'baths',
       'city',
       'textArea',
-      'date'
+      
     ];
 
     for (const field of requiredFields) {
@@ -420,6 +421,11 @@ const AddPost = () => {
     return true;
   };
 
+
+   
+
+
+
   const handleSubmit = async () => {
     if (!validateForm()) {
       return;
@@ -433,6 +439,7 @@ const AddPost = () => {
     });
     
     // Append location data
+    formData.append('date', date)
     formData.append("state", selectedState);
     formData.append("subState", selectedSubState);
 
@@ -447,7 +454,7 @@ const AddPost = () => {
       if (response?.code === 201) {
         toast.success(response.message);
         setTimeout(() => {
-          router.push('/mypost');
+          router.push('/myproperty');
         }, 1000);
       }
     } catch (error) {
@@ -456,12 +463,18 @@ const AddPost = () => {
     }
   };
 
+  const onChange = (date, dateString) => {
+    console.log(date, dateString);
+    setDate(dateString)
+  };
+
   return (
     <div className="container mx-auto my-12">
       <Toaster />
       <h1 className="text-center text-3xl font-bold text-green-600 mb-8">
         Add Property
       </h1>
+  
 
       <div className="max-w-4xl mx-auto bg-white p-8 border rounded-lg shadow-lg">
         {/* Post Type */}
@@ -625,12 +638,10 @@ const AddPost = () => {
           </div>
           <div>
             <p className="text-gray-700 mb-2">Date</p>
-            <Input
-              name="date"
-              value={form.date}
-              placeholder="Date (DD-MM-YY)"
-              onChange={handleChange}
-            />
+            <Space direction="vertical">
+        <DatePicker onChange={onChange} />
+     
+  </Space>
           </div>
         </div>
 
@@ -649,7 +660,7 @@ const AddPost = () => {
         {/* Action Buttons */}
         <div className="flex justify-between">
           <Button
-            onClick={() => router.push('/mypost')}
+            onClick={() => router.push('/myproperty')}
             className="bg-gray-800 text-white px-6 py-2 rounded-lg"
           >
             Back
@@ -669,4 +680,4 @@ const AddPost = () => {
   );
 };
 
-export default AddPost;
+export default Addproperty;

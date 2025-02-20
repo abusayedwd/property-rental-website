@@ -159,9 +159,9 @@ const EditProfile = () => {
     if (user) {
       form.setFieldsValue({
         name: user.fullName || "",
-        streetAddress: user.streetName || "",
-        city: user.city || "",
-        district: user.distric || "",
+        company: user.company || "",
+        // city: user.city || "",
+        // district: user.distric || "",
         phoneNumber: user.phoneNumber || "", // Fix: Ensure correct field name
       });
 
@@ -190,9 +190,9 @@ const EditProfile = () => {
     try {
       const formData = new FormData();
       formData.append("fullName", values.name);
-      formData.append("streetName", values.streetAddress);
-      formData.append("city", values.city);
-      formData.append("district", values.district);
+      formData.append("company", values.company);
+      // formData.append("city", values.city);
+      // formData.append("district", values.district);
       formData.append("phoneNumber", values.phoneNumber); // Fix: Ensure phoneNumber is updated
       if (file) {
         formData.append("image", file);
@@ -242,20 +242,20 @@ const EditProfile = () => {
           </Form.Item>
 
           {/* Street Address */}
-          <Form.Item label="Street Address" name="streetAddress" rules={[{ required: true, message: "Please enter your street address" }]}>
+          <Form.Item label="Company" name="company" rules={[{ required: true, message: "Please enter your company" }]}>
             <Input placeholder="Enter your street address" className="rounded-md" />
           </Form.Item>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* City */}
-            <Form.Item label="City" name="city" rules={[{ required: true, message: "Please enter your city" }]}>
+            {/* <Form.Item label="City" name="city" rules={[{ required: true, message: "Please enter your city" }]}>
               <Input placeholder="Enter your city" className="rounded-md" />
-            </Form.Item>
+            </Form.Item> */}
 
             {/* District */}
-            <Form.Item label="District" name="district" rules={[{ required: true, message: "Please enter your district" }]}>
+            {/* <Form.Item label="District" name="district" rules={[{ required: true, message: "Please enter your district" }]}>
               <Input placeholder="Enter your district" className="rounded-md" />
-            </Form.Item>
+            </Form.Item> */}
 
             {/* Phone Number */}
             <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true, message: "Please enter your phone number" }]}>

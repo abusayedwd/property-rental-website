@@ -57,8 +57,8 @@ const SeeAllforSell = () => {
             >
               {/* Image Section */}
               <div className="relative">
-                <img
-                  src={property?.image?.url ? url + property.image.url : "/images/default-home.png"}
+              <img
+                  src={property?.images ? url + property.images[0]?.url : "/images/default-home.png"}
                   alt={property.houseName}
                   className="w-full h-[200px] object-cover"
                 />
@@ -66,7 +66,11 @@ const SeeAllforSell = () => {
                   color="red"
                   className="absolute top-2 left-2 px-3 py-1 text-sm font-semibold"
                 >
-                  {property.propertyType === "sell" ? "For Sale" : "For Rent"}
+                  {property.propertyType === "sold" ? "Sold" :
+   property.propertyType === "rented" ? "Rented" :
+   ["sell", "for sell"].includes(property.propertyType) ? "For Sale" :
+   ["rent", "for rent"].includes(property.propertyType) ? "For Rent" :
+   "Unknown"}
                 </Tag>
               </div>
 

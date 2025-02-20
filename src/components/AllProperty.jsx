@@ -178,16 +178,21 @@ const AllProperty = ({ searchCriteria }) => {
       {promotedProperties.length > 0 && (
         <div>
           <h2 className="text-xl font-bold text-green-600 mb-4">🔥 Promoted Properties</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 md:grid-cols-4 gap-6">
             {promotedProperties.map((property) => (
-              <div key={property.id} className="border rounded-lg shadow-md overflow-hidden bg-white lg:col-span-2">
+              <div key={property.id} className="border rounded-lg shadow-md overflow-hidden bg-white p-4">
                 {/* Image Section (Top) */}
                 <div className="relative">
-                  <img
+                  {/* <img
                     src={property?.image?.url ? url + property.image.url : "/images/default-home.png"}
                     alt={property.houseName}
                     className="w-full h-[250px] object-cover"
-                  />
+                  /> */}
+                     <img
+                  src={property?.images ? url + property.images[0]?.url : "/images/default-home.png"}
+                  alt={property.houseName}
+                  className="w-full h-[200px] object-cover"
+                />
                   <Tag color="red" className="absolute top-2 left-2 px-3 py-1 text-sm font-semibold">
                     {property.propertyType === "sell" ? "For Sale" : "For Rent"}
                   </Tag>
@@ -246,16 +251,16 @@ const AllProperty = ({ searchCriteria }) => {
       {regularProperties.length > 0 && (
         <div className="mt-10">
           <h2 className="text-xl font-bold text-gray-600 mb-4">🏠Not Promoted Properties</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {regularProperties.map((property) => (
               <div key={property.id} className="border rounded-lg shadow-md overflow-hidden bg-white p-4">
                 {/* Image Section (Top) */}
                 <div className="relative">
-                  <img
-                    src={property?.image?.url ? url + property.image.url : "/images/default-home.png"}
-                    alt={property.houseName}
-                    className="w-full h-[150px] object-cover"
-                  />
+                <img
+                  src={property?.images ? url + property.images[0]?.url : "/images/default-home.png"}
+                  alt={property.houseName}
+                  className="w-full h-[150px] object-cover"
+                />
                   <Tag color="red" className="absolute top-2 left-2 px-3 py-1 text-sm font-semibold">
                     {property.propertyType === "sell" ? "For Sale" : "For Rent"}
                   </Tag>

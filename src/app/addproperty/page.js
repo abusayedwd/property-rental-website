@@ -1,12 +1,12 @@
 
-import MyPosts from '@/components/landloards/MyPost';
+ 
+import Addproperty from '@/components/landloards/AddProperty';
 import React from 'react';
 
 const page = () => {
     return (
         <div>
-            
-            <MyPosts />
+              <Addproperty />
         </div>
     );
 };

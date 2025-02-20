@@ -1,11 +1,12 @@
 
-import AddPost from '@/components/landloards/AddPost';
+import MyProperty from '@/components/landloards/MyProperty';
 import React from 'react';
 
 const page = () => {
     return (
         <div>
-              <AddPost />
+            
+            <MyProperty />
         </div>
     );
 };

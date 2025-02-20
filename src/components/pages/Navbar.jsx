@@ -94,12 +94,12 @@ const Navbar = () => {
 
   return (
     <div>
-      <nav className="bg-[#1A3459] text-white py-4">
+      <nav className="bg-[#222F55] text-white py-4">
         <Toaster />
         <div className="container mx-auto flex items-center justify-between px-4">
           {/* Logo */}
           <div className="text-2xl font-bold text-green-400">
-            <Link href="/"><img src="/images/logo.png" alt="Logo" /></Link>
+            <Link href="/"><img src="/images/logo.png" alt="Logo"/></Link>
             
           </div>
 
@@ -125,8 +125,8 @@ const Navbar = () => {
                   {
                     key: "2",
                     label: (
-                      <Link href="/mypost" className="hover:!text-white">
-                        MyPost
+                      <Link href="/myproperty" className="hover:!text-white">
+                        MyProperty
                       </Link>
                     ),
                     className: "hover:!bg-[#101625]",

@@ -10,12 +10,12 @@ import Header from "./customComponent/Header";
 import Link from "next/link";
  import url from "@/redux/api/baseUrl";
 import { useGetPromotedASellPropertiesQuery } from "@/redux/fetures/property/getPromotedASellProperties";
-import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
+ 
 import { useRouter } from "next/navigation";
 
 const PopularSell = ({ searchCriteria }) => {
   const router = useRouter()
-  // const { data: user } = useLogedUserQuery();
+ 
 
   const state = searchCriteria?.selectedState;
  const subState = searchCriteria?.selectedSubState;
@@ -66,15 +66,16 @@ const properties = propertiess?.data?.attributes?.results || [];
               {/* Image Section */}
               <div className="relative">
                 <img
-                  src={property?.image?.url ? url + property.image.url : "/images/default-home.png"}
+                  src={property?.images ? url + property.images[0]?.url : "/images/default-home.png"}
                   alt={property.houseName}
                   className="w-full h-[200px] object-cover"
                 />
-                <Tag
-                  color="red"
-                  className="absolute top-2 left-2 px-3 py-1 text-sm font-semibold"
-                >
-                  {property.propertyType === "sell" ? "For Sale" : "For Rent"}
+                <Tag color="red" className="absolute top-2 left-2 px-3 py-1 text-sm font-semibold">
+                {property.propertyType === "sold" ? "Sold" :
+   property.propertyType === "rented" ? "Rented" :
+   ["sell", "for sell"].includes(property.propertyType) ? "For Sale" :
+   ["rent", "for rent"].includes(property.propertyType) ? "For Rent" :
+   "Unknown"}
                 </Tag>
               </div>
 
