@@ -6,7 +6,7 @@ const payment = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         payment : builder.mutation({
             query: (propertyId) => ({
-                url: `/payment/create-promotion-payment`,
+                url: `/payment/pay`,
                 method: "POST",
                 body:  propertyId
             })

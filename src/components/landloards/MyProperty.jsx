@@ -233,8 +233,8 @@ const MyProperty = () => {
     try {
       const res = await payment(id).unwrap();
       console.log(res);
-      if (res?.status === 200) {
-        router.push(res?.url);
+      if (res?.status === true ) {
+        window.open(res?.authorizationUrl, "_blank");
       }
     } catch (error) {
       console.log(error);
@@ -271,12 +271,10 @@ const MyProperty = () => {
         console.log(`Selected: ${key} for property ${property.id}`);
          try{
 
-           const res = await updatestatus({id:property?.id, propertyType : key})
-          //  console.log(res?.error?.data?.message)
-           toast.error(res?.error?.data?.message)
-           if(res?.statusCode === 200){
-            toast.success(res?.message)
-           }
+           const res = await updatestatus({id:property?.id, propertyType : key}) 
+             console.log(res) 
+            toast.success(res?.data?.message)
+         
          }catch(error){
           console.log(error)
           toast.error(res?.error?.data?.message)
@@ -392,7 +390,7 @@ const MyProperty = () => {
                         className="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition"
                         onClick={() => handlePromotionPayment(property?.id)}
                       >
-                        Promote For - $2
+                        Promote For - ₦ 3000
                       </button>
                     )}
                   </div>
