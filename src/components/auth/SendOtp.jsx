@@ -52,7 +52,7 @@ const SendOtp = () => {
       }
   } catch (error) {
       console.log(error);
-      setError(error?.data?.message);
+      // setError(error?.data?.message);
   } 
    
   };

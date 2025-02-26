@@ -70,10 +70,10 @@ const SignUp = () => {
             </Form.Item>
             <Form.Item
               name="company"
-              rules={[{ required: true, message: 'Please input your Company Name!' }]}
+             
               className="flex-1"
             >
-              <Input placeholder="Company Name" className="w-full p-2 border rounded" />
+              <Input placeholder="Company Name (Optional)" className="w-full p-2 border rounded" />
             </Form.Item>
           </div>
 

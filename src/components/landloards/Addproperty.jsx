@@ -517,16 +517,16 @@ const Addproperty = () => {
             <Input
               name="houseName"
               value={form.houseName}
-              placeholder="Sort description"
+              placeholder="3 Bedrooms house for rent"
               onChange={handleChange}
             />
           </div>
           <div>
-            <p className="text-gray-700 mb-2">Street Address</p>
+            <p className="text-gray-700 mb-2">Address</p>
             <Input
               name="place"
               value={form.place}
-              placeholder="Street Address"
+              placeholder="Address"
               onChange={handleChange}
             />
           </div>
@@ -633,11 +633,12 @@ const Addproperty = () => {
               name="city"
               value={form.city}
               placeholder="City"
+              rules={[{ required: true, message: 'City is required' }]}
               onChange={handleChange}
             />
           </div>
           <div>
-            <p className="text-gray-700 mb-2">Date</p>
+            <p className="text-gray-700 mb-2">Available Date for Property</p>
             <Space direction="vertical">
         <DatePicker onChange={onChange} />
      
@@ -647,7 +648,7 @@ const Addproperty = () => {
 
         {/* Description */}
         <div className="mb-6">
-          <p className="text-gray-700 mb-2">Description</p>
+          <p className="text-gray-700 mb-2">Any Other Info</p>
           <Input.TextArea
             name="textArea"
             value={form.textArea}

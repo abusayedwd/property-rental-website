@@ -273,7 +273,11 @@ const MyProperty = () => {
 
            const res = await updatestatus({id:property?.id, propertyType : key}) 
              console.log(res) 
-            toast.success(res?.data?.message)
+             if(res.error?.status==403){
+               toast.error(res?.error?.data?.message) 
+             }else{ 
+               toast.success(res?.data?.message)
+             }
          
          }catch(error){
           console.log(error)
@@ -339,11 +343,11 @@ const MyProperty = () => {
                 <h2 className="text-lg font-bold text-gray-800 mb-1">{property.houseName || "Unnamed Property"}</h2>
                 <p className="text-gray-500 text-sm flex items-center gap-2 mb-2">
                   <EnvironmentOutlined />
-                  {property.address || "No address provided"}
+                  {property.place || "No address provided"}
                 </p>
 
                 <div className="flex justify-between items-center mb-3">
-                  <p className="text-green-600 font-bold text-xl">${property.price || "N/A"}</p>
+                  <p className="text-green-600 font-bold text-xl">₦{property.price || "N/A"}</p>
                   <div className="text-gray-500 text-sm flex items-center gap-1">
                     <HomeOutlined />
                     Type: {property.type || "N/A"}

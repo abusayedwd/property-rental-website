@@ -1,6 +1,3 @@
- 
-
-
 "use client";
 
 import React from "react";
@@ -8,21 +5,19 @@ import { Button, Tag } from "antd";
 import { EnvironmentOutlined, HomeOutlined, AppstoreAddOutlined } from "@ant-design/icons";
 import Header from "./customComponent/Header";
 import Link from "next/link";
-import { useGetPromotedARentPropertiesQuery,  } from "@/redux/fetures/property/getPromotedARentProperties";
+import { useGetPromotedARentPropertiesQuery } from "@/redux/fetures/property/getPromotedARentProperties";
 import url from "@/redux/api/baseUrl";
+import { MdBathroom, MdOutlineBathtub, MdOutlineRealEstateAgent } from "react-icons/md";
 
 const SeeAllRent = () => {
- const { data: propertiess, isLoading } = useGetPromotedARentPropertiesQuery({
-  state:  "", 
-  subState:  "", 
-  propertyType:  ""
-});
+  const { data: propertiess, isLoading } = useGetPromotedARentPropertiesQuery({
+    state: "",
+    subState: "",
+    propertyType: "",
+  });
 
- 
+  // Safely access properties
   const properties = propertiess?.data?.attributes?.results;
-
-  // Filter properties to show only those with propertyType === "sell"
-  
 
   return (
     <div className="container mt-28">
@@ -34,14 +29,16 @@ const SeeAllRent = () => {
         <p className="text-blue-500 text-sm mt-12 md:text-base">
           You can see here all popular posts
         </p>
-        
       </div>
-   <Button
-              onClick={() => window.history.back()}
-              className="bg-gray-800 text-white hover:bg-gray-700 px-6 py-2 rounded-lg"
-            >
-              Back
-            </Button>
+
+      {/* Back Button */}
+      <Button
+        onClick={() => window.history.back()}
+        className="bg-gray-800 text-white hover:bg-gray-700 px-6 py-2 rounded-lg mb-6"
+      >
+        Back
+      </Button>
+
       {/* Property Cards Section */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 my-6 pb-8">
         {isLoading ? (
@@ -56,7 +53,7 @@ const SeeAllRent = () => {
             >
               {/* Image Section */}
               <div className="relative">
-              <img
+                <img
                   src={property?.images ? url + property.images[0]?.url : "/images/default-home.png"}
                   alt={property.houseName}
                   className="w-full h-[200px] object-cover"
@@ -65,11 +62,11 @@ const SeeAllRent = () => {
                   color="red"
                   className="absolute top-2 left-2 px-3 py-1 text-sm font-semibold"
                 >
-                 {property.propertyType === "sold" ? "Sold" :
-   property.propertyType === "rented" ? "Rented" :
-   ["sell", "for sell"].includes(property.propertyType) ? "For Sale" :
-   ["rent", "for rent"].includes(property.propertyType) ? "For Rent" :
-   "Unknown"}
+                  {property.propertyType === "sold" ? "Sold" :
+                    property.propertyType === "rented" ? "Rented" :
+                      ["sell", "for sell"].includes(property.propertyType) ? "For Sale" :
+                        ["rent", "for rent"].includes(property.propertyType) ? "For Rent" :
+                          "Unknown"}
                 </Tag>
               </div>
 
@@ -91,7 +88,7 @@ const SeeAllRent = () => {
                 {/* Price and Type */}
                 <div className="flex justify-between items-center mb-3">
                   <p className="text-green-600 font-bold text-xl">
-                    ${property.price || "N/A"}
+                    ₦{property.price || "N/A"}
                   </p>
                   <div className="text-gray-500 text-sm flex items-center gap-1">
                     <HomeOutlined />
@@ -105,17 +102,17 @@ const SeeAllRent = () => {
                 {/* Property Details */}
                 <div className="grid grid-cols-3 gap-2 text-gray-600 text-sm mb-4">
                   <div className="flex items-center gap-1">
-                    <AppstoreAddOutlined />
-                    Rooms: {property?.rooms || "N/A"}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <AppstoreAddOutlined />
-                    Baths: {property.baths || "N/A"}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <AppstoreAddOutlined />
-                    State: {property.state || "N/A"}
-                  </div>
+                                      <MdBathroom />
+                                         Rooms: {property?.rooms || "N/A"}
+                                       </div>
+                                       <div className="flex items-center gap-1">
+                                       <MdOutlineBathtub />
+                                         Baths: {property.baths || "N/A"}
+                                       </div>
+                                       <div className="flex items-center gap-1">
+                                       <MdOutlineRealEstateAgent />
+                                         State: {property.state || "N/A"}
+                                       </div>
                 </div>
 
                 {/* Action Buttons */}
@@ -125,11 +122,6 @@ const SeeAllRent = () => {
                       Details
                     </button>
                   </Link>
-                  {/* <Link href={`/editpost/${property.id}`}>
-                    <button className="px-2 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-all duration-300">
-                      Edit
-                    </button>
-                  </Link> */}
                 </div>
               </div>
             </div>
