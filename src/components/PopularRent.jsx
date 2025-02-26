@@ -183,7 +183,7 @@ import { MdBathroom, MdOutlineBathtub, MdOutlineRealEstateAgent } from "react-ic
 
 const PopularRent = ({ searchCriteria }) => {
   const router = useRouter();
-  const { data: user } = useLogedUserQuery();
+ 
 
   const state = searchCriteria?.selectedState;
   const subState = searchCriteria?.selectedSubState;
@@ -262,22 +262,17 @@ const PopularRent = ({ searchCriteria }) => {
                         State: {property.state || "N/A"}
                       </div>
         </div>
-
+ 
         {/* Action Buttons */}
-        <div className="flex gap-3 mt-auto">
           <button
             className="px-2 py-1 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition-all duration-300"
-            onClick={() => {
-              if (user) {
-                router.push(`/detailsHome/${property.id}`);
-              } else {
-                router.push("/auth/login");
-              }
+            onClick={() => { 
+                router.push(`/detailsHome/${property.id}`); 
             }}
           >
             Details
           </button>
-        </div>
+        
       </div>
     </div>
   );

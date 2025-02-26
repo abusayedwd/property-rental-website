@@ -16,8 +16,11 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { MdBathroom, MdOutlineBathtub, MdOutlineRealEstateAgent } from "react-icons/md";
+import { useRouter } from "next/navigation";
+
 
 const SeeAllforSell = () => {
+    const router = useRouter();
   const { data: propertiess, isLoading } = useGetPromotedASellPropertiesQuery(
     {
       state: "", 
@@ -96,13 +99,14 @@ const SeeAllforSell = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 mt-auto">
-          <Link href={`/detailsHome/${property.id}`}>
-            <button className="px-2 py-1 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition-all duration-300">
-              Details
-            </button>
-          </Link>
-        </div>
+        <button
+            className="px-2 py-1 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition-all duration-300"
+            onClick={() => { 
+                router.push(`/detailsHome/${property.id}`); 
+            }}
+          >
+            Details
+          </button>
       </div>
     </div>
   );

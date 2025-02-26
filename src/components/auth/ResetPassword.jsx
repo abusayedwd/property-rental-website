@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Button } from 'antd';
 import { useRouter } from 'next/navigation';
+import { useResetPasswordMutation } from '@/redux/fetures/auth/resetPassword';
+import toast, { Toaster } from 'react-hot-toast';
 
 
 const ResetPassword = () => {
@@ -9,7 +11,7 @@ const ResetPassword = () => {
  const router = useRouter()
   const [email, setEmail] = useState('')
  
- 
+ const [resetPassword, {isLoading}] = useResetPasswordMutation()
   useEffect(() => {
     // Extract query parameters on client-side
     const params = new URLSearchParams(window.location.search);
@@ -17,18 +19,28 @@ const ResetPassword = () => {
   }, []);
 
 
-  const onFinish = (values) => {
+  const onFinish = async(values) => {
   
     const data = {
       email,
       password: values?.confirmPassword,
     }
-    console.log('Received values of form: ',  data);
+    try{
+    const res = await resetPassword(data).unwrap();
+      if(res?.code == 200){
+        toast.success(res?.message)
+        router.push(`/auth/login`);
+      }
+    }catch(error){
+      console.log(error)
+    }
+    // console.log('Received values of form: ',  data);
   };
   
 
   return (
     <div className="flex justify-center items-center lg:min-h-[700px] bg-gray-100">
+      <Toaster />
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h1 className="text-2xl font-bold mb-6 text-center">Reset Password</h1>
         <p className="text-center mb-6">

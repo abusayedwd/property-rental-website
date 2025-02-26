@@ -63,14 +63,20 @@
 
 "use client"; // Required for using Ant Design components in Next.js 13+
 
+import { useForgotPasswordMutation } from "@/redux/fetures/auth/forgotPassword";
 import { Form, Input, Button } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function ForgotPassword() {
   const [form] = Form.useForm();
+  const [error, setEror] = useState('')
   const router = useRouter();
   const [pathName, setPathName] = useState("");
+
+  const [passwordForgot, {isLoading}] = useForgotPasswordMutation()
+
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -78,9 +84,18 @@ export default function ForgotPassword() {
     }
   }, []);
 
-  const onFinish = (values) => {
+  const onFinish = async (values) => {
     console.log("Received values:", values);
-    router.push(`/auth/sendOtp?email=${values.email}&path=${pathName}`);
+    try{
+      const res = await passwordForgot(values).unwrap();
+      if(res?.code == 200){
+        toast.success(res?.message)
+        router.push(`/auth/sendOtp?email=${values.email}&path=${pathName}`);
+      }
+    }catch(error){
+      console.log(error)
+      setEror(error?.data?.message)
+    }
   };
 
   return (
@@ -101,9 +116,9 @@ export default function ForgotPassword() {
           >
             <Input placeholder="Enter your email" />
           </Form.Item>
-
+          <p className=' text-red-500'>{error}</p>
           <Form.Item>
-            <Button type="primary" htmlType="submit" className="w-full !bg-[#2E7D32] text-white p-3 rounded">
+            <Button type="primary" isLoading={isLoading} htmlType="submit" className="w-full !bg-[#2E7D32] text-white p-3 rounded">
               Send OTP
             </Button>
           </Form.Item>

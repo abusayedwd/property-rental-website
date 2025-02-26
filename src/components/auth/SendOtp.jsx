@@ -1,5 +1,6 @@
 "use client"
 
+ 
 import { useVerifyEmailMutation } from '@/redux/fetures/auth/varifyEmail';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -12,12 +13,14 @@ import OTPInput from 'react-otp-input';
 
 const SendOtp = () => {
   const [otp, setOtp] = useState('');
+  const [error, setEror] = useState('')
   const router = useRouter();
   const [email, setEmail] = useState('')
   const [path, setPath] = useState('')
  
   useEffect(() => {
     // Extract query parameters on client-side
+   
     const params = new URLSearchParams(window.location.search);
     setEmail(params.get('email') || '');
     setPath(params.get('path') || '');
@@ -52,6 +55,7 @@ const SendOtp = () => {
       }
   } catch (error) {
       console.log(error);
+      setEror(error?.data?.message)
       // setError(error?.data?.message);
   } 
    
@@ -98,7 +102,7 @@ const SendOtp = () => {
 
         {/* Verify Button */}
         
-        
+        <p className=' text-red-500 mt-4'>{error}</p>
         <button
          className="w-full mt-6 !bg-[#2E7D32] text-white p-2 rounded"
           onClick={handleOtp}

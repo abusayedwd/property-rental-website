@@ -206,7 +206,7 @@ const DetailsPage = () => {
   
   const { data: propertys, isLoading } = useGetSinglepropertyQuery(id, { skip: !id });
   const property = propertys?.data?.attributes;
-  console.log(property)
+  // console.log(property)
 
   if (isLoading) {
     return <div>Loading...</div>;
