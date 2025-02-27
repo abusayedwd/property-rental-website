@@ -1,32 +1,4 @@
  
-// import AboutUs from "@/components/AboutUs";
-// import AddPhoto from "@/components/AddPhoto";
-// import AllProperty from "@/components/AllProperty";
-// import Benner from "@/components/Benner";
-// import ContactUs from "@/components/ContactUs";
-// import FaQpage from "@/components/FaQpage";
-// import PopularRent from "@/components/PopularRent";
-// import PopularSell from "@/components/PopularSell";
-// // import PopularRent from "@/components/PopularRent";
-// // import PopularSell from "@/components/PopularSell";
- 
-
-// export default function Home() {
-
-//   return (
-//     <div>
-//            <Benner />  
-//           <AllProperty />
-//            <AddPhoto />
-//            <PopularSell />
-//            <PopularRent />
-//            <AboutUs />
-//            <FaQpage />
-//            <ContactUs />
-//     </div>
-//   );
-// }
-
 
 "use client";
 import AboutUs from "@/components/AboutUs";
@@ -37,6 +9,7 @@ import ContactUs from "@/components/ContactUs";
 import FaQpage from "@/components/FaQpage";
 import PopularRent from "@/components/PopularRent";
 import PopularSell from "@/components/PopularSell";
+import Head from "next/head";
 import React, { useState } from "react";
  
 
@@ -49,6 +22,7 @@ export default function Home() {
 
   return (
     <div>
+   
       {/* Banner Component */}
       <Banner onSearch={handleSearch} />
 
