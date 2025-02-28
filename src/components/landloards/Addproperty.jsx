@@ -510,7 +510,7 @@ const Addproperty = () => {
   const validateForm = () => {
     const requiredFields = [
       'houseName',
-      'place',
+      'address',
       'price',
       'type',
       'rooms',
