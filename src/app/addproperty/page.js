@@ -1,6 +1,8 @@
 
  
-import Addproperty from '@/components/landloards/AddProperty';
+ 
+ 
+import Addproperty from './../../components/landloards/Addproperty';
 import React from 'react';
 
 const page = () => {
