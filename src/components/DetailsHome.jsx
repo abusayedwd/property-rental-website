@@ -240,7 +240,7 @@ const DetailsPage = () => {
   return (
     <div> 
       <CustomBanner />
-    <div className="container mx-auto mt-8 pt-5 py-12">
+    <div className="md:container mx-auto mt-8 pt-5 py-12">
       <h1 className="text-center text-3xl font-bold text-green-600 mb-8">Property Details</h1>
 
       <div className="max-w-4xl mx-auto border border-green-300 rounded-lg shadow-lg p-6 bg-white">

@@ -61,7 +61,7 @@ const SeeAllRent = () => {
         {/* Address */}
         <p className="text-gray-500 text-sm flex items-center gap-2 mb-2">
           <EnvironmentOutlined />
-          {property.address || "No address provided"}
+          {property.place || "No address provided"}
         </p>
 
         {/* Price and Type */}
@@ -109,7 +109,7 @@ const SeeAllRent = () => {
   );
 
   return (
-    <div className="container mt-28">
+    <div className="md:container w-[95%] mx-auto mt-28">
       {/* Heading Section */}
       <div className="text-center mb-8">
         <Header size="extraLarge" className="text-[#2FC639]">

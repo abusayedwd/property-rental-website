@@ -5,7 +5,7 @@ import React from "react";
 
 const AboutUs = () => {
   return (
-    <div className="bg-green-50 md:mt-16 mt-12 md:py-36 lg:py-44">
+    <div className="bg-green-50 w-[95%] mx-auto md:w-full md:mt-16 mt-12 md:py-36 lg:py-44">
       <div className=" container grid grid-cols-1 md:grid-cols-2 items-center gap-8">
         {/* Left Section: Text Content */}
         <div>

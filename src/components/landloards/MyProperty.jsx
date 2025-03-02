@@ -296,7 +296,7 @@ const MyProperty = () => {
   );
 
   return (
-    <div className="container my-6 min-h-screen md:my-12">
+    <div className="md:container w-[95%] mx-auto my-6 min-h-screen md:my-12">
       <Toaster />
       <div className="text-center mb-8">
         <Header size="large" className="text-green-700">

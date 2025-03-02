@@ -80,7 +80,7 @@ const AddPhoto = () => {
   };
 
   return (
-    <div className="md:mt-8 mt-60 container">
+    <div className="md:mt-8 mt-12 md:container">
       <Swiper
         pagination={pagination}
         slidesPerView={1}

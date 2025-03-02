@@ -197,7 +197,7 @@ const Banner = ({ onSearch }) => {
   return (
     <div className="relative">
       <div
-        className="bg-cover bg-center h-[300px] lg:h-[550px] flex items-center justify-center"
+        className="bg-cover bg-center   lg:h-[550px] flex items-center justify-center"
         style={{
           backgroundImage: "url('/images/Hero.jpg')",
           backgroundSize: "cover",
@@ -207,7 +207,7 @@ const Banner = ({ onSearch }) => {
       >
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
         <div className="md:text-center w-[900px] z-10 px-4">
-          <h1 className="text-2xl text-[#2FC639] md:mt-1 mt-48 font-sans lg:text-[50px] font-bold mb-4">
+          <h1 className="text-2xl text-[#2FC639] md:mt-1 mt-8 font-sans lg:text-[50px] font-bold mb-4">
             The easy way to search for property <br />
             <p className="mt-2 md:mt-4">to buy or rent.</p>
           </h1>
@@ -219,14 +219,14 @@ const Banner = ({ onSearch }) => {
           </p>
 
           {/* Search Filters */}
-          <div className="md:mt-20  gap-4 lg:gap-2 bg-white py-3 px-5 rounded-lg shadow-lg w-full max-w-4xl">
+          <div className="md:mt-20  gap-4 lg:gap-2 bg-white py-3 px-5 rounded-lg shadow-lg w-[70%] mx-auto md:w-full max-w-4xl">
 
-          <h2 className="text-[16px] text-left text-gray-700">
+          <h2 className="text-[16px] text-center md:text-left text-gray-700">
         Find the Property
       </h2>
-          <div className="flex flex-col lg:flex-row">
+          <div className="flex flex-col  lg:flex-row">
             <Select
-              className="md:w-full mx-2 h-10 w-60"
+              className="md:w-full  md:ml-0 mx-2 h-10 w-44"
               placeholder="Select a state"
               value={selectedState}
               onChange={handleStateChange}
@@ -240,7 +240,7 @@ const Banner = ({ onSearch }) => {
 
             {/* Local Government Selection */}
             <Select
-              className="md:w-full mx-2 md:mt-0 md:mb-0 mt-2 mb-2 h-10 w-60"
+              className="md:w-full  md:ml-0 mx-2 md:mt-0 md:mb-0 mt-2 mb-2 h-10 w-44"
               placeholder="Select a local government"
               value={selectedSubState}
               onChange={handleSubStateChange}
@@ -255,7 +255,7 @@ const Banner = ({ onSearch }) => {
             </Select>
 
                <Select
-                className="flex-1 mx-2  h-12 w-60"
+                className="flex-1  md:ml-0 mx-2  h-12 w-44"
                 placeholder="For Rent"
                 size="large"
                 defaultValue={transactionType}

@@ -172,7 +172,7 @@ const Addproperty = () => {
   };
 
   return (
-    <div className="container mx-auto my-12">
+    <div className="md:container w-[95%] mx-auto my-12">
       <Toaster />
       <h1 className="text-center text-3xl font-bold text-green-600 mb-8">
         Add Property

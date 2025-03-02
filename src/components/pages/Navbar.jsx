@@ -96,7 +96,7 @@ const Navbar = () => {
     <div>
       <nav className="bg-[#222F55] text-white py-4">
         <Toaster />
-        <div className="container mx-auto flex items-center justify-between px-4">
+        <div className="md:container mx-auto flex items-center justify-between px-4">
           {/* Logo */}
           <div className="text-2xl font-bold text-green-400">
             <Link href="/"><img src="/images/logo.png" alt="Logo"/></Link>
