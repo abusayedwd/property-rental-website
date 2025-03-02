@@ -385,7 +385,7 @@ const MyProperty = () => {
                     </button>
                   </Link>
                   <div className="text-right">
-                    {property?.isPromotion ? (
+                    {property?.isPromotion  ? (
                       <span className="bg-green-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
                         Promoted
                       </span>
