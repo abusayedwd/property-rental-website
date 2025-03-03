@@ -119,7 +119,7 @@ const SeeAllforSell = () => {
           All Property for Sell
         </Header>
         <p className="text-blue-500 text-sm mt-12 md:text-base">
-          You can see here all popular posts
+          You can see here all popular property
         </p>
       </div>
 

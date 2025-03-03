@@ -285,7 +285,7 @@ const PopularRent = ({ searchCriteria }) => {
           Popular for Rent
         </Header>
         <p className="text-blue-500 text-sm md:mt-12 md:text-base">
-          You can see here all popular posts
+          You can see here all popular property
         </p>
         <div className="mt-4 text-right">
           <Link href="/seeAllRentHome">
