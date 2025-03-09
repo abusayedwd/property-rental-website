@@ -84,10 +84,10 @@ const onFinish = async (values) => {
           <div className=" text-center">
             
             <h1 className=''>
-              Already have an account?
+            You have don't Account? 
               <Link href="/auth/singup">
 
-               <span className="text-blue-500 hover:underline">Create account </span> 
+               <span className="text-blue-500 hover:underline"> Create Account</span> 
               </Link>
             </h1>
           </div>

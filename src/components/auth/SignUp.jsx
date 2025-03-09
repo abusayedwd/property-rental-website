@@ -144,7 +144,7 @@ const SignUp = () => {
             ]}
           >
             <Checkbox>
-              Have read & agreed to Peared Terms of Use and Privacy Policy
+            Have read & agreed to Peared's Terms of Use and Privacy Policy.
             </Checkbox>
           </Form.Item>
 

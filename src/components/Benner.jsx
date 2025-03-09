@@ -214,8 +214,8 @@ const Banner = ({ onSearch }) => {
           <p className="text-white text-left md:text-2xl md:mt-10 font-sans font-semibold mb-4">
             From Studio, Self-con for student Youth Corpers, single or detached
             homes or even a luxury apartments for families. Whatever home you're
-            looking for, we're here to help with Nigeria's largest selection of
-            homes to buy and rent.
+            looking for, we're here to help with Nigeria's largest selection of   homes to buy and rent.
+          
           </p>
 
           {/* Search Filters */}

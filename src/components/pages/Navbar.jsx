@@ -28,6 +28,7 @@ const Navbar = () => {
   const closePasswordModal = () => setIsModalOpen(false);
   const openLogoutModal = () => setIsLogoutModalOpen(true);
   const closeLogoutModal = () => setIsLogoutModalOpen(false);
+ 
   const router = useRouter()
   const {data: user} = useLogedUserQuery()
   // console.log(user)
@@ -72,6 +73,7 @@ const Navbar = () => {
        }
      }catch(error){
        console.log(error)
+        setError(error?.data?.message)
      }
   };
 
@@ -99,7 +101,7 @@ const Navbar = () => {
         <div className="md:container mx-auto flex items-center justify-between px-4">
           {/* Logo */}
           <div className="text-2xl font-bold text-green-400">
-            <Link href="/"><img src="/images/logo.png" alt="Logo"/></Link>
+            <Link href="/"><img className="md:w-full w-48" src="/images/logo.png" alt="Logo"/></Link>
             
           </div>
 
@@ -126,7 +128,7 @@ const Navbar = () => {
                     key: "2",
                     label: (
                       <Link href="/myproperty" className="hover:!text-white">
-                        MyProperty
+                        My Property
                       </Link>
                     ),
                     className: "hover:!bg-[#101625]",

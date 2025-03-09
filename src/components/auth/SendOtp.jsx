@@ -107,7 +107,7 @@ const SendOtp = () => {
          className="w-full mt-6 !bg-[#2E7D32] text-white p-2 rounded"
           onClick={handleOtp}
         >
-          Verify Number
+          Verify Account
         </button>
      
       </div>

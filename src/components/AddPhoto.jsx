@@ -1,63 +1,77 @@
+ 
+
 // "use client";
 // import { useEffect } from 'react';
 // import { Swiper, SwiperSlide } from 'swiper/react';
 // import 'swiper/css';
 // import 'swiper/css/pagination';
-// // import './styles.css';
 // import { Autoplay, Pagination } from 'swiper/modules';
 // import { useGetBannersQuery } from '@/redux/fetures/banner';
 // import url from '@/redux/api/baseUrl';
-// // import 'swiper/swiper-bundle.min.css'; // Import Swiper styles
+// import banner from '@/../../public/images/adds.png'; // Import your local demo banner image
+// import Link from 'next/link';
 
 // const AddPhoto = () => {
 //   const { data: banners } = useGetBannersQuery();
-
+//  console.log(banners)
 //   const pagination = {
 //     clickable: true,
 //     renderBullet: function (index, className) {
 //       return '<span class="' + className + '">' + (index + 1) + '</span>';
 //     },
 //   };
-//   return (
-//     <div className="md:mt-8 mt-60 container">
-      
 
+//   return (
+//     <div className="md:mt-8 mt-12 md:container">
 //       <Swiper
-//             pagination={pagination}
-//             slidesPerView={1}
-//             modules={[Pagination, Autoplay]}
-//             breakpoints={{
-//                 640: { slidesPerView: 1 },
-//                 768: { slidesPerView: 1 },
-//                 1024: { slidesPerView: 2 },
-//               }}
-//             autoplay={{
-//               delay: 2000,
-//               disableOnInteraction: false,
-//             }}
-//             className="mySwiper rounded-lg overflow-hidden gap-4 md:h-80 h-28"
-//             style={{ height: "300px" }}
-//           >
-//                {banners?.data?.attributes?.map((banner, index) => (
+//         pagination={pagination}
+//         slidesPerView={1}
+//         modules={[Pagination, Autoplay]}
+//         breakpoints={{
+//           640: { slidesPerView: 1 },
+//           768: { slidesPerView: 1 },
+//           1024: { slidesPerView: 2 },
+//         }}
+//         autoplay={{
+//           delay: 6000,
+//           disableOnInteraction: false,
+//         }}
+//         className="mySwiper rounded-lg overflow-hidden gap-4 md:h-80 h-28"
+//         style={{ height: "300px" }}
+//       >
+//         {/* If banners exist, show them; otherwise, show the demo banner */}
+//         {(banners?.data?.attributes.length > 0 ? banners.data.attributes : [{ image: { url: banner } }]).map((banner, index) => (
+          
 //           <SwiperSlide key={index}>
+        
+//             <div> 
+//             <Link href={banner.link} key={index}>
 //             <img
-//               src={url + banner.image.url}
+//               // For local image fallback
+//               src={banner.image.url ? url + banner.image.url : banner}
 //               alt={`Banner ${index}`}
-//               style={{ width: '100%', height:"300px"  }}
+//               style={{ width: '100%', height: "300px" }}
 //               className='h-48 md:h-[450px] p-4'
 //               onError={(e) => {
 //                 console.error("Image failed to load", e);
 //               }}
 //             />
+
+//           </Link>
+//             </div>
+             
+            
+          
+         
 //           </SwiperSlide>
 //         ))}
-          
-//           </Swiper> 
+//       </Swiper>
 //     </div>
 //   );
 // };
 
 // export default AddPhoto;
+
 
 "use client";
 import { useEffect } from 'react';
@@ -68,9 +82,11 @@ import { Autoplay, Pagination } from 'swiper/modules';
 import { useGetBannersQuery } from '@/redux/fetures/banner';
 import url from '@/redux/api/baseUrl';
 import banner from '@/../../public/images/adds.png'; // Import your local demo banner image
+import Link from 'next/link';
 
 const AddPhoto = () => {
   const { data: banners } = useGetBannersQuery();
+  console.log(banners);
 
   const pagination = {
     clickable: true,
@@ -91,25 +107,31 @@ const AddPhoto = () => {
           1024: { slidesPerView: 2 },
         }}
         autoplay={{
-          delay: 2000,
+          delay: 6000,
           disableOnInteraction: false,
         }}
         className="mySwiper rounded-lg overflow-hidden gap-4 md:h-80 h-28"
         style={{ height: "300px" }}
       >
         {/* If banners exist, show them; otherwise, show the demo banner */}
-        {(banners?.data?.attributes.length > 0 ? banners.data.attributes : [{ image: { url: banner } }]).map((banner, index) => (
+        {(banners?.data?.attributes?.length > 0 ? banners.data.attributes : [{ image: { url: banner }, link: '#' }]).map((banner, index) => (
           <SwiperSlide key={index}>
-            <img
-              // For local image fallback
-              src={banner.image.url ? url + banner.image.url : banner}
-              alt={`Banner ${index}`}
-              style={{ width: '100%', height: "300px" }}
-              className='h-48 md:h-[450px] p-4'
-              onError={(e) => {
-                console.error("Image failed to load", e);
-              }}
-            />
+            <div>
+              {/* If the banner has a valid link, wrap the image in a <Link> */}
+              <Link target='_blank' href={banner.link || '#'} passHref>
+                <img
+                  // For local image fallback
+                  src={banner.image.url ? url + banner.image.url : banner.image.url || banner}
+                  alt={`Banner ${index}`}
+                  style={{ width: '100%', height: "300px" }}
+                  className='h-48 md:h-[450px] p-4'
+                  onError={(e) => {
+                    console.error("Image failed to load", e);
+                    e.target.src = banner; // Fallback to local image in case of error
+                  }}
+                />
+              </Link>
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>

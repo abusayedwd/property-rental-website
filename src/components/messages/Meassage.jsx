@@ -98,6 +98,7 @@ const MessagesPage = () => {
 
         {/* Left Sidebar */}
         <div className={`${showSidebar ? 'block' : 'hidden'} w-full md:w-1/4 border-r bg-gray-50 md:block ${showSidebar && 'absolute md:relative inset-0 z-10 bg-white md:bg-gray-50'}`}>
+          <h1 className="text-2xl text-green-600 ml-5 mt-4">Chat List</h1>
           <div className="p-4 overflow-y-auto h-full">
             {users.length > 0 ? (
               users.map((user) => (
@@ -124,7 +125,7 @@ const MessagesPage = () => {
         </div>
 
         {/* Right Chat Section */}
-        <div className={`${!showSidebar ? 'block' : 'hidden'} w-full md:w-3/4 flex flex-col md:block`}>
+        <div className={`${!showSidebar ? 'block' : 'hidden'} w-full md:w-3/4 mt-8 flex flex-col md:block`}>
           {/* Chat Header */}
           <div className="p-4 border-b bg-gray-50">
             <h2 className="text-lg font-semibold text-gray-800">
