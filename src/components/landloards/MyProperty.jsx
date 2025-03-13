@@ -310,7 +310,7 @@ const MyProperty = () => {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4  gap-6">
         {isLoading ? (
           <p className="text-center text-gray-500">Loading properties...</p>
         ) : properties?.length === 0 ? (
