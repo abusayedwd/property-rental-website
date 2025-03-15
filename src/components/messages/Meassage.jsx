@@ -332,7 +332,7 @@ const MessagesPage = () => {
 
   const chatData = chatList?.data?.attributes || [];
   const userId = user?.data?.attributes?.user?.id;
-
+ 
   const users = chatData.map((chat) => {
     const participant = chat.participants.find((p) => p.id !== userId);
     return {
@@ -351,7 +351,7 @@ const MessagesPage = () => {
   const socketRef = useRef(null);
   const [unreadMessages, setUnreadMessages] = useState({});
   const messagesInitializedRef = useRef({});
-  
+  // console.log(url)
   // Connect to socket.io server
   useEffect(() => {
     // Connect to the socket server
@@ -383,24 +383,23 @@ const MessagesPage = () => {
       
       // Set up listener for receiving messages
       const handleReceiveMessage = (message) => {
-        console.log("Received message:", message);
-        
-        // Add message to chat if it doesn't exist already
+        console.log("Received messagekk:", message);
+      
         setMessages(prevMessages => {
-          // Check if this message is already in our messages array
-          const messageExists = prevMessages.some(msg => 
-            msg._id === message._id || 
-            (msg.text === message.text && 
-             msg.sender?.id === message.sender?.id &&
-             Math.abs(new Date(msg.createdAt) - new Date(message.createdAt)) < 1000)
-          );
+          const messageExists = prevMessages.some(msg => msg._id === message._id);
           
-          if (messageExists) {
-            return prevMessages;
+          // If it's a new message, add it to the state
+          if (!messageExists) {
+            return [...prevMessages, message];
           }
-          return [...prevMessages, message];
+          
+          // If the message exists but needs updating, update it
+          return prevMessages.map(msg =>
+            msg._id === message._id ? { ...msg, ...message } : msg
+          );
         });
       };
+      
       
       // Listen for messages
       socketRef.current.on("receive_message", handleReceiveMessage);
@@ -410,7 +409,9 @@ const MessagesPage = () => {
         socketRef.current.off("receive_message", handleReceiveMessage);
       };
     }
-  }, [activeChatId]);
+  }, [activeChatId, userId]);
+
+
 
   // Initialize messages when chat changes
   useEffect(() => {
@@ -434,9 +435,16 @@ const MessagesPage = () => {
   // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      // Scroll to 200px left and sticky at the bottom
+      messagesEndRef.current.scrollIntoView({
+        behavior: "smooth",
+      // Ensure it's at the bottom
+       // Ensure it's at the right (for horizontal scrolling)
+      });
+      window.scrollBy(-130, 0); // Scroll horizontally 200px to the left
     }
   }, [messages]);
+  
 
   const handleSendMessage = async () => {
     if (newMessage.trim() && activeUser?.id && activeChatId) {
@@ -446,9 +454,10 @@ const MessagesPage = () => {
         chatId: activeChatId
       };
       
-      // Create optimistic message
+      // Create optimistic message with temporary ID
+      const tempId = `temp-${Date.now()}`;
       const optimisticMsg = {
-        _id: `temp-${Date.now()}`,
+        _id: tempId,
         text: newMessage,
         sender: { id: userId },
         createdAt: new Date().toISOString(),
@@ -456,7 +465,7 @@ const MessagesPage = () => {
         pending: true
       };
       
-      // Add optimistic message to UI
+      // Add optimistic message to UI immediately
       setMessages(prevMessages => [...prevMessages, optimisticMsg]);
       setNewMessage("");
       
@@ -470,7 +479,7 @@ const MessagesPage = () => {
         // Update optimistic message with actual ID
         setMessages(prevMessages => 
           prevMessages.map(msg => 
-            msg._id === optimisticMsg._id 
+            msg._id === tempId 
               ? { ...msg, _id: actualMessageId, pending: false } 
               : msg
           )
@@ -499,7 +508,7 @@ const MessagesPage = () => {
         // Show error state for the optimistic message
         setMessages(prevMessages => 
           prevMessages.map(msg => 
-            msg._id === optimisticMsg._id 
+            msg._id === tempId 
               ? { ...msg, error: true, pending: false } 
               : msg
           )
@@ -621,7 +630,7 @@ const MessagesPage = () => {
           {/* Chat Messages */}
           <div
             className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#f9fafb]"
-            style={{ height: "calc(100% - 140px)" }}
+            style={{ height: "calc(100% - 150px)" }}
           >
             {messages.length > 0 ? (
               messages.map((msg) => (
@@ -675,9 +684,9 @@ const MessagesPage = () => {
             <button
               className={`bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 text-sm md:text-base whitespace-nowrap ${(!activeUser || !newMessage.trim() || isLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={handleSendMessage}
-              disabled={!activeUser || !newMessage.trim() || isLoading}
+              disabled={!activeUser || !newMessage.trim()}
             >
-              {isLoading ? "Sending..." : "Send"}
+              Send
             </button>
           </div>
         </div>
