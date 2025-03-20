@@ -708,10 +708,10 @@ const MessagesPage = () => {
       </Button>
       <div className="flex bg-white shadow-lg rounded-lg overflow-hidden md:h-[90vh] h-[65vh]">
         <button
-          className="md:hidden absolute  top-4 left-4 p-2 bg-green-600 text-white rounded-lg"
+          className="md:hidden absolute top-24  left-4 p-2 bg-green-600 text-white rounded-lg"
           onClick={() => setShowSidebar(!showSidebar)}
         >
-          <Menu size={24} />
+          <Menu  size={24} />
         </button>
 
         {/* Sidebar */}
@@ -757,10 +757,10 @@ const MessagesPage = () => {
                 className="md:hidden mr-3 text-green-600"
                 onClick={() => setShowSidebar(true)}
               >
-                <Menu size={24} />
+                <Menu className=" md:mt-0 mt-10" size={24} />
               </button>
             )}
-            <div>
+            <div className="md:mt-2 mt-10">
               <h2 className="text-lg font-semibold text-gray-800">
                 {activeUser?.name || "Select a chat"}
               </h2>
