@@ -1,5 +1,3 @@
- 
-
 // "use client";
 
 // import url from "@/redux/api/baseUrl";
@@ -11,6 +9,10 @@
 // import { Menu } from "lucide-react";
 // import { useSearchParams } from "next/navigation";
 // import io from "socket.io-client";
+// import { Button } from "antd";
+
+// // Use original socket connection only - removed the duplicate
+// const socket = io("https://sayed3040.sobhoy.com");
 
 // const MessagesPage = () => {
 //   const { data: chatList } = useGetChatlistQuery();
@@ -21,7 +23,9 @@
 //   const chatIdFromQuery = searchParams.get("chatId");
 
 //   const [activeChatId, setActiveChatId] = useState(chatIdFromQuery || null);
-//   const { data: messagesData } = useGetMessageQuery(activeChatId);
+//   const { data: messagesData, refetch: refetchMessages } = useGetMessageQuery(activeChatId, {
+//     skip: !activeChatId,
+//   });
 
 //   const chatData = chatList?.data?.attributes || [];
 //   const userId = user?.data?.attributes?.user?.id;
@@ -41,65 +45,122 @@
 //   const [messages, setMessages] = useState([]);
 //   const messagesEndRef = useRef(null);
 //   const [newMessage, setNewMessage] = useState("");
-//   const socketRef = useRef(null);
 //   const [unreadMessages, setUnreadMessages] = useState({});
-  
-//   // Connect to socket.io server
-//   useEffect(() => {
-//     // Connect to the socket server
-//     socketRef.current = io(url);
-    
-//     // Listen for incoming messages
-//     socketRef.current.on("connect", () => {
-//       console.log("Connected to socket server");
-//     });
-    
-//     // Clean up on component unmount
-//     return () => {
-//       if (socketRef.current) {
-//         socketRef.current.disconnect();
-//       }
-//     };
-//   }, []);
-  
-//   // Join user-specific room when userId is available
-//   useEffect(() => {
-//     if (userId && socketRef.current) {
-//       // Join a room specific to this user
-//       socketRef.current.emit("joinRoom", userId);
-      
-//       // Set up listener for new messages
-//       socketRef.current.on("newMessage", (message) => {
-//         console.log("New message received:", message);
-        
-//         // If message is for the active chat, add it to messages
-//         if (message.chatId === activeChatId) {
-//           setMessages(prevMessages => [...prevMessages, message]);
-//         } else {
-//           // Otherwise, increment unread count for that chat
-//           setUnreadMessages(prev => ({
-//             ...prev,
-//             [message.chatId]: (prev[message.chatId] || 0) + 1
-//           }));
-          
-//           // Optional: Play notification sound
-//           const audio = new Audio('/notification-sound.mp3');
-//           audio.play().catch(err => console.log('Audio playback error:', err));
-//         }
-//       });
-//     }
-    
-//     return () => {
-//       if (socketRef.current) {
-//         socketRef.current.off("newMessage");
-//       }
-//     };
-//   }, [userId, activeChatId]);
+//   const messagesInitializedRef = useRef({});
+//   const processedMessagesRef = useRef(new Set()); // Track which messages we've already processed
 
+//   // Listen for window resize to set sidebar visibility
+//   useEffect(() => {
+//     const handleResize = () => {
+//       if (window.innerWidth >= 768) {
+//         setShowSidebar(true);
+//       }
+//     };
+
+//     window.addEventListener('resize', handleResize);
+//     return () => window.removeEventListener('resize', handleResize);
+//   }, []);
+
+//   // Initial socket connection
+//   useEffect(() => {
+//     socket.emit("client_connect", "hello data from client");
+    
+//     if (userId) {
+//       socket.emit("user_connected", userId);
+//     }
+
+//     // Clean up processed messages cache when component unmounts
+//     return () => {
+//       processedMessagesRef.current.clear();
+//     };
+//   }, [userId]);
+
+//   // Set up message listener for the active chat only
+//   useEffect(() => {
+//     if (!activeChatId) return;
+    
+//     const eventName = `messages::${activeChatId}`;
+    
+//     const handleIncomingMessage = (message) => {
+//       console.log("Received message:", message);
+      
+//       // Check if we've already processed this message
+//       if (processedMessagesRef.current.has(message._id)) {
+//         return;
+//       }
+      
+//       // Mark this message as processed
+//       processedMessagesRef.current.add(message._id);
+      
+//       setMessages(prevMessages => {
+//         // Check if message already exists in our state
+//         const messageExists = prevMessages.some(msg => msg._id === message._id);
+        
+//         if (!messageExists) {
+//           return [...prevMessages, message];
+//         }
+        
+//         return prevMessages.map(msg =>
+//           msg._id === message._id ? { ...msg, ...message } : msg
+//         );
+//       });
+//     };
+    
+//     socket.on(eventName, handleIncomingMessage);
+    
+//     // Clean up
+//     return () => {
+//       socket.off(eventName, handleIncomingMessage);
+//     };
+//   }, [activeChatId]);
+
+//   // Handle unread messages for non-active chats
+//   useEffect(() => {
+//     if (!userId || !chatData.length) return;
+    
+//     // Set up listeners for all non-active chat IDs
+//     chatData.forEach(chat => {
+//       if (chat.id === activeChatId) return; // Skip active chat
+      
+//       const eventName = `messages::${chat.id}`;
+      
+//       const handleBackgroundMessage = (message) => {
+//         // Update unread counter for non-active chats
+//         setUnreadMessages(prev => ({
+//           ...prev,
+//           [chat.id]: (prev[chat.id] || 0) + 1
+//         }));
+//       };
+      
+//       socket.on(eventName, handleBackgroundMessage);
+      
+//       return () => {
+//         socket.off(eventName, handleBackgroundMessage);
+//       };
+//     });
+//   }, [chatData, activeChatId, userId]);
+
+//   // Join active chat room
 //   useEffect(() => {
 //     if (activeChatId) {
-//       setMessages(messagesData?.data?.attributes || []);
-//       // Clear unread count when switching to a chat
+//       socket.emit("join_chat", activeChatId);
+//       console.log("Joined chat room:", activeChatId);
+//     }
+//   }, [activeChatId]);
+
+//   // Update messages when messagesData changes
+//   useEffect(() => {
+//     if (activeChatId && messagesData?.data?.attributes) {
+//       const chatMessages = messagesData.data.attributes;
+      
+//       // Add all fetched messages to our processed set
+//       chatMessages.forEach(msg => {
+//         processedMessagesRef.current.add(msg._id);
+//       });
+      
+//       messagesInitializedRef.current[activeChatId] = true;
+//       setMessages(chatMessages);
+      
 //       setUnreadMessages(prev => ({
 //         ...prev,
 //         [activeChatId]: 0
@@ -107,98 +168,164 @@
 //     }
 //   }, [activeChatId, messagesData]);
 
-//   useEffect(() => {
-//     if (messagesEndRef.current) {
-//       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-//     }
-//   }, [messages]);
+//   // Scroll to bottom when messages change
+//  // Scroll to bottom when messages change
+//  useEffect(() => {
+//   if (messagesEndRef.current) {
+//     messagesEndRef.current.scrollIntoView({
+//       behavior: "smooth",
+//     });
+//     window.scrollBy(-130, 0);
+//   }
+// }, [messages]);
+//   // Update active user when chat list or active chat ID changes
+//  useEffect(() => {
+//   if (users.length > 0) {
+//     // Find the selected user based on the activeChatId
+//     const selectedUser = users.find(user => user.chatId === activeChatId);
 
-//   const handleSendMessage = () => {
-//     if (newMessage.trim() && activeUser?.id) {
+//     // Only update state if selectedUser is different from the current activeUser
+//     if (selectedUser && selectedUser.id !== activeUser?.id) {
+//       setActiveUser(selectedUser);
+//     } else if (!selectedUser && users[0]?.chatId !== activeChatId) {
+//       // Set to the first user if no user is selected
+//       setActiveUser(users[0]);
+//       setActiveChatId(users[0].chatId);
+//     }
+//   }
+// }, [users, activeChatId, activeUser]);
+
+
+//   const handleSendMessage = async () => {
+//     if (newMessage.trim() && activeUser?.id && activeChatId) {
 //       const messageData = {
 //         receiver: activeUser.id,
 //         text: newMessage,
-//         chatId: activeChatId
 //       };
+
+//       const tempId = `temp-${Date.now()}`;
+//       const optimisticMsg = {
+//         _id: tempId,
+//         text: newMessage,
+//         sender: { id: userId },
+//         createdAt: new Date().toISOString(),
+//         chatId: activeChatId,
+//         pending: true
+//       };
+
+//       // Add to set of processed messages
+//       processedMessagesRef.current.add(tempId);
       
-//       // Send message through API
-//       sendMessage(messageData)
-//         .unwrap()
-//         .then((response) => {
-//           // Optimistically add message to UI
-//           const newMsg = {
-//             _id: Date.now().toString(),
-//             text: newMessage,
-//             sender: { id: userId },
-//             createdAt: new Date().toISOString(),
-//             chatId: activeChatId
-//           };
-          
-//           setMessages(prevMessages => [...prevMessages, newMsg]);
-//           setNewMessage("");
-          
-//           // Emit message through socket for real-time delivery
-//           if (socketRef.current) {
-//             socketRef.current.emit("sendMessage", {
-//               ...newMsg,
-//               receiverId: activeUser.id
-//             });
-//           }
-//         })
-//         .catch((error) => {
-//           console.error("Error sending message:", error);
+//       setMessages(prevMessages => [...prevMessages, optimisticMsg]);
+//       setNewMessage("");
+
+//       try {
+//         const response = await sendMessage(messageData).unwrap();
+//         const actualMessageId = response?.data?.id || optimisticMsg._id;
+        
+//         // Update processed messages set with real ID
+//         processedMessagesRef.current.delete(tempId);
+//         processedMessagesRef.current.add(actualMessageId);
+
+//         setMessages(prevMessages =>
+//           prevMessages.map(msg =>
+//             msg._id === tempId
+//               ? { ...msg, _id: actualMessageId, pending: false }
+//               : msg
+//           )
+//         );
+
+//         const messageForSocket = {
+//           _id: actualMessageId,
+//           text: newMessage,
+//           sender: { id: userId },
+//           receiver: { id: activeUser.id },
+//           createdAt: new Date().toISOString(),
+//           chatId: activeChatId
+//         };
+
+//         socket.emit("send_message", {
+//           chatId: activeChatId,
+//           message: messageForSocket
 //         });
+//       } catch (error) {
+//         console.error("Error sending message:", error);
+//         setMessages(prevMessages =>
+//           prevMessages.map(msg =>
+//             msg._id === tempId
+//               ? { ...msg, error: true, pending: false }
+//               : msg
+//           )
+//         );
+//       }
 //     }
 //   };
 
 //   const handleUserSelect = (user) => {
+//     // Clear processed messages when switching chats
+//     processedMessagesRef.current.clear();
+    
 //     setActiveUser(user);
 //     setActiveChatId(user?.chatId);
-    
-//     // Clear unread count for this chat
 //     setUnreadMessages(prev => ({
 //       ...prev,
 //       [user.chatId]: 0
 //     }));
-    
+
+//     // Clear messages when switching to a different chat
+//     setMessages([]);
+
+//     if (!messagesInitializedRef.current[user.chatId]) {
+//       setTimeout(() => {
+//         refetchMessages();
+//       }, 100);
+//     }
+
 //     if (window.innerWidth < 768) {
 //       setShowSidebar(false);
 //     }
 //   };
 
-//   // Format timestamp to readable time
 //   const formatTime = (timestamp) => {
 //     if (!timestamp) return "Just now";
-    
+
 //     const messageDate = new Date(timestamp);
 //     const now = new Date();
-    
-//     // If message is from today, show only time
+
 //     if (messageDate.toDateString() === now.toDateString()) {
 //       return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 //     }
-    
-//     // Otherwise show date
+
 //     return messageDate.toLocaleDateString();
 //   };
 
 //   return (
 //     <div className="container mx-auto mt-4 md:mt-12 pb-20 px-2 md:px-4">
 //       <h1 className="text-center text-2xl md:text-3xl font-bold text-green-600 mb-4 md:mb-8">Messages</h1>
-
-//       {/* Main Container */}
-//       <div className="flex bg-white shadow-lg rounded-lg overflow-hidden h-[100vh]">
-//         {/* Mobile Menu Button */}
-//         <button 
+//       <Button
+//                   onClick={() => window.history.back()}
+//                   className="bg-gray-800 text-white hover:bg-gray-700 px-6 py-2 rounded-lg mb-6"
+//                 >
+//                   Back
+//                 </Button>
+//       <div className="flex bg-white shadow-lg rounded-lg overflow-hidden h-[90vh]">
+//         <button
 //           className="md:hidden absolute mt-20 top-4 left-4 p-2 bg-green-600 text-white rounded-lg"
 //           onClick={() => setShowSidebar(!showSidebar)}
 //         >
 //           <Menu size={24} />
 //         </button>
 
-//         {/* Left Sidebar */}
-//         <div className={`${showSidebar ? 'block' : 'hidden'} w-full md:w-1/4 border-r bg-gray-50 md:block ${showSidebar && 'absolute md:relative inset-0 z-10 bg-white md:bg-gray-50'}`}>
+//         {/* Sidebar */}
+//         <div className={`${showSidebar ? 'block' : 'hidden'} w-full md:w-1/4 border-r bg-gray-50 md:block ${showSidebar && window.innerWidth < 768 ? 'absolute inset-0 z-10 bg-white' : 'relative'}`}>
+//         <Button
+//                   onClick={() => window.history.back()}
+//                   className="bg-gray-800 text-white hover:bg-gray-700 mt-4 px-6 py-2 rounded-lg mb-6"
+//                 >
+//                   Back
+//                 </Button>
 //           <h1 className="text-2xl text-green-600 ml-5 mt-4">Chat List</h1>
+            
 //           <div className="p-4 overflow-y-auto h-full">
 //             {users.length > 0 ? (
 //               users.map((user) => (
@@ -216,11 +343,7 @@
 //                     <h4 className="font-semibold text-gray-800">{user.name}</h4>
 //                     <p className="text-sm text-gray-500">{user.status}</p>
 //                   </div>
-//                   {unreadMessages[user.chatId] > 0 && (
-//                     <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-//                       {unreadMessages[user.chatId]}
-//                     </div>
-//                   )}
+                 
 //                 </div>
 //               ))
 //             ) : (
@@ -229,12 +352,11 @@
 //           </div>
 //         </div>
 
-//         {/* Right Chat Section */}
-//         <div className={`${!showSidebar ? 'block' : 'hidden'} w-full md:w-3/4 mt-8 flex flex-col md:block`}>
-//           {/* Chat Header */}
+//         {/* Chat area */}
+//         <div className={`${!showSidebar ? 'block' : 'hidden'} w-full md:w-3/4 flex flex-col md:block`}>
 //           <div className="p-4 border-b bg-gray-50 flex items-center">
 //             {!showSidebar && activeUser && (
-//               <button 
+//               <button
 //                 className="md:hidden mr-3 text-green-600"
 //                 onClick={() => setShowSidebar(true)}
 //               >
@@ -251,10 +373,9 @@
 //             </div>
 //           </div>
 
-//           {/* Chat Messages */}
 //           <div
 //             className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#f9fafb]"
-//             style={{ height: "calc(100% - 140px)" }}
+//             style={{ height: "calc(100% - 150px)" }}
 //           >
 //             {messages.length > 0 ? (
 //               messages.map((msg) => (
@@ -263,12 +384,28 @@
 //                   className={`flex ${msg.sender?.id === userId ? "justify-end" : "justify-start"}`}
 //                 >
 //                   <div
-//                     className={`px-4 py-2 rounded-lg max-w-[80%] break-words ${msg.sender?.id === userId ? "bg-green-600 text-white" : "bg-gray-200 text-gray-800"}`}
+//                     className={`px-4 py-2 rounded-lg max-w-[80%] break-words ${
+//                       msg.pending
+//                         ? "bg-gray-400 text-white"
+//                         : msg.error
+//                           ? "bg-red-500 text-white"
+//                           : msg.sender?.id === userId
+//                             ? "bg-green-600 text-white"
+//                             : "bg-gray-200 text-gray-800"
+//                     }`}
 //                   >
 //                     <p>{msg.text}</p>
-//                     <p className={`text-xs mt-1 ${msg.sender?.id === userId ? "text-gray-200" : "text-gray-500"}`}>
-//                       {formatTime(msg?.createdAt)}
-//                     </p>
+//                     <div className="flex justify-between items-center mt-1">
+//                       <p className={`text-xs ${msg.sender?.id === userId ? "text-gray-200" : "text-gray-500"}`}>
+//                         {formatTime(msg?.createdAt)}
+//                       </p>
+//                       {msg.pending && (
+//                         <span className="text-xs text-gray-200 ml-2">Sending...</span>
+//                       )}
+//                       {msg.error && (
+//                         <span className="text-xs text-gray-200 ml-2">Failed to send</span>
+//                       )}
+//                     </div>
 //                   </div>
 //                 </div>
 //               ))
@@ -278,7 +415,6 @@
 //             <div ref={messagesEndRef} />
 //           </div>
 
-//           {/* Message Input */}
 //           <div className="p-3 md:p-4 border-t bg-gray-50 flex items-center gap-2 md:gap-4">
 //             <input
 //               type="text"
@@ -290,7 +426,7 @@
 //               disabled={!activeUser}
 //             />
 //             <button
-//               className={`bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 text-sm md:text-base whitespace-nowrap ${(!activeUser || !newMessage.trim()) ? 'opacity-50 cursor-not-allowed' : ''}`}
+//               className={`bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 text-sm md:text-base whitespace-nowrap ${(!activeUser || !newMessage.trim() || isLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
 //               onClick={handleSendMessage}
 //               disabled={!activeUser || !newMessage.trim()}
 //             >
@@ -305,17 +441,23 @@
 
 // export default MessagesPage;
 
+
+
+
 "use client";
 
 import url from "@/redux/api/baseUrl";
 import { useGetChatlistQuery } from "@/redux/fetures/messaging/getChatlist";
-import { useGetMessageQuery } from "@/redux/fetures/messaging/getMessage";
 import { useSendMessageMutation } from "@/redux/fetures/messaging/sendMessage";
 import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
 import React, { useEffect, useState, useRef } from "react";
 import { Menu } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import io from "socket.io-client";
+import { Button } from "antd";
+import { useGetMessageQuery } from "@/redux/fetures/messaging/getMessage";
+
+const socket = io("https://sayed3040.sobhoy.com");
 
 const MessagesPage = () => {
   const { data: chatList } = useGetChatlistQuery();
@@ -332,7 +474,7 @@ const MessagesPage = () => {
 
   const chatData = chatList?.data?.attributes || [];
   const userId = user?.data?.attributes?.user?.id;
- 
+
   const users = chatData.map((chat) => {
     const participant = chat.participants.find((p) => p.id !== userId);
     return {
@@ -348,83 +490,93 @@ const MessagesPage = () => {
   const [messages, setMessages] = useState([]);
   const messagesEndRef = useRef(null);
   const [newMessage, setNewMessage] = useState("");
-  const socketRef = useRef(null);
   const [unreadMessages, setUnreadMessages] = useState({});
   const messagesInitializedRef = useRef({});
-  // console.log(url)
-  // Connect to socket.io server
+  const processedMessagesRef = useRef(new Set());
+  const inputRef = useRef(null);
+
   useEffect(() => {
-    // Connect to the socket server
-    socketRef.current = io(url);
-    
-    // Listen for incoming messages
-    socketRef.current.on("connect", () => {
-      console.log("Connected to socket server");
-      
-      // Notify server about user connection when socket connects
-      if (userId) {
-        socketRef.current.emit("user_connected", userId);
-      }
-    });
-    
-    // Clean up on component unmount
+    socket.emit("client_connect", "hello data from client");
+
+    if (userId) {
+      socket.emit("user_connected", userId);
+    }
+
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      processedMessagesRef.current.clear();
     };
   }, [userId]);
-  
-  // Join chat room when active chat changes
+
   useEffect(() => {
-    if (activeChatId && socketRef.current) {
-      // Join the chat room
-      socketRef.current.emit("join_chat", activeChatId);
-      
-      // Set up listener for receiving messages
-      const handleReceiveMessage = (message) => {
-        console.log("Received messagekk:", message);
-      
-        setMessages(prevMessages => {
-          const messageExists = prevMessages.some(msg => msg._id === message._id);
-          
-          // If it's a new message, add it to the state
-          if (!messageExists) {
-            return [...prevMessages, message];
-          }
-          
-          // If the message exists but needs updating, update it
-          return prevMessages.map(msg =>
-            msg._id === message._id ? { ...msg, ...message } : msg
-          );
-        });
+    if (!activeChatId) return;
+
+    const eventName = `messages::${activeChatId}`;
+
+    const handleIncomingMessage = (message) => {
+      if (processedMessagesRef.current.has(message._id)) {
+        return;
+      }
+
+      processedMessagesRef.current.add(message._id);
+
+      setMessages(prevMessages => {
+        const messageExists = prevMessages.some(msg => msg._id === message._id);
+
+        if (!messageExists) {
+          return [...prevMessages, message];
+        }
+
+        return prevMessages;
+      });
+    };
+
+    socket.on(eventName, handleIncomingMessage);
+
+    return () => {
+      socket.off(eventName, handleIncomingMessage);
+    };
+  }, [activeChatId]);
+
+  useEffect(() => {
+    if (!userId || !chatData.length) return;
+
+    chatData.forEach(chat => {
+      if (chat.id === activeChatId) return;
+
+      const eventName = `messages::${chat.id}`;
+
+      const handleBackgroundMessage = (message) => {
+        setUnreadMessages(prev => ({
+          ...prev,
+          [chat.id]: (prev[chat.id] || 0) + 1
+        }));
       };
-      
-      
-      // Listen for messages
-      socketRef.current.on("receive_message", handleReceiveMessage);
-      
-      // Clean up listener when changing chats
+
+      socket.on(eventName, handleBackgroundMessage);
+
       return () => {
-        socketRef.current.off("receive_message", handleReceiveMessage);
+        socket.off(eventName, handleBackgroundMessage);
       };
+    });
+  }, [chatData, activeChatId, userId]);
+
+  useEffect(() => {
+    if (activeChatId) {
+      socket.emit("join_chat", activeChatId);
     }
-  }, [activeChatId, userId]);
+  }, [activeChatId]);
 
-
-
-  // Initialize messages when chat changes
   useEffect(() => {
     if (activeChatId && messagesData?.data?.attributes) {
       const chatMessages = messagesData.data.attributes;
-      
-      // Set flag that we've initialized messages for this chat
+
+      chatMessages.forEach(msg => {
+        processedMessagesRef.current.add(msg._id);
+      });
+
       messagesInitializedRef.current[activeChatId] = true;
-      
-      // Update messages state with fetched messages
       setMessages(chatMessages);
-      
-      // Clear unread count when switching to a chat
+
       setUnreadMessages(prev => ({
         ...prev,
         [activeChatId]: 0
@@ -432,29 +584,27 @@ const MessagesPage = () => {
     }
   }, [activeChatId, messagesData]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
-      // Scroll to 200px left and sticky at the bottom
       messagesEndRef.current.scrollIntoView({
         behavior: "smooth",
-      // Ensure it's at the bottom
-       // Ensure it's at the right (for horizontal scrolling)
       });
-      window.scrollBy(-130, 0); // Scroll horizontally 200px to the left
+
+      if (window.innerWidth <= 768) {
+        window.scrollBy(0, -60); // Adjust scroll for mobile
+      } else {
+        window.scrollBy(0, -130); // Adjust scroll for desktop
+      }
     }
   }, [messages]);
-  
 
   const handleSendMessage = async () => {
     if (newMessage.trim() && activeUser?.id && activeChatId) {
       const messageData = {
         receiver: activeUser.id,
         text: newMessage,
-        chatId: activeChatId
       };
-      
-      // Create optimistic message with temporary ID
+
       const tempId = `temp-${Date.now()}`;
       const optimisticMsg = {
         _id: tempId,
@@ -464,28 +614,27 @@ const MessagesPage = () => {
         chatId: activeChatId,
         pending: true
       };
-      
-      // Add optimistic message to UI immediately
+
+      processedMessagesRef.current.add(tempId);
+
       setMessages(prevMessages => [...prevMessages, optimisticMsg]);
       setNewMessage("");
-      
+
       try {
-        // Send message through API
         const response = await sendMessage(messageData).unwrap();
-        
-        // Get the actual message ID from response
         const actualMessageId = response?.data?.id || optimisticMsg._id;
-        
-        // Update optimistic message with actual ID
-        setMessages(prevMessages => 
-          prevMessages.map(msg => 
-            msg._id === tempId 
-              ? { ...msg, _id: actualMessageId, pending: false } 
+
+        processedMessagesRef.current.delete(tempId);
+        processedMessagesRef.current.add(actualMessageId);
+
+        setMessages(prevMessages =>
+          prevMessages.map(msg =>
+            msg._id === tempId
+              ? { ...msg, _id: actualMessageId, pending: false }
               : msg
           )
         );
-        
-        // Create message object for socket
+
         const messageForSocket = {
           _id: actualMessageId,
           text: newMessage,
@@ -494,22 +643,17 @@ const MessagesPage = () => {
           createdAt: new Date().toISOString(),
           chatId: activeChatId
         };
-        
-        // Emit message through socket for real-time delivery
-        if (socketRef.current) {
-          socketRef.current.emit("send_message", {
-            chatId: activeChatId,
-            message: messageForSocket
-          });
-        }
+
+        socket.emit("send_message", {
+          chatId: activeChatId,
+          message: messageForSocket
+        });
       } catch (error) {
         console.error("Error sending message:", error);
-        
-        // Show error state for the optimistic message
-        setMessages(prevMessages => 
-          prevMessages.map(msg => 
-            msg._id === tempId 
-              ? { ...msg, error: true, pending: false } 
+        setMessages(prevMessages =>
+          prevMessages.map(msg =>
+            msg._id === tempId
+              ? { ...msg, error: true, pending: false }
               : msg
           )
         );
@@ -518,63 +662,68 @@ const MessagesPage = () => {
   };
 
   const handleUserSelect = (user) => {
+    processedMessagesRef.current.clear();
+
     setActiveUser(user);
     setActiveChatId(user?.chatId);
-    
-    // Clear unread count for this chat
     setUnreadMessages(prev => ({
       ...prev,
       [user.chatId]: 0
     }));
-    
-    // Reset messages when switching chats
+
     setMessages([]);
-    
-    // If this chat hasn't been initialized yet, force a refetch
+
     if (!messagesInitializedRef.current[user.chatId]) {
       setTimeout(() => {
         refetchMessages();
       }, 100);
     }
-    
+
     if (window.innerWidth < 768) {
       setShowSidebar(false);
     }
   };
 
-  // Format timestamp to readable time
   const formatTime = (timestamp) => {
     if (!timestamp) return "Just now";
-    
+
     const messageDate = new Date(timestamp);
     const now = new Date();
-    
-    // If message is from today, show only time
+
     if (messageDate.toDateString() === now.toDateString()) {
       return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
-    
-    // Otherwise show date
+
     return messageDate.toLocaleDateString();
   };
 
   return (
     <div className="container mx-auto mt-4 md:mt-12 pb-20 px-2 md:px-4">
       <h1 className="text-center text-2xl md:text-3xl font-bold text-green-600 mb-4 md:mb-8">Messages</h1>
-
-      {/* Main Container */}
-      <div className="flex bg-white shadow-lg rounded-lg overflow-hidden h-[100vh]">
-        {/* Mobile Menu Button */}
-        <button 
-          className="md:hidden absolute mt-20 top-4 left-4 p-2 bg-green-600 text-white rounded-lg"
+      <Button
+        onClick={() => window.history.back()}
+        className="bg-gray-800 text-white hover:bg-gray-700 px-6 py-2 rounded-lg mb-6"
+      >
+        Back
+      </Button>
+      <div className="flex bg-white shadow-lg rounded-lg overflow-hidden md:h-[90vh] h-[65vh]">
+        <button
+          className="md:hidden absolute  top-4 left-4 p-2 bg-green-600 text-white rounded-lg"
           onClick={() => setShowSidebar(!showSidebar)}
         >
           <Menu size={24} />
         </button>
 
-        {/* Left Sidebar */}
-        <div className={`${showSidebar ? 'block' : 'hidden'} w-full md:w-1/4 border-r bg-gray-50 md:block ${showSidebar && 'absolute md:relative inset-0 z-10 bg-white md:bg-gray-50'}`}>
+        {/* Sidebar */}
+        <div className={`${showSidebar ? 'block' : 'hidden'} w-full md:w-1/4 border-r bg-gray-50 md:block sidebar`}>
+          {/* <Button
+            onClick={() => window.history.back()}
+            className="bg-gray-800 text-white hover:bg-gray-700 mt-4 px-6 py-2 rounded-lg mb-6"
+          >
+            Back
+          </Button> */}
           <h1 className="text-2xl text-green-600 ml-5 mt-4">Chat List</h1>
+
           <div className="p-4 overflow-y-auto h-full">
             {users.length > 0 ? (
               users.map((user) => (
@@ -592,11 +741,6 @@ const MessagesPage = () => {
                     <h4 className="font-semibold text-gray-800">{user.name}</h4>
                     <p className="text-sm text-gray-500">{user.status}</p>
                   </div>
-                  {unreadMessages[user.chatId] > 0 && (
-                    <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
-                      {unreadMessages[user.chatId]}
-                    </div>
-                  )}
                 </div>
               ))
             ) : (
@@ -605,12 +749,11 @@ const MessagesPage = () => {
           </div>
         </div>
 
-        {/* Right Chat Section */}
-        <div className={`${!showSidebar ? 'block' : 'hidden'} w-full md:w-3/4 mt-8 flex flex-col md:block`}>
-          {/* Chat Header */}
+        {/* Chat area */}
+        <div className={`${!showSidebar ? 'block' : 'hidden'} w-full md:h-[700px] h-[550px] md:mt-10 md:w-3/4 flex flex-col md:block`}>
           <div className="p-4 border-b bg-gray-50 flex items-center">
             {!showSidebar && activeUser && (
-              <button 
+              <button
                 className="md:hidden mr-3 text-green-600"
                 onClick={() => setShowSidebar(true)}
               >
@@ -627,10 +770,14 @@ const MessagesPage = () => {
             </div>
           </div>
 
-          {/* Chat Messages */}
           <div
             className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#f9fafb]"
-            style={{ height: "calc(100% - 150px)" }}
+            style={{
+              height: showSidebar 
+                ? "calc(90% - 150px)" 
+                : "calc(100vh - 100px)", // Adjust height based on sidebar visibility
+              paddingBottom: "50px", // Ensure space for the input area
+            }}
           >
             {messages.length > 0 ? (
               messages.map((msg) => (
@@ -640,12 +787,12 @@ const MessagesPage = () => {
                 >
                   <div
                     className={`px-4 py-2 rounded-lg max-w-[80%] break-words ${
-                      msg.pending 
+                      msg.pending
                         ? "bg-gray-400 text-white"
-                        : msg.error 
-                          ? "bg-red-500 text-white" 
-                          : msg.sender?.id === userId 
-                            ? "bg-green-600 text-white" 
+                        : msg.error
+                          ? "bg-red-500 text-white"
+                          : msg.sender?.id === userId
+                            ? "bg-green-600 text-white"
                             : "bg-gray-200 text-gray-800"
                     }`}
                   >
@@ -670,9 +817,9 @@ const MessagesPage = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Message Input */}
           <div className="p-3 md:p-4 border-t bg-gray-50 flex items-center gap-2 md:gap-4">
             <input
+              ref={inputRef}
               type="text"
               className="flex-1 border rounded-lg px-3 md:px-4 py-2 text-sm md:text-base"
               placeholder="Type your message"
@@ -689,8 +836,11 @@ const MessagesPage = () => {
               Send
             </button>
           </div>
+          
         </div>
       </div>
+     
+      
     </div>
   );
 };

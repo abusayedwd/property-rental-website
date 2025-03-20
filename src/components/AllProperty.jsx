@@ -197,6 +197,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import { Pagination, Autoplay } from "swiper/modules";
+import { MdBathroom, MdOutlineBathtub, MdOutlineRealEstateAgent } from "react-icons/md";
 
 const AllProperty = ({ searchCriteria }) => {
   const router = useRouter();
@@ -204,6 +205,13 @@ const AllProperty = ({ searchCriteria }) => {
   const subState = searchCriteria?.selectedSubState;
   const propertyType = searchCriteria?.transactionType;
   const [isMobile, setIsMobile] = useState(false);
+
+  const pagination = {
+    clickable: true,
+    renderBullet: function (index, className) {
+      return '<span class="' + className + '">' + (index + 1) + '</span>';
+    },
+  };
 
   // Check if device is mobile
   useEffect(() => {
@@ -274,18 +282,18 @@ const AllProperty = ({ searchCriteria }) => {
         </div>
 
         <div className="grid grid-cols-3 gap-2 text-gray-600 text-sm mb-4">
-          <div className="flex items-center gap-1">
-            <AppstoreAddOutlined />
-            Rooms: {property?.rooms || "N/A"}
-          </div>
-          <div className="flex items-center gap-1">
-            <AppstoreAddOutlined />
-            Baths: {property.baths || "N/A"}
-          </div>
-          <div className="flex items-center gap-1">
-            <AppstoreAddOutlined />
-            State: {property.state || "N/A"}
-          </div>
+           <div className="flex items-center gap-1">
+                              <MdBathroom />
+                                 Rooms: {property?.rooms || "N/A"}
+                               </div>
+                               <div className="flex items-center gap-1">
+                               <MdOutlineBathtub />
+                                 Baths: {property.baths || "N/A"}
+                               </div>
+                               <div className="flex items-center gap-1">
+                               <MdOutlineRealEstateAgent />
+                                 State: {property.state || "N/A"}
+                               </div>
         </div>
 
         <div className="flex gap-3">
@@ -314,16 +322,14 @@ const AllProperty = ({ searchCriteria }) => {
           
           {isMobile ? (
             <Swiper
-              slidesPerView={1.2}
+              // slidesPerView={1.2}
               spaceBetween={10}
-              pagination={{
-                clickable: true,
-              }}
+              pagination={pagination}
               autoplay={{
                 delay: 3500,
                 disableOnInteraction: false,
               }}
-              modules={[Pagination, Autoplay]}
+              modules={[Pagination, Autoplay]}   
               className="mySwiper"
             >
               {promotedProperties.map((property) => (
@@ -351,9 +357,7 @@ const AllProperty = ({ searchCriteria }) => {
             <Swiper
               slidesPerView={1.2}
               spaceBetween={10}
-              pagination={{
-                clickable: true,
-              }}
+              pagination={pagination}
               modules={[Pagination]}
               className="mySwiper"
             >

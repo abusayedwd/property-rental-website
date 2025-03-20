@@ -242,7 +242,7 @@ const EditProfile = () => {
           </Form.Item>
 
           {/* Street Address */}
-          <Form.Item label="Company" name="company" rules={[{ required: true, message: "Please enter your company" }]}>
+          <Form.Item label="Company" name="company" >
             <Input placeholder="Enter your street address" className="rounded-md" />
           </Form.Item>
 
@@ -258,7 +258,7 @@ const EditProfile = () => {
             </Form.Item> */}
 
             {/* Phone Number */}
-            <Form.Item label="Phone Number" name="phoneNumber" rules={[{ required: true, message: "Please enter your phone number" }]}>
+            <Form.Item label="Phone Number" name="phoneNumber">
               <Input placeholder="Enter your phone number" className="rounded-md" />
             </Form.Item>
           </div>
