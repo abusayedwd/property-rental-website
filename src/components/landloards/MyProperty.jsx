@@ -230,9 +230,12 @@ const MyProperty = () => {
     try {
       const res = await payment(id).unwrap();
       console.log(res);
-      if (res?.status === true) {
-        window.open(res?.authorizationUrl, "_blank");
-      }
+      // if (res?.status === true) {
+      //   window.open(res?.authorizationUrl, "_blank");
+      // }
+      if(res?.status === 200){
+                router.push(res?.url)
+              }
     } catch (error) {
       console.log(error);
     }
