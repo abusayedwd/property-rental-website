@@ -3,6 +3,7 @@
 "use client";
 import AboutUs from "@/components/AboutUs";
 import AddPhoto from "@/components/AddPhoto";
+import AdvertiseSection from "@/components/AdvertiseSection";
 import AllProperty from "@/components/AllProperty";
 import Banner from "@/components/Benner";
 import ContactUs from "@/components/ContactUs";
@@ -32,6 +33,7 @@ export default function Home() {
       {/* Hide other components when searchCriteria exists */}
       {!searchCriteria && (
         <>
+          <AdvertiseSection />
           <AddPhoto />
           <PopularSell />
           <PopularRent />
