@@ -281,7 +281,7 @@ const PopularRent = ({ searchCriteria }) => {
     <div className="md:container w-[95%] mx-auto mt-12 md:mt-28">
       {/* Heading Section */}
       <div className="text-center mb-8">
-        <Header size="extraLarge" className="text-[#2FC639]">
+        <Header size="extraLarge" className="text-gray-100">
           Popular for Rent
         </Header>
         <p className="text-blue-500 text-sm md:mt-12 md:text-base">

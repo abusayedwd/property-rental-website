@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 
 import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import ThemeToggle from "./ThemeToggle";
 
 const Navbar = () => {
   const [error, setError] = useState("");
@@ -104,7 +105,7 @@ const Navbar = () => {
             <Link href="/"><img className="md:w-full w-48" src="/images/logo.png" alt="Logo"/></Link>
             
           </div>
-
+         <ThemeToggle/>
           {/* Buttons */}
           <div className="flex items-center md:gap-3 gap-1">
   {user ? (

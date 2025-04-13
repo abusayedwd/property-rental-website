@@ -22,11 +22,11 @@ const AdvertiseSection = () => {
   };
 
   return (
-    <section className="p-6 container">
+    <section className="p-6 container ">
       <Header size="large" className="text-[#2FC639] mt-5 py-4">Advertise With Us</Header>
       
       {/* Main content button to trigger modal */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className=" p-6 rounded-lg shadow-md border border-gray-300">
         <h2 className="text-3xl font-bold mb-4">Advertise Your Business</h2>
         
         <p className="mb-4">You can advertise your business on our website.</p>

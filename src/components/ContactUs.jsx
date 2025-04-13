@@ -3,8 +3,14 @@
 import React from "react";
 import { PhoneOutlined, MailOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import Header from "./customComponent/Header";
+import { useGetContactQuery } from "@/redux/fetures/information/contact";
 
 const ContactUs = () => {
+
+  const {data: contact} = useGetContactQuery();
+  console.log(contact?.data?.attributes[0])
+  const userContact = contact?.data?.attributes[0]
+  
   return (
     <div className="bg-white md:py-12 container">
       {/* Page Title */}
@@ -42,7 +48,7 @@ const ContactUs = () => {
             </div>
             <div className="ml-4">
               <h3 className="text-lg font-semibold text-gray-800">Call Us</h3>
-              <p className="text-gray-600">+(08) 255 201 888</p>
+              <p className="text-gray-600">{userContact?.phone}</p>
             </div>
           </div>
 
@@ -53,7 +59,7 @@ const ContactUs = () => {
             </div>
             <div className="ml-4">
               <h3 className="text-lg font-semibold text-gray-800">Email Now</h3>
-              <p className="text-gray-600">hello@procleaning.com</p>
+              <p className="text-gray-600">{userContact?.email}</p>
             </div>
           </div>
 
@@ -65,7 +71,7 @@ const ContactUs = () => {
             <div className="ml-4">
               <h3 className="text-lg font-semibold text-gray-800">Address</h3>
               <p className="text-gray-600">
-                7510, Brand Tower, New York, USA
+                {userContact?.address}
               </p>
             </div>
           </div>

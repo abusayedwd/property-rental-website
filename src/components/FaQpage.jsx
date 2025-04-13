@@ -32,16 +32,16 @@ const FaQpage = () => {
   ];
 
   return (
-    <div className=" container py-12 px-4 md:px-8">
+    <div className=" container py-12 px-4">
       {/* Page Title */}
       <div className="text-center mb-12">
-        <p className="text-blue-500 text-[40px] font-[Montserrat] font-semibold">Questions & Answers</p>
+        <p className="text-gray-400 text-[40px] font-[Montserrat] font-semibold">Questions & Answers</p>
         <Header size="extraLarge" className="text-[#2FC639] mt-5"> FAQ </Header>
      
       </div>
 
       {/* FAQ List */}
-      <div className="space-y-4 md:px-20 md:py-10"> {/* Adds vertical spacing between each question */}
+      <div className="space-y-4 md:py-10 "> {/* Adds vertical spacing between each question */}
         <Collapse
           accordion
           className="bg-transparent"
@@ -58,9 +58,9 @@ const FaQpage = () => {
             <Panel
               header={item.question}
               key={index}
-              className="bg-green-50 rounded-lg text-xl shadow-md text-gray-700 font-medium"
+              className=" rounded-lg text-xl shadow-md py-6 text-white font-medium"
             >
-              <p className="text-gray-600 text-[16px]">{item.answer}</p>
+              <p className=" text-[16px]">{item.answer}</p>
             </Panel>
           ))}
         </Collapse>

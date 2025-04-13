@@ -5,6 +5,7 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: 'class',
   theme: {
     screens: {
       sm: "360px",
@@ -24,8 +25,8 @@ module.exports = {
       fontSize: {
         small: "1rem", // Small size equivalent to text-lg
         medium: "1.5rem", // Medium size equivalent to text-2xl
-        large: "1.5rem", // Large size equivalent to text-3xl
-        extraLarge: "1.5rem", // Extra large size equivalent to text-4xl
+        large: "1rem", // Large size equivalent to text-3xl
+        extraLarge: "1rem", // Extra large size equivalent to text-4xl
       },
       colors: {
         primary: "#00BF63",
