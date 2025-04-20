@@ -12,7 +12,7 @@ const ContactUs = () => {
   const userContact = contact?.data?.attributes[0]
   
   return (
-    <div className="bg-white md:py-12 container">
+    <div className="md:py-12 container">
       {/* Page Title */}
       <div className="text-center mb-12">
         <p className="text-blue-500 text-[40px] font-[Montserrat] font-semibold">For any help</p>
@@ -42,35 +42,35 @@ const ContactUs = () => {
         {/* Right Section: Contact Details */}
         <div className="space-y-6">
           {/* Call Us */}
-          <div className="flex items-center bg-green-50 p-4 rounded-lg shadow-md">
+          <div className="flex items-center bg-gray-800 p-4 rounded-lg shadow-md">
             <div className="w-12 h-12 bg-green-600 text-white flex items-center justify-center rounded-full">
               <PhoneOutlined className="text-xl" />
             </div>
             <div className="ml-4">
-              <h3 className="text-lg font-semibold text-gray-800">Call Us</h3>
-              <p className="text-gray-600">{userContact?.phone}</p>
+              <h3 className="text-lg font-semibold">Call Us</h3>
+              <p className="">{userContact?.phone}</p>
             </div>
           </div>
 
           {/* Email Now */}
-          <div className="flex items-center bg-green-50 p-4 rounded-lg shadow-md">
+          <div className="flex items-center bg-gray-800 p-4 rounded-lg shadow-md">
             <div className="w-12 h-12 bg-green-600 text-white flex items-center justify-center rounded-full">
               <MailOutlined className="text-xl" />
             </div>
             <div className="ml-4">
-              <h3 className="text-lg font-semibold text-gray-800">Email Now</h3>
-              <p className="text-gray-600">{userContact?.email}</p>
+              <h3 className="text-lg font-semibold  ">Email Now</h3>
+              <p className=" ">{userContact?.email}</p>
             </div>
           </div>
 
           {/* Address */}
-          <div className="flex items-center bg-green-50 p-4 rounded-lg shadow-md">
+          <div className="flex items-center bg-gray-800 p-4 rounded-lg shadow-md">
             <div className="w-12 h-12 bg-green-600 text-white flex items-center justify-center rounded-full">
               <EnvironmentOutlined className="text-xl" />
             </div>
             <div className="ml-4">
-              <h3 className="text-lg font-semibold text-gray-800">Address</h3>
-              <p className="text-gray-600">
+              <h3 className="text-lg font-semibold  ">Address</h3>
+              <p className=" ">
                 {userContact?.address}
               </p>
             </div>
