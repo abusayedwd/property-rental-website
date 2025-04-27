@@ -27,21 +27,21 @@ const AboutUs = () => {
         {/* Right Section: Images */}
         <div className="relative flex justify-center items-center">
           {/* Decorative Dots */}
-          <div className="absolute top-0 left-0 w-12 h-12 bg-[url('/images/dots.svg')] bg-contain bg-no-repeat"></div>
-          <div className="absolute bottom-0 right-0 w-12 h-12 bg-[url('/images/dots.svg')] bg-contain bg-no-repeat"></div>
+          {/* <div className="absolute top-0 left-0 w-12 h-12 bg-[url('/images/dots.svg')] bg-contain bg-no-repeat"></div>
+          <div className="absolute bottom-0 right-0 w-12 h-12 bg-[url('/images/dots.svg')] bg-contain bg-no-repeat"></div> */}
 
           {/* Images */}
-          <div className="relative grid grid-cols-1 gap-4">
+          <div className=" gap-4">
             <img
-              src="/images/about.png"
+              src="/images/ab1.jpg"
               alt="House Exterior"
-              className="w-[280px] h-[280px] mk:relative bottom-6 object-cover rounded-lg shadow-md"
+              className="w-full md:h-[480px] h-[280px] object-cover rounded-lg shadow-md"
             />
-            <img
-             src="/images/about1.png"
+            {/* <img
+             src="/images/ab2.jpg"
               alt="Family in Living Room"
-              className="w-[280px] h-[280px] object-cover md:absolute top-20 left-36 rounded-lg shadow-md"
-            />
+              className="w-[280px] md:w-[480px] h-[280px] md:h-[380px] object-container md:absolute top-20 left-36 rounded-lg shadow-md"
+            /> */}
           </div>
         </div>
       </div>

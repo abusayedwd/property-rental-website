@@ -208,7 +208,7 @@ const Banner = ({ onSearch }) => {
 
   return (
     <div className="relative">
-      <div className="relative lg:h-[550px] flex items-center justify-center overflow-hidden">
+      <div className="relative lg:h-[750px] flex items-center justify-center overflow-hidden">
         {/* Image Slider */}
         {bannerImages.map((image, index) => (
           <div

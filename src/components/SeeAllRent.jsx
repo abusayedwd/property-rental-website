@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Tag } from "antd";
 import { EnvironmentOutlined, HomeOutlined, AppstoreAddOutlined } from "@ant-design/icons";
 import Header from "./customComponent/Header";
@@ -11,7 +11,8 @@ import { MdBathroom, MdOutlineBathtub, MdOutlineRealEstateAgent } from "react-ic
 import { useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination } from 'swiper/modules';
-
+import AOS from "aos";
+import 'aos/dist/aos.css';
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -25,11 +26,16 @@ const SeeAllRent = () => {
     subState: "",
     propertyType: "",
   });
-
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,  // Animation duration
+      easing: 'ease-in-out',  // Easing function
+    });
+  }, []);
   // Safely access properties
   const properties = propertiess?.data?.attributes?.results;
   const PropertyCard = ({ property }) => (
-    <div className="border rounded-lg shadow-md overflow-hidden bg-white h-full">
+    <div className="border rounded-lg shadow-md overflow-hidden bg-white h-full" data-aos="zoom-in">
       {/* Image Section */}
       <div className="relative">
         <img

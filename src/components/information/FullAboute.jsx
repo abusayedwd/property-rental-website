@@ -4,35 +4,28 @@ import React, { useEffect, useState } from 'react';
 import { Typography, Divider } from 'antd';
 import Header from '../customComponent/Header';
 import { useAbouteUsQuery } from '@/redux/fetures/information/aboutus';
- 
- 
-const decodeHtml = (html) => {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = html;
-  return txt.value;
-};
-
- 
+import Image from 'next/image';
+import VisionPage from './VisionPage';
+import AnimatedStatsSection from './AnimatedStatsSection';
 
 const FullAboute = () => {
-  const [content, setContent] = useState( )
-  const {data: aboutus} = useAbouteUsQuery()
-
- 
-  useEffect(() => {
-    if (aboutus) {
-      const decodedContent = decodeHtml(aboutus?.data?.attributes?.text);
-      setContent(decodedContent);
-    }
-  }, [aboutus]);
+  // You can uncomment this if you want to fetch about data from API
+  // const { data: aboutData, isLoading } = useAbouteUsQuery();
 
   return (
-    <div className="bg-white min-h-screen p-6 max-w-4xl mx-auto mt-12 shadow-md rounded-lg">
-      <Header size="extraLarge" className="text-green-700 mt-5 text-center mb-12">
-         About us
-      </Header>
-      <p dangerouslySetInnerHTML={{ __html: content }}> 
-      </p>
+    <div className=" min-h-screen mx-auto shadow-md rounded-lg">
+      {/* Using Next.js Image component correctly */}
+      <Image 
+        src="/images/abouteus.png" 
+        alt="About Us" 
+        width={1000} 
+        height={500}
+        className="w-full rounded-lg"
+      />
+      
+      {/* You can add more content below the image */}
+          <VisionPage />
+          <AnimatedStatsSection />
     </div>
   );
 };

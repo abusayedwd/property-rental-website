@@ -180,7 +180,8 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { MdBathroom, MdOutlineBathtub, MdOutlineRealEstateAgent } from "react-icons/md";
-
+import AOS from "aos";
+import 'aos/dist/aos.css';
 const PopularRent = ({ searchCriteria }) => {
   const router = useRouter();
  
@@ -195,12 +196,19 @@ const PopularRent = ({ searchCriteria }) => {
     propertyType: propertyType || "",
   });
 
+    useEffect(() => {
+      AOS.init({
+        duration: 1000,  // Animation duration
+        easing: 'ease-in-out',  // Easing function
+      });
+    }, []);
+
   // Safely access properties
   const properties = propertiess?.data?.attributes?.results || [];
 
   // Property Card Component to avoid duplication
   const PropertyCard = ({ property }) => (
-    <div className="border rounded-lg shadow-md overflow-hidden bg-white h-full">
+    <div className="border rounded-lg shadow-md overflow-hidden bg-white h-full" data-aos="zoom-in">
       {/* Image Section */}
       <div className="relative">
         <img

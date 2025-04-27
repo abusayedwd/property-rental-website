@@ -27,9 +27,9 @@ const AdvertiseSection = () => {
       
       {/* Main content button to trigger modal */}
       <div className=" p-6 rounded-lg shadow-md border border-gray-300">
-        <h2 className="text-3xl font-bold mb-4">Advertise Your Business</h2>
+        <h2 className="text-3xl font-bold text-white mb-4">Advertise Your Business</h2>
         
-        <p className="mb-4">You can advertise your business on our website.</p>
+        <p className="mb-4 text-white">You can advertise your business on our website.</p>
         {/* <p className="mb-4">Send us a banner of 1200 x 400.</p>
         <p className="mb-4">Price:₦ 50,000 per month.</p>
         <p className="mb-4">

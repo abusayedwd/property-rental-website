@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Tag } from "antd";
 import { EnvironmentOutlined, HomeOutlined, AppstoreAddOutlined } from "@ant-design/icons";
 import Header from "./customComponent/Header";
@@ -17,7 +17,8 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import { MdBathroom, MdOutlineBathtub, MdOutlineRealEstateAgent } from "react-icons/md";
 import { useRouter } from "next/navigation";
-
+import AOS from "aos";
+import 'aos/dist/aos.css';
 
 const SeeAllforSell = () => {
     const router = useRouter();
@@ -29,10 +30,15 @@ const SeeAllforSell = () => {
     }
   );
   const properties = propertiess?.data?.attributes?.results || [];
-
+  useEffect(() => {
+    AOS.init({
+      duration: 1000,  // Animation duration
+      easing: 'ease-in-out',  // Easing function
+    });
+  }, []);
   // Property Card Component to avoid duplication
   const PropertyCard = ({ property }) => (
-    <div className="border rounded-lg shadow-md overflow-hidden bg-white h-full">
+    <div className="border rounded-lg shadow-md overflow-hidden bg-white h-full" data-aos="zoom-in">
       {/* Image Section */}
       <div className="relative">
         <img

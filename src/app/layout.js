@@ -51,6 +51,7 @@
 //   );
 // }
 
+ 
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -58,7 +59,8 @@ import Navbar from "@/components/pages/Navbar";
 import Footer from "@/components/pages/Footer";
 import { ConfigProvider } from "antd";
 import Providers from "@/redux/Providers";
-import { ProviderTheme } from "./Them";
+ 
+ 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,6 +78,9 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+
+ 
+
   return (
     <html lang="en">
       <head>
@@ -84,13 +89,17 @@ export default function RootLayout({ children }) {
         <meta name="description" content={metadata.description} />
         <link rel="icon" href="/images/logo.png" sizes="32x32" type="image/png" /> {/* Favicon */}
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased `}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-wrap`}>
+
+        
+
         <Providers>
-          <ProviderTheme>
+          {/* <ProviderTheme> */}
+
           <Navbar />
           {children}
           <Footer />
-          </ProviderTheme>
+          {/* </ProviderTheme> */}
         </Providers>
       </body>
     </html>
