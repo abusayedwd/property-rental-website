@@ -31,7 +31,7 @@ const AdvertiseSection = () => {
         
         <p className="mb-4 text-white">You can advertise your business on our website.</p>
         {/* <p className="mb-4">Send us a banner of 1200 x 400.</p>
-        <p className="mb-4">Price:₦ 50,000 per month.</p>
+        <p className="mb-4">Price:$ 50,000 per month.</p>
         <p className="mb-4">
           Send us your banner of not more than 300KB to our email - 
           <a 
@@ -72,7 +72,7 @@ const AdvertiseSection = () => {
             <li><strong>Banner Size:</strong> 320 x 100 pixels</li>
             <li><strong>Placement:</strong> Front page for maximum visibility</li>
             <li><strong>Duration:</strong> 30 days of impactful exposure</li>
-            <li><strong>Cost:</strong> ₦100,000 per 30 days</li>
+            <li><strong>Cost:</strong> $100,000 per 30 days</li>
           </ul>
 
           <h3 className="text-lg font-semibold">How to Advertise:</h3>
@@ -85,7 +85,7 @@ const AdvertiseSection = () => {
           <h3 className="text-lg font-semibold">Terms and Conditions:</h3>
           <ul className="list-disc ml-8 mb-4">
             <li>Banners must not exceed 300KB in size.</li>
-            <li>Price is ₦100,000 for 30 days of exposure on the front page.</li>
+            <li>Price is $100,000 for 30 days of exposure on the front page.</li>
             <li>The banner will be displayed for the agreed duration and location.</li>
           </ul>
 

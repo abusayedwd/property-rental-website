@@ -31,7 +31,10 @@ const FullAboute = () => {
           <AnimatedStatsSection />
           <MissionSection />
           <HeroSection />
+
+          <div className='py-12'> 
           <TestimonialsSection />
+          </div>
     </div>
   );
 };

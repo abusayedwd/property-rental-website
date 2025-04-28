@@ -123,7 +123,7 @@
 //               </p>
 //               <p className="flex items-center gap-2 text-gray-600">
 //                 <DollarOutlined className="text-green-500" />
-//                 <strong>Price:</strong> ₦ {property.price}
+//                 <strong>Price:</strong> $ {property.price}
 //               </p>
 //               <p className="flex items-center gap-2 text-gray-600">
 //                 <CalendarOutlined className="text-green-500" />
@@ -316,7 +316,7 @@ const DetailsPage = () => {
                 </p>
                 <p className="flex items-center gap-2 text-gray-600">
                   <DollarOutlined className="text-green-500" />
-                  <strong>Price:</strong> ₦ {property.price}
+                  <strong>Price:</strong> $ {property.price}
                 </p>
                 <p className="flex items-center gap-2 text-gray-600">
                   <CalendarOutlined className="text-green-500" />

@@ -5,11 +5,11 @@ import React from "react";
 
 const AboutUs = () => {
   return (
-    <div className=" w-[95%] mx-auto md:w-full md:mt-16 mt-12 md:py-36 lg:py-44">
+    <div className=" w-[95%] mx-auto md:w-full mt-12 pb-12">
       <div className=" container grid grid-cols-1 md:grid-cols-2 items-center gap-8">
         {/* Left Section: Text Content */}
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-100 mb-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-[#2FC639] mb-4">
             About Us
           </h1>
           <p className="text-gray-400 md:text-lg leading-relaxed">

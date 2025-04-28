@@ -14,14 +14,14 @@ const TestimonialsSection = () => {
         name: 'Joey Trebio',
         role: 'MANAGER',
         avatar: '/images/model.png', // Replace with actual image path
-        quote: "Ut vix primis tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
+        quote: "Ut vix primis tractatos. alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
       },
       {
         id: 2,
         name: 'Ellie Holmes',
         role: 'SALES ADVISOR',
         avatar: '/images/model1.png', // Replace with actual image path
-        quote: "Ut vix primis tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
+        quote: "alterum epicuri accusamus. Duo per id his qualisque alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
       },
     ],
     [
@@ -37,8 +37,24 @@ const TestimonialsSection = () => {
         name: 'Other Person 2',
         role: 'MANAGER',
         avatar: '/images/model3.png',
-        quote: "Ut vix primis tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
+        quote: "alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
       },
+    ],
+    [
+        {
+            id: 1,
+            name: 'Joey Trebio',
+            role: 'MANAGER',
+            avatar: '/images/model.png', // Replace with actual image path
+            quote: "Ut vix primis alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
+          },
+          {
+            id: 2,
+            name: 'Ellie Holmes',
+            role: 'SALES ADVISOR',
+            avatar: '/images/model1.png', // Replace with actual image path
+            quote: "Ut vix primis tractatos. alterum epicuri accusamus. Duo per id his qualisque alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
+          },
     ],
     [
         {
@@ -46,31 +62,15 @@ const TestimonialsSection = () => {
             name: 'Other Person 1',
             role: 'SALES ADVISOR',
             avatar: '/images/model2.png',
-            quote: "Ut vix primis tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
+            quote: " alterum epicuri accusamus. Duo per id his alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. Ut alterum epicuri accusamus. Duo per alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue. vix primis tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
           },
           {
             id: 4,
             name: 'Other Person 2',
             role: 'MANAGER',
             avatar: '/images/model3.png',
-            quote: "Ut vix primis tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
+            quote: " alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue.Ut vix primis tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
           },
-    ],
-    [
-      {
-        id: 7,
-        name: 'Mari Adams',
-        role: 'SALES ADVISOR',
-        avatar: '/path/to/mari-image.jpg', // Replace with actual image path
-        quote: "Ut vix primis tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
-      },
-      {
-        id: 8,
-        name: 'Kevin Wels',
-        role: 'MANAGER',
-        avatar: '/path/to/kevin-image.jpg', // Replace with actual image path
-        quote: "Ut vix primis tractatos. Ad est alterum epicuri accusamus. Duo per id his qualisque deseruisse reformidans ex, quo omnesque cotidieque. Dolor voluptua per, his in congue."
-      },
     ]
   ];
 
@@ -87,16 +87,16 @@ const TestimonialsSection = () => {
       </div>
       <div className="flex-1">
         <div className="flex items-baseline mb-1">
-          <h3 className="text-xl font-bold mr-2">{testimonial.name}</h3>
+          <h3 className="text-xl font-bold mr-2 text-amber-200">{testimonial.name}</h3>
           <span className="text-xs text-gray-500 uppercase tracking-wider">{testimonial.role}</span>
         </div>
-        <p className="text-gray-600 text-sm leading-relaxed">"{testimonial.quote}"</p>
+        <p className="text-amber-400 text-sm leading-relaxed">"{testimonial.quote}"</p>
       </div>
     </div>
   );
 
   return (
-    <div className="container mx-auto px-4 py-12 bg-white">
+    <div className="container mx-auto  py-20 bg-slate-900">
       <Swiper
         modules={[Pagination, Autoplay]}
         spaceBetween={30}

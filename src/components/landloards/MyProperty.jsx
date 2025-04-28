@@ -364,7 +364,7 @@ const MyProperty = () => {
 
                 <div className="flex justify-between items-center mb-3">
                   <p className="text-green-600 font-bold text-xl">
-                    ₦{property.price || "N/A"}
+                    ${property.price || "N/A"}
                   </p>
                   <div className="text-gray-500 text-sm flex items-center gap-1">
                     <HomeOutlined />
@@ -412,7 +412,7 @@ const MyProperty = () => {
                         className="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition"
                         onClick={() => handlePromotionPayment(property?.id)}
                       >
-                        Promote For - ₦ 3000
+                        Promote For - $ 3000
                       </button>
                     )}
                   </div>

@@ -73,7 +73,7 @@ const SeeAllRent = () => {
         {/* Price and Type */}
         <div className="flex justify-between items-center mb-3">
           <p className="text-green-600 font-bold text-xl">
-            ₦{property.price || "N/A"}
+            ${property.price || "N/A"}
           </p>
           <div className="text-gray-500 text-sm flex items-center gap-1">
             <HomeOutlined />

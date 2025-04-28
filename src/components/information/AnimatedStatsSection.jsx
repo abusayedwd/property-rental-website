@@ -14,7 +14,7 @@ const AnimatedStatsSection = () => {
   const [totalTransactions, setTotalTransactions] = useState(0);
   
   // Target values
-  const targetSoldPrice = 9480;
+  const targetSoldPrice = 940;
   const targetPropertiesSold = 24;
   const targetLeasedPrice = 680;
   const targetPropertiesLeased = 95;
@@ -79,37 +79,37 @@ const AnimatedStatsSection = () => {
   };
   
   return (
-    <div className="w-full py-16 bg-blue-50" ref={statsRef}>
+    <div className="w-full py-24 bg-slate-900" ref={statsRef}>
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-between items-start text-center">
           {/* Median Sold Price */}
           <div className="w-full md:w-1/5 mb-8 md:mb-0">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800">${soldPrice}k</h2>
-            <p className="text-gray-600 mt-2">Median sold price</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-amber-200">${soldPrice}k</h2>
+            <p className="text-amber-200 mt-2">Median sold price</p>
           </div>
           
           {/* Properties Sold */}
           <div className="w-full md:w-1/5 mb-8 md:mb-0">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800">{propertiesSold}</h2>
-            <p className="text-gray-600 mt-2">Properties sold</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-amber-200">{propertiesSold}</h2>
+            <p className="text-amber-200 mt-2">Properties sold</p>
           </div>
           
           {/* Median Leased Price */}
           <div className="w-full md:w-1/5 mb-8 md:mb-0">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800">${leasedPrice}k</h2>
-            <p className="text-gray-600 mt-2">Median leased price</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-amber-200">${leasedPrice}k</h2>
+            <p className="text-amber-200 mt-2">Median leased price</p>
           </div>
           
           {/* Properties Leased */}
           <div className="w-full md:w-1/5 mb-8 md:mb-0">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800">{propertiesLeased}</h2>
-            <p className="text-gray-600 mt-2">Properties leased</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-amber-200">{propertiesLeased}</h2>
+            <p className="text-amber-200 mt-2">Properties leased</p>
           </div>
           
           {/* Sales & Rental Transactions */}
           <div className="w-full md:w-1/5">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-800">${totalTransactions}k</h2>
-            <p className="text-gray-600 mt-2">sales & rental transactions</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-amber-200">${totalTransactions}k</h2>
+            <p className="text-amber-200 mt-2">sales & rental transactions</p>
           </div>
         </div>
       </div>

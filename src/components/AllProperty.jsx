@@ -71,7 +71,7 @@
 //                   </p>
 
 //                   <div className="flex justify-between items-center mb-2">
-//                     <p className="text-green-600 font-bold text-xl">₦ {property.price || "N/A"}</p>
+//                     <p className="text-green-600 font-bold text-xl">$ {property.price || "N/A"}</p>
 //                     <div className="text-gray-500 text-sm flex items-center gap-1">
 //                       <HomeOutlined />
 //                       Type: {property.type || "N/A"}
@@ -136,7 +136,7 @@
 //                   </p>
 
 //                   <div className="flex justify-between items-center mb-2">
-//                     <p className="text-green-600 font-bold text-lg">₦ {property.price || "N/A"}</p>
+//                     <p className="text-green-600 font-bold text-lg">$ {property.price || "N/A"}</p>
 //                     <div className="text-gray-500 text-sm flex items-center gap-1">
 //                       <HomeOutlined />
 //                       Type: {property.type || "N/A"}
@@ -273,7 +273,7 @@ const AllProperty = ({ searchCriteria }) => {
 
         <div className="flex justify-between items-center mb-2">
           <p className={`text-green-600 font-bold ${isPromoted ? "text-xl" : "text-lg"}`}>
-            ₦ {property.price || "N/A"}
+            $ {property.price || "N/A"}
           </p>
           <div className="text-gray-500 text-sm flex items-center gap-1">
             <HomeOutlined />
