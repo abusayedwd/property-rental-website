@@ -259,7 +259,7 @@ const EditProperty = () => {
   const [selectedSubState, setSelectedSubState] = useState(null);
   const [openSubState, setOpenSubState] = useState(false);
   const [image, setImage] = useState(null); // Store uploaded image
-
+ const [fileList, setFileList] = useState([]);
   // Prefill form with fetched data
   useEffect(() => {
     if (property) {
@@ -278,6 +278,42 @@ const EditProperty = () => {
     }
   }, [property]);
 
+  const uploadProps = {
+    name: 'images',
+    multiple: true,
+    fileList: fileList,
+    beforeUpload: (file) => {
+      // Check file type
+      const isImage = file.type.startsWith('image/');
+      if (!isImage) {
+        message.error('You can only upload image files!');
+        return Upload.LIST_IGNORE;
+      }
+
+      // Check file size (5MB limit)
+      const isLt5M = file.size / 1024 / 1024 < 5;
+      if (!isLt5M) {
+        message.error('Image must be smaller than 5MB!');
+        return Upload.LIST_IGNORE;
+      }
+
+      return false; // Prevent auto upload
+    },
+    onChange: (info) => {
+      if (info.fileList.length > 5) {
+        message.error('You can only upload a maximum of 5 images');
+        return;
+      }
+      setFileList(info.fileList);
+    },
+    onRemove: (file) => {
+      const index = fileList.indexOf(file);
+      const newFileList = fileList.slice();
+      newFileList.splice(index, 1);
+      setFileList(newFileList);
+    },
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -294,15 +330,15 @@ const EditProperty = () => {
     setOpenSubState(false);
   };
 
-  const uploadProps = {
-    name: "file",
-    multiple: false,
-    showUploadList: true,
-    beforeUpload: (file) => {
-      setImage(file);
-      return false;
-    },
-  };
+  // const uploadProps = {
+  //   name: "file",
+  //   multiple: false,
+  //   showUploadList: true,
+  //   beforeUpload: (file) => {
+  //     setImage(file);
+  //     return false;
+  //   },
+  // };
 
   const handleSubmit = async () => {
     if (!form.houseName || !form.place || !form.price) {
@@ -323,9 +359,9 @@ const EditProperty = () => {
     formData.append("type", form.type);
     formData.append("place", form.place);
 
-    if (image) {
-      formData.append("image", image);
-    }
+    fileList.forEach((file) => {
+      formData.append('images', file.originFileObj);
+    });
 
     try {
       const res = await updateProperty({formData, id }).unwrap();
