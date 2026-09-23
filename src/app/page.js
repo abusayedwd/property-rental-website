@@ -11,7 +11,6 @@ import EnquiryPage from "@/components/Enquery";
 import FaQpage from "@/components/FaQpage";
 import HowItWorks from "@/components/HowItWorks";
 import AnimatedStatsSection from "@/components/information/AnimatedStatsSection";
-import HeroSection from "@/components/information/Heroab";
 import TestimonialsSection from "@/components/information/Testomonials";
 import ModernProperty from "@/components/ModernProperty";
 import PopularRent from "@/components/PopularRent";
@@ -49,8 +48,6 @@ export default function Home() {
           <HowItWorks />
           <FaQpage />
           <AdvertiseSection />
-          <HeroSection />
-    
           <ContactUs />
           <TestimonialsSection />
         </>

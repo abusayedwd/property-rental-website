@@ -15,23 +15,23 @@ export default function HowItWorks() {
   const steps = [
     {
       title: "Find real estate",
-      description: "Sumo petentium ut per, at his wisim utinam adipiscing. Est ei graeco quod suavitate vix.",
-      icon: <Home className="w-12 h-12 text-gray-800" />
+      description: "Search listings by location, price, and property type to find homes that match what you need.",
+      icon: <Home className="w-12 h-12 text-primary" />
     },
     {
-      title: "Meet relator",
-      description: "Sumo petentium ut per, at his wisim utinam adipiscing. Est ei graeco quod suavitate vix.",
-      icon: <Users className="w-12 h-12 text-gray-800" />
+      title: "Meet the landlord",
+      description: "Message landlords directly through the platform to ask questions and schedule a viewing.",
+      icon: <Users className="w-12 h-12 text-primary" />
     },
     {
-      title: "Documents",
-      description: "Sumo petentium ut per, at his wisim utinam adipiscing. Est ei graeco quod suavitate vix.",
-      icon: <FileText className="w-12 h-12 text-gray-800" />
+      title: "Sort the paperwork",
+      description: "Review the lease or sale terms and complete the paperwork securely, all in one place.",
+      icon: <FileText className="w-12 h-12 text-primary" />
     },
     {
       title: "Take the keys",
-      description: "Sumo petentium ut per, at his wisim utinam adipiscing. Est ei graeco quod suavitate vix.",
-      icon: <Key className="w-12 h-12 text-gray-800" />
+      description: "Finalize payment and move in — your next home is ready whenever you are.",
+      icon: <Key className="w-12 h-12 text-primary" />
     }
   ];
 

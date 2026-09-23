@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input } from "antd";
+import { Input } from "antd";
 
 const EnquiryPage = () => {
   const [formData, setFormData] = useState({
@@ -18,67 +18,59 @@ const EnquiryPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData); // You can send this data to your server or API.
+    console.log(formData);
   };
 
   return (
     <div
-      className="w-full h-screen bg-cover bg-center bg-fixed"
-      style={{
-        backgroundImage: "url('/images/appr.jpg')", // Replace with your image path
-      }}
+      className="w-full bg-cover bg-center bg-fixed py-20"
+      style={{ backgroundImage: "url('/images/appr.jpg')" }}
     >
-      <div className="w-full pr-10 h-full bg-black/50 flex justify-end items-center">
-        <div className="w-[80%] max-w-4xl bg-[#EDEEDC] opacity-60 rounded-lg p-8">
-          <h2 className="text-4xl text-center font-bold mb-4">
-            Discover a new way of living
+      <div className="flex w-full items-center justify-center bg-navy/70 px-4 py-16">
+        <div className="w-full max-w-2xl rounded-lg bg-white p-8 shadow-xl sm:p-10">
+          <h2 className="mb-4 text-center text-3xl font-bold text-gray-800 sm:text-4xl">
+            Discover a New Way of Living
           </h2>
-          <p className="text-center text-lg mb-8">
-            Save your time and easily rent or sell your property with the lowest commission on the real estate market.
+          <p className="mb-8 text-center text-gray-500">
+            Save your time and easily rent or sell your property with the lowest
+            commission on the real estate market.
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Input
-                type="text"
-                name="name"
-                placeholder="Your name*"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                className="w-full p-4 border-2 border-gray-300 rounded-lg"
-              />
-            </div>
-            <div>
-              <Input
-                type="email"
-                name="email"
-                placeholder="Your email*"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="w-full p-4 border-2 border-gray-300 rounded-lg"
-              />
-            </div>
-            <div>
-              <Input
-                type="tel"
-                name="phone"
-                placeholder="Your phone number*"
-                value={formData.phone}
-                onChange={handleInputChange}
-                required
-                className="w-full p-4 border-2 border-gray-300 rounded-lg"
-              />
-            </div>
+            <Input
+              type="text"
+              name="name"
+              placeholder="Your name*"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+              className="!h-12 !rounded-lg !border-gray-300"
+            />
+            <Input
+              type="email"
+              name="email"
+              placeholder="Your email*"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              className="!h-12 !rounded-lg !border-gray-300"
+            />
+            <Input
+              type="tel"
+              name="phone"
+              placeholder="Your phone number*"
+              value={formData.phone}
+              onChange={handleInputChange}
+              required
+              className="!h-12 !rounded-lg !border-gray-300"
+            />
 
-            <div className="flex justify-center">
-            <button type="button" className="group relative h-14 w-full overflow-hidden border-2 border-sky-400 text-xl text-sky-400 hover:text-sky-200">
-            <span className="bg-sky-800  ease-in absolute w-[57%]  -translate-x-full group-hover:translate-x-0 -left-2 top-0 bottom-0 duration-300 -z-10 skew-x-12"></span>
-            <span className="bg-sky-600 ease-in absolute w-[55%]  translate-x-full group-hover:translate-x-0 -right-2 top-0 bottom-0 duration-300 skew-x-12 -z-10"></span>
-          View more
-          </button>
-            </div>
+            <button
+              type="submit"
+              className="!h-12 w-full rounded-lg bg-primary font-semibold text-white transition-colors hover:bg-primaryDark"
+            >
+              Get Started
+            </button>
           </form>
         </div>
       </div>

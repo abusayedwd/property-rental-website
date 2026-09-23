@@ -89,7 +89,7 @@ export default function RootLayout({ children }) {
         <meta name="description" content={metadata.description} />
         <link rel="icon" href="/images/logo.png" sizes="32x32" type="image/png" /> {/* Favicon */}
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-wrap`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-wrap`}>
 
         
 

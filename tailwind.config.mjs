@@ -5,7 +5,6 @@ module.exports = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: 'class',
   theme: {
     screens: {
       sm: "360px",
@@ -30,9 +29,11 @@ module.exports = {
       },
       colors: {
         primary: "#00BF63",
+        primaryDark: "#059347",
         secondary: "#E6F9EF",
         textGray: "#494949",
-     
+        navy: "#222F55",
+        navyDark: "#171F3D",
       },
     },
   },

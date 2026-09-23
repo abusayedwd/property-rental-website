@@ -43,8 +43,10 @@
 //     });
 //   }, []);
 
-//   const properties = propertiess?.data?.attributes?.results || []; 
- 
+//   const fetchedProperties = propertiess?.data?.attributes?.results || [];
+//   const properties =
+//     !isLoading && fetchedProperties.length === 0 ? demoSellProperties : fetchedProperties;
+
 //   const PropertyCard = ({ property }) => (
 
 //     <div className="border rounded-lg shadow-md overflow-hidden  hover:shadow-xl transition-all duration-500" >
@@ -120,12 +122,12 @@
 //         <Header size="extraLarge" className="text-[#2FC639]">
 //           Popular for Sell
 //         </Header>
-//         <p className="text-blue-500 text-sm md:mt-12 md:text-base">
+//         <p className="text-gray-500 text-sm md:mt-12 md:text-base">
 //           You can see here all popular property
 //         </p>
 //         <div className="mt-4 text-right">
 //           <Link href="/seeAllSell">
-//             <Button className="text-white hover:bg-green-600 bg-[#1A3459] hover:text-white font-semibold">
+//             <Button className="text-white hover:bg-primaryDark bg-navy hover:text-white font-semibold">
 //               See all
 //             </Button>
 //           </Link>
@@ -200,6 +202,7 @@ import 'swiper/css/pagination';
 import { MdBathroom, MdOutlineBathtub, MdOutlineRealEstateAgent } from "react-icons/md";
 import AOS from "aos";
 import 'aos/dist/aos.css';
+import { demoSellProperties } from "@/data/demoProperties";
 
 const PopularSell = ({ searchCriteria }) => {
   const router = useRouter();
@@ -213,7 +216,9 @@ const PopularSell = ({ searchCriteria }) => {
     subState: subState || "", 
     propertyType: propertyType || ""
   });
-  const properties = propertiess?.data?.attributes?.results || []; 
+  const fetchedProperties = propertiess?.data?.attributes?.results || [];
+  const properties =
+    !isLoading && fetchedProperties.length === 0 ? demoSellProperties : fetchedProperties;
 
 
 
@@ -308,10 +313,8 @@ const PopularSell = ({ searchCriteria }) => {
               className="px-6 py-3 transform translate-y-12 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 ease-out font-medium shadow-lg"
               onClick={() => router.push(`/detailsHome/${property.id}`)}
             >
-              <div> 
-                 <button type="button" className=" relative h-14 w-48 overflow-hidden border-2 border-sky-400 text-xl text-sky-400 hover:text-sky-200">
-              <span className="bg-sky-800 bg-opacity-60  ease-in absolute w-[57%]  -translate-x-full group-hover:translate-x-0 -left-2 top-0 bottom-0 duration-300 -z-10 skew-x-12"></span>
-              <span className="bg-sky-600 bg-opacity-60 ease-in absolute w-[55%]  translate-x-full group-hover:translate-x-0 -right-2 top-0 bottom-0 duration-300 skew-x-12 -z-10"></span>
+              <div>
+                 <button type="button" className="h-14 w-48 rounded-lg bg-primary text-lg font-semibold text-white transition-colors hover:bg-primaryDark">
             View more
             </button>
               </div>
@@ -327,12 +330,12 @@ const PopularSell = ({ searchCriteria }) => {
           <div className="p-4  h-full flex flex-col">
                 {/* Title */}
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-200 mb-1">
+                  <h2 className="text-lg font-bold text-gray-800 mb-1">
                     {property.houseName || "Unnamed Property"}
                   </h2>
                 </div>
                 {/* Address */}
-                <p className="text-gray-200 text-sm flex items-center gap-2 mb-2">
+                <p className="text-gray-500 text-sm flex items-center gap-2 mb-2">
                   <EnvironmentOutlined />
                   {property.place || "No address provided"}
                 </p>
@@ -341,7 +344,7 @@ const PopularSell = ({ searchCriteria }) => {
                   <p className="text-green-600 font-bold text-xl">
                     ${property.price || "N/A"}
                   </p>
-                  <div className="text-gray-200 text-sm flex items-center gap-1">
+                  <div className="text-gray-500 text-sm flex items-center gap-1">
                     <HomeOutlined />
                     Type: {property.type || "N/A"}
                   </div>
@@ -358,12 +361,12 @@ const PopularSell = ({ searchCriteria }) => {
         <Header size="extraLarge" className="text-[#2FC639]">
           Popular for Sell
         </Header>
-        <p className="text-blue-500 text-sm md:mt-12 md:text-base">
+        <p className="text-gray-500 text-sm md:mt-12 md:text-base">
           You can see here all popular property
         </p>
         <div className="mt-4 text-right">
           <Link href="/seeAllSell">
-            <Button className="text-white hover:bg-green-600 bg-[#1A3459] hover:text-white font-semibold">
+            <Button className="text-white hover:bg-primaryDark bg-navy hover:text-white font-semibold">
               See all
             </Button>
           </Link>
