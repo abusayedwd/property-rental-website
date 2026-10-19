@@ -1,17 +1,16 @@
-
 import { apiSlice } from "../../api/apiSlice";
 
+// body: { chatId, text }. The new message arrives for everyone via the socket.
 const sendMessage = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
-        sendMessage : builder.mutation({
+        sendMessage: builder.mutation({
             query: (data) => ({
                 url: `/messages/sendMessage`,
                 method: "POST",
-                body:  data
+                body: data,
             }),
-            invalidatesTags: [{type: "Chat"}]
-        })
-    })
-})
+        }),
+    }),
+});
 
-export const {useSendMessageMutation} = sendMessage;
+export const { useSendMessageMutation } = sendMessage;

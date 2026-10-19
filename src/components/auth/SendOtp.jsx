@@ -1,117 +1,124 @@
 "use client"
 
- 
 import { useVerifyEmailMutation } from '@/redux/fetures/auth/varifyEmail';
-import Link from 'next/link';
+import { useForgotPasswordMutation } from '@/redux/fetures/auth/forgotPassword';
 import { useRouter } from 'next/navigation';
- 
- 
 import React, { useEffect, useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast';
+import { Button } from 'antd';
+import toast from 'react-hot-toast';
 import OTPInput from 'react-otp-input';
- 
+import { HiOutlineMailOpen } from 'react-icons/hi';
+import AuthLayout, { FormError, buttonClass } from './AuthLayout';
+
+const OTP_LENGTH = 6;
 
 const SendOtp = () => {
   const [otp, setOtp] = useState('');
-  const [error, setEror] = useState('')
+  const [error, setError] = useState('')
   const router = useRouter();
   const [email, setEmail] = useState('')
   const [path, setPath] = useState('')
- 
+
   useEffect(() => {
     // Extract query parameters on client-side
-   
     const params = new URLSearchParams(window.location.search);
     setEmail(params.get('email') || '');
     setPath(params.get('path') || '');
-
   }, []);
 
   const [verifyOtp, {isLoading}] = useVerifyEmailMutation()
- 
-  const data = {
-    email,
-    oneTimeCode: otp
-  }
-  console.log(data)
+  const [resendOtp, {isLoading: isResending}] = useForgotPasswordMutation()
+  const isSignup = path === "/auth/singup";
 
-  const handleOtp = async () => {
- 
+  const handleOtp = async (e) => {
+    e?.preventDefault();
+    setError('');
     try {
-      const res = await verifyOtp(data).unwrap();
-      console.log(res);
-  
+      const res = await verifyOtp({ email, oneTimeCode: otp }).unwrap();
+
       if (res?.code === 200) {
           toast.success(res?.message);
-  
-          if (path === "/auth/singup") {
-            
+
+          if (isSignup) {
               router.push(`/auth/login`);
           } else if (path === "/auth/forgotPassword") {
             router.push(`/auth/resetPassword?email=${email}`);
-          } else {
-              // Add any other default navigation or actions if needed
           }
       }
-  } catch (error) {
-      console.log(error);
-      setEror(error?.data?.message)
-      // setError(error?.data?.message);
-  } 
-   
+    } catch (error) {
+      setError(error?.data?.message || 'Invalid or expired code. Please try again.')
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      const res = await resendOtp({ email }).unwrap();
+      toast.success(res?.message || 'A new code has been sent to your email.');
+    } catch (error) {
+      toast.error(error?.data?.message || 'Could not resend code. Please try again.');
+    }
   };
 
   return (
-    <div className="flex justify-center items-center lg:min-h-[700px] bg-gray-100">
-      <Toaster />
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-[500px]">
-        <h1 className="text-2xl font-bold mb-6 text-center">Verify Email</h1>
-        <p className="text-center mb-6">
-          Please enter the OTP we have sent you in your email.
-        </p>
+    <AuthLayout
+      image="/images/appr.jpg"
+      heading={isSignup ? "You're almost in" : "Just one more step"}
+      subheading="Verifying your email keeps your account and conversations secure."
+      highlights={[]}
+      icon={<HiOutlineMailOpen size={24} />}
+      title={isSignup ? 'Verify your email' : 'Enter verification code'}
+      subtitle={
+        <>
+          We sent a {OTP_LENGTH}-digit code to{' '}
+          <span className="font-medium text-navy">{email || 'your email'}</span>. Enter it below to continue.
+        </>
+      }
+      backHref={isSignup ? '/auth/singup' : '/auth/forgotPassword'}
+    >
+      <form onSubmit={handleOtp}>
+        <OTPInput
+          value={otp}
+          onChange={setOtp}
+          numInputs={OTP_LENGTH}
+          shouldAutoFocus
+          inputType="tel"
+          containerStyle={{ display: 'flex', gap: '10px' }}
+          inputStyle={{ width: '100%' }}
+          renderInput={(props) => (
+            <input
+              {...props}
+              className="h-12 min-w-0 flex-1 rounded-lg border border-gray-200 bg-gray-50 text-center text-xl font-semibold text-navy outline-none transition-all focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/20 sm:h-14"
+            />
+          )}
+        />
 
-        {/* OTP Input */}
-        <div className="flex justify-center sm:justify-start items-center gap-2 outline-none focus:border-blue-400 w-full">
-                        <OTPInput
-                                value={otp}
-                                onChange={setOtp}
-                                numInputs={6}
-                                inputStyle={{
-                                    height: "52px",
-                                    width: "45px", // Default width for mobile
-                                    background: "transparent",
-                                    border: "1px solid green",
+        {!isSignup && (
+          <div className="mt-5 flex items-center justify-between text-sm">
+            <span className="text-gray-500">Didn&apos;t receive the code?</span>
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={isResending || !email}
+              className="font-semibold text-primary hover:text-primaryDark hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isResending ? 'Sending...' : 'Resend code'}
+            </button>
+          </div>
+        )}
 
-                                    borderRadius: '10px',
-                                    marginRight: "8px",
-                                    outline: "none",
-                                    // Adjusting width for larger screens
-                                    sm: {
-                                        width: "80px" // Width for larger screens
-                                    }
-                                }}
-                                renderSeparator={<span className="md:w-6"> </span>}
-                                renderInput={(props) => <input {...props} className="sm:w-[60px]" />}
-                            />
-                        </div>
-
-        {/* Didn't receive code? */}
-        {/* <p className="text-center text-blue-500 hover:underline cursor-pointer mb-6">
-          Didn't receive code?
-        </p> */}
-
-        {/* Verify Button */}
-        
-        <p className=' text-red-500 mt-4'>{error}</p>
-        <button
-         className="w-full mt-6 !bg-[#2E7D32] text-white p-2 rounded"
-          onClick={handleOtp}
-        >
-          Verify Account
-        </button>
-     
-      </div>
-    </div>
+        <div className="mt-6">
+          <FormError message={error} />
+          <Button
+            htmlType="submit"
+            loading={isLoading}
+            disabled={otp.length !== OTP_LENGTH}
+            className={buttonClass}
+          >
+            {isSignup ? 'Verify account' : 'Verify code'}
+          </Button>
+        </div>
+      </form>
+    </AuthLayout>
   );
 };
 

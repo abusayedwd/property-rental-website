@@ -1,846 +1,587 @@
-// "use client";
-
-// import url from "@/redux/api/baseUrl";
-// import { useGetChatlistQuery } from "@/redux/fetures/messaging/getChatlist";
-// import { useGetMessageQuery } from "@/redux/fetures/messaging/getMessage";
-// import { useSendMessageMutation } from "@/redux/fetures/messaging/sendMessage";
-// import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
-// import React, { useEffect, useState, useRef } from "react";
-// import { Menu } from "lucide-react";
-// import { useSearchParams } from "next/navigation";
-// import io from "socket.io-client";
-// import { Button } from "antd";
-
-// // Use original socket connection only - removed the duplicate
-// const socket = io("https://sayed3040.sobhoy.com");
-
-// const MessagesPage = () => {
-//   const { data: chatList } = useGetChatlistQuery();
-//   const { data: user } = useLogedUserQuery();
-//   const [showSidebar, setShowSidebar] = useState(true);
-//   const [sendMessage, { isLoading }] = useSendMessageMutation();
-//   const searchParams = useSearchParams();
-//   const chatIdFromQuery = searchParams.get("chatId");
-
-//   const [activeChatId, setActiveChatId] = useState(chatIdFromQuery || null);
-//   const { data: messagesData, refetch: refetchMessages } = useGetMessageQuery(activeChatId, {
-//     skip: !activeChatId,
-//   });
-
-//   const chatData = chatList?.data?.attributes || [];
-//   const userId = user?.data?.attributes?.user?.id;
-
-//   const users = chatData.map((chat) => {
-//     const participant = chat.participants.find((p) => p.id !== userId);
-//     return {
-//       id: participant?.id,
-//       name: participant?.fullName,
-//       status: participant?.role,
-//       avatar: url + participant?.image?.url,
-//       chatId: chat.id,
-//     };
-//   });
-
-//   const [activeUser, setActiveUser] = useState(users.find(user => user.chatId === activeChatId) || users[0] || null);
-//   const [messages, setMessages] = useState([]);
-//   const messagesEndRef = useRef(null);
-//   const [newMessage, setNewMessage] = useState("");
-//   const [unreadMessages, setUnreadMessages] = useState({});
-//   const messagesInitializedRef = useRef({});
-//   const processedMessagesRef = useRef(new Set()); // Track which messages we've already processed
-
-//   // Listen for window resize to set sidebar visibility
-//   useEffect(() => {
-//     const handleResize = () => {
-//       if (window.innerWidth >= 768) {
-//         setShowSidebar(true);
-//       }
-//     };
-
-//     window.addEventListener('resize', handleResize);
-//     return () => window.removeEventListener('resize', handleResize);
-//   }, []);
-
-//   // Initial socket connection
-//   useEffect(() => {
-//     socket.emit("client_connect", "hello data from client");
-    
-//     if (userId) {
-//       socket.emit("user_connected", userId);
-//     }
-
-//     // Clean up processed messages cache when component unmounts
-//     return () => {
-//       processedMessagesRef.current.clear();
-//     };
-//   }, [userId]);
-
-//   // Set up message listener for the active chat only
-//   useEffect(() => {
-//     if (!activeChatId) return;
-    
-//     const eventName = `messages::${activeChatId}`;
-    
-//     const handleIncomingMessage = (message) => {
-//       console.log("Received message:", message);
-      
-//       // Check if we've already processed this message
-//       if (processedMessagesRef.current.has(message._id)) {
-//         return;
-//       }
-      
-//       // Mark this message as processed
-//       processedMessagesRef.current.add(message._id);
-      
-//       setMessages(prevMessages => {
-//         // Check if message already exists in our state
-//         const messageExists = prevMessages.some(msg => msg._id === message._id);
-        
-//         if (!messageExists) {
-//           return [...prevMessages, message];
-//         }
-        
-//         return prevMessages.map(msg =>
-//           msg._id === message._id ? { ...msg, ...message } : msg
-//         );
-//       });
-//     };
-    
-//     socket.on(eventName, handleIncomingMessage);
-    
-//     // Clean up
-//     return () => {
-//       socket.off(eventName, handleIncomingMessage);
-//     };
-//   }, [activeChatId]);
-
-//   // Handle unread messages for non-active chats
-//   useEffect(() => {
-//     if (!userId || !chatData.length) return;
-    
-//     // Set up listeners for all non-active chat IDs
-//     chatData.forEach(chat => {
-//       if (chat.id === activeChatId) return; // Skip active chat
-      
-//       const eventName = `messages::${chat.id}`;
-      
-//       const handleBackgroundMessage = (message) => {
-//         // Update unread counter for non-active chats
-//         setUnreadMessages(prev => ({
-//           ...prev,
-//           [chat.id]: (prev[chat.id] || 0) + 1
-//         }));
-//       };
-      
-//       socket.on(eventName, handleBackgroundMessage);
-      
-//       return () => {
-//         socket.off(eventName, handleBackgroundMessage);
-//       };
-//     });
-//   }, [chatData, activeChatId, userId]);
-
-//   // Join active chat room
-//   useEffect(() => {
-//     if (activeChatId) {
-//       socket.emit("join_chat", activeChatId);
-//       console.log("Joined chat room:", activeChatId);
-//     }
-//   }, [activeChatId]);
-
-//   // Update messages when messagesData changes
-//   useEffect(() => {
-//     if (activeChatId && messagesData?.data?.attributes) {
-//       const chatMessages = messagesData.data.attributes;
-      
-//       // Add all fetched messages to our processed set
-//       chatMessages.forEach(msg => {
-//         processedMessagesRef.current.add(msg._id);
-//       });
-      
-//       messagesInitializedRef.current[activeChatId] = true;
-//       setMessages(chatMessages);
-      
-//       setUnreadMessages(prev => ({
-//         ...prev,
-//         [activeChatId]: 0
-//       }));
-//     }
-//   }, [activeChatId, messagesData]);
-
-//   // Scroll to bottom when messages change
-//  // Scroll to bottom when messages change
-//  useEffect(() => {
-//   if (messagesEndRef.current) {
-//     messagesEndRef.current.scrollIntoView({
-//       behavior: "smooth",
-//     });
-//     window.scrollBy(-130, 0);
-//   }
-// }, [messages]);
-//   // Update active user when chat list or active chat ID changes
-//  useEffect(() => {
-//   if (users.length > 0) {
-//     // Find the selected user based on the activeChatId
-//     const selectedUser = users.find(user => user.chatId === activeChatId);
-
-//     // Only update state if selectedUser is different from the current activeUser
-//     if (selectedUser && selectedUser.id !== activeUser?.id) {
-//       setActiveUser(selectedUser);
-//     } else if (!selectedUser && users[0]?.chatId !== activeChatId) {
-//       // Set to the first user if no user is selected
-//       setActiveUser(users[0]);
-//       setActiveChatId(users[0].chatId);
-//     }
-//   }
-// }, [users, activeChatId, activeUser]);
-
-
-//   const handleSendMessage = async () => {
-//     if (newMessage.trim() && activeUser?.id && activeChatId) {
-//       const messageData = {
-//         receiver: activeUser.id,
-//         text: newMessage,
-//       };
-
-//       const tempId = `temp-${Date.now()}`;
-//       const optimisticMsg = {
-//         _id: tempId,
-//         text: newMessage,
-//         sender: { id: userId },
-//         createdAt: new Date().toISOString(),
-//         chatId: activeChatId,
-//         pending: true
-//       };
-
-//       // Add to set of processed messages
-//       processedMessagesRef.current.add(tempId);
-      
-//       setMessages(prevMessages => [...prevMessages, optimisticMsg]);
-//       setNewMessage("");
-
-//       try {
-//         const response = await sendMessage(messageData).unwrap();
-//         const actualMessageId = response?.data?.id || optimisticMsg._id;
-        
-//         // Update processed messages set with real ID
-//         processedMessagesRef.current.delete(tempId);
-//         processedMessagesRef.current.add(actualMessageId);
-
-//         setMessages(prevMessages =>
-//           prevMessages.map(msg =>
-//             msg._id === tempId
-//               ? { ...msg, _id: actualMessageId, pending: false }
-//               : msg
-//           )
-//         );
-
-//         const messageForSocket = {
-//           _id: actualMessageId,
-//           text: newMessage,
-//           sender: { id: userId },
-//           receiver: { id: activeUser.id },
-//           createdAt: new Date().toISOString(),
-//           chatId: activeChatId
-//         };
-
-//         socket.emit("send_message", {
-//           chatId: activeChatId,
-//           message: messageForSocket
-//         });
-//       } catch (error) {
-//         console.error("Error sending message:", error);
-//         setMessages(prevMessages =>
-//           prevMessages.map(msg =>
-//             msg._id === tempId
-//               ? { ...msg, error: true, pending: false }
-//               : msg
-//           )
-//         );
-//       }
-//     }
-//   };
-
-//   const handleUserSelect = (user) => {
-//     // Clear processed messages when switching chats
-//     processedMessagesRef.current.clear();
-    
-//     setActiveUser(user);
-//     setActiveChatId(user?.chatId);
-//     setUnreadMessages(prev => ({
-//       ...prev,
-//       [user.chatId]: 0
-//     }));
-
-//     // Clear messages when switching to a different chat
-//     setMessages([]);
-
-//     if (!messagesInitializedRef.current[user.chatId]) {
-//       setTimeout(() => {
-//         refetchMessages();
-//       }, 100);
-//     }
-
-//     if (window.innerWidth < 768) {
-//       setShowSidebar(false);
-//     }
-//   };
-
-//   const formatTime = (timestamp) => {
-//     if (!timestamp) return "Just now";
-
-//     const messageDate = new Date(timestamp);
-//     const now = new Date();
-
-//     if (messageDate.toDateString() === now.toDateString()) {
-//       return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-//     }
-
-//     return messageDate.toLocaleDateString();
-//   };
-
-//   return (
-//     <div className="container mx-auto mt-4 md:mt-12 pb-20 px-2 md:px-4">
-//       <h1 className="text-center text-2xl md:text-3xl font-bold text-green-600 mb-4 md:mb-8">Messages</h1>
-//       <Button
-//                   onClick={() => window.history.back()}
-//                   className="bg-gray-800 text-white hover:bg-gray-700 px-6 py-2 rounded-lg mb-6"
-//                 >
-//                   Back
-//                 </Button>
-//       <div className="flex bg-white shadow-lg rounded-lg overflow-hidden h-[90vh]">
-//         <button
-//           className="md:hidden absolute mt-20 top-4 left-4 p-2 bg-green-600 text-white rounded-lg"
-//           onClick={() => setShowSidebar(!showSidebar)}
-//         >
-//           <Menu size={24} />
-//         </button>
-
-//         {/* Sidebar */}
-//         <div className={`${showSidebar ? 'block' : 'hidden'} w-full md:w-1/4 border-r bg-gray-50 md:block ${showSidebar && window.innerWidth < 768 ? 'absolute inset-0 z-10 bg-white' : 'relative'}`}>
-//         <Button
-//                   onClick={() => window.history.back()}
-//                   className="bg-gray-800 text-white hover:bg-gray-700 mt-4 px-6 py-2 rounded-lg mb-6"
-//                 >
-//                   Back
-//                 </Button>
-//           <h1 className="text-2xl text-green-600 ml-5 mt-4">Chat List</h1>
-            
-//           <div className="p-4 overflow-y-auto h-full">
-//             {users.length > 0 ? (
-//               users.map((user) => (
-//                 <div
-//                   key={user.id}
-//                   className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer hover:bg-gray-200 relative ${activeUser?.id === user.id ? "bg-gray-200" : ""}`}
-//                   onClick={() => handleUserSelect(user)}
-//                 >
-//                   <img
-//                     src={user?.avatar}
-//                     alt={user.name}
-//                     className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover"
-//                   />
-//                   <div className="flex-1">
-//                     <h4 className="font-semibold text-gray-800">{user.name}</h4>
-//                     <p className="text-sm text-gray-500">{user.status}</p>
-//                   </div>
-                 
-//                 </div>
-//               ))
-//             ) : (
-//               <p className="text-center text-gray-500">No chat lists available</p>
-//             )}
-//           </div>
-//         </div>
-
-//         {/* Chat area */}
-//         <div className={`${!showSidebar ? 'block' : 'hidden'} w-full md:w-3/4 flex flex-col md:block`}>
-//           <div className="p-4 border-b bg-gray-50 flex items-center">
-//             {!showSidebar && activeUser && (
-//               <button
-//                 className="md:hidden mr-3 text-green-600"
-//                 onClick={() => setShowSidebar(true)}
-//               >
-//                 <Menu size={24} />
-//               </button>
-//             )}
-//             <div>
-//               <h2 className="text-lg font-semibold text-gray-800">
-//                 {activeUser?.name || "Select a chat"}
-//               </h2>
-//               <p className="text-sm text-gray-500">
-//                 {activeUser?.status || ""}
-//               </p>
-//             </div>
-//           </div>
-
-//           <div
-//             className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#f9fafb]"
-//             style={{ height: "calc(100% - 150px)" }}
-//           >
-//             {messages.length > 0 ? (
-//               messages.map((msg) => (
-//                 <div
-//                   key={msg._id}
-//                   className={`flex ${msg.sender?.id === userId ? "justify-end" : "justify-start"}`}
-//                 >
-//                   <div
-//                     className={`px-4 py-2 rounded-lg max-w-[80%] break-words ${
-//                       msg.pending
-//                         ? "bg-gray-400 text-white"
-//                         : msg.error
-//                           ? "bg-red-500 text-white"
-//                           : msg.sender?.id === userId
-//                             ? "bg-green-600 text-white"
-//                             : "bg-gray-200 text-gray-800"
-//                     }`}
-//                   >
-//                     <p>{msg.text}</p>
-//                     <div className="flex justify-between items-center mt-1">
-//                       <p className={`text-xs ${msg.sender?.id === userId ? "text-gray-200" : "text-gray-500"}`}>
-//                         {formatTime(msg?.createdAt)}
-//                       </p>
-//                       {msg.pending && (
-//                         <span className="text-xs text-gray-200 ml-2">Sending...</span>
-//                       )}
-//                       {msg.error && (
-//                         <span className="text-xs text-gray-200 ml-2">Failed to send</span>
-//                       )}
-//                     </div>
-//                   </div>
-//                 </div>
-//               ))
-//             ) : (
-//               <p className="text-center text-gray-500">No messages available</p>
-//             )}
-//             <div ref={messagesEndRef} />
-//           </div>
-
-//           <div className="p-3 md:p-4 border-t bg-gray-50 flex items-center gap-2 md:gap-4">
-//             <input
-//               type="text"
-//               className="flex-1 border rounded-lg px-3 md:px-4 py-2 text-sm md:text-base"
-//               placeholder="Type your message"
-//               value={newMessage}
-//               onChange={(e) => setNewMessage(e.target.value)}
-//               onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-//               disabled={!activeUser}
-//             />
-//             <button
-//               className={`bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 text-sm md:text-base whitespace-nowrap ${(!activeUser || !newMessage.trim() || isLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
-//               onClick={handleSendMessage}
-//               disabled={!activeUser || !newMessage.trim()}
-//             >
-//               Send
-//             </button>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MessagesPage;
-
-
-
-
 "use client";
 
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Avatar, Input, Skeleton } from "antd";
+import {
+  HiOutlineMagnifyingGlass,
+  HiOutlinePaperAirplane,
+  HiOutlineArrowLeft,
+  HiOutlineChatBubbleLeftRight,
+  HiOutlineClock,
+  HiOutlineExclamationCircle,
+  HiCheck,
+  HiChevronDown,
+} from "react-icons/hi2";
 import url from "@/redux/api/baseUrl";
+import { apiSlice } from "@/redux/api/apiSlice";
 import { useGetChatlistQuery } from "@/redux/fetures/messaging/getChatlist";
+import { useGetMessageQuery } from "@/redux/fetures/messaging/getMessage";
 import { useSendMessageMutation } from "@/redux/fetures/messaging/sendMessage";
 import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
-import React, { useEffect, useState, useRef } from "react";
-import { Menu } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import io from "socket.io-client";
-import { Button } from "antd";
-import { useGetMessageQuery } from "@/redux/fetures/messaging/getMessage";
+import { getSocket } from "@/utils/socket";
 
-const socket = io("https://sayed3040.sobhoy.com");
+const MAX_LENGTH = 2000;
+const ROLE_LABEL = { user: "Tenant / Buyer", landlord: "Landlord", admin: "Support" };
+
+const idOf = (value) => (value && typeof value === "object" ? String(value.id || value._id) : String(value || ""));
+const avatarSrc = (person) => (person?.image?.url ? url + person.image.url : undefined);
+
+const sameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
+
+const dayLabel = (value) => {
+  const date = new Date(value);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+  if (sameDay(date, today)) return "Today";
+  if (sameDay(date, yesterday)) return "Yesterday";
+  return date.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", year: date.getFullYear() === today.getFullYear() ? undefined : "numeric" });
+};
+
+const timeLabel = (value) => new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+// Short time for the chat list: "10:42", "Yesterday", "Mon", "12 Oct"
+const listTime = (value) => {
+  if (!value) return "";
+  const date = new Date(value);
+  const now = new Date();
+  if (sameDay(date, now)) return timeLabel(date);
+  const days = (now - date) / 86400000;
+  if (days < 2) return "Yesterday";
+  if (days < 7) return date.toLocaleDateString(undefined, { weekday: "short" });
+  return date.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+};
+
+const PresenceAvatar = ({ person, online, size = 44 }) => (
+  <span className="relative inline-block shrink-0">
+    <Avatar size={size} src={avatarSrc(person)} className="!bg-primary !font-semibold">
+      {person?.fullName?.[0]?.toUpperCase() || "?"}
+    </Avatar>
+    {online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-primary ring-2 ring-white" title="Online" />}
+  </span>
+);
+
+const TypingBubble = () => (
+  <div className="flex justify-start">
+    <div className="flex items-center gap-1 rounded-2xl rounded-bl-md border border-gray-100 bg-white px-4 py-3 shadow-sm">
+      {[0, 150, 300].map((delay) => (
+        <span key={delay} className="h-2 w-2 animate-bounce rounded-full bg-gray-400" style={{ animationDelay: `${delay}ms` }} />
+      ))}
+    </div>
+  </div>
+);
+
+const MessageStatus = ({ message }) => {
+  if (message.pending) return <HiOutlineClock size={13} className="opacity-70" title="Sending" />;
+  if (message.isRead)
+    return (
+      <span className="flex -space-x-1.5 text-sky-200" title="Read">
+        <HiCheck size={14} />
+        <HiCheck size={14} />
+      </span>
+    );
+  return <HiCheck size={14} className="opacity-70" title="Sent" />;
+};
 
 const MessagesPage = () => {
-  const { data: chatList } = useGetChatlistQuery();
-  const { data: user } = useLogedUserQuery();
-  const [showSidebar, setShowSidebar] = useState(true);
-  const [sendMessage, { isLoading }] = useSendMessageMutation();
+  const dispatch = useDispatch();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const chatIdFromQuery = searchParams.get("chatId");
 
-  const [activeChatId, setActiveChatId] = useState(chatIdFromQuery || null);
-  const { data: messagesData, refetch: refetchMessages } = useGetMessageQuery(activeChatId, {
-    skip: !activeChatId,
+  const { data: me } = useLogedUserQuery();
+  const myId = me?.data?.attributes?.user?.id;
+
+  const { data: chatListData, isLoading: chatsLoading } = useGetChatlistQuery(undefined, { skip: !myId });
+  const chats = useMemo(() => chatListData?.data?.attributes || [], [chatListData]);
+
+  const [activeChatId, setActiveChatId] = useState(searchParams.get("chatId"));
+  const { data: messagesData, isFetching: messagesLoading, isError: messagesError } = useGetMessageQuery(activeChatId, {
+    skip: !activeChatId || !myId,
+    refetchOnMountOrArgChange: true,
   });
 
-  const chatData = chatList?.data?.attributes || [];
-  const userId = user?.data?.attributes?.user?.id;
-
-  const users = chatData.map((chat) => {
-    const participant = chat.participants.find((p) => p.id !== userId);
-    return {
-      id: participant?.id,
-      name: participant?.fullName,
-      status: participant?.role,
-      avatar: url + participant?.image?.url,
-      chatId: chat.id,
-    };
-  });
-
-  const [activeUser, setActiveUser] = useState(users.find(user => user.chatId === activeChatId) || users[0] || null);
   const [messages, setMessages] = useState([]);
-  const messagesEndRef = useRef(null);
-  const [newMessage, setNewMessage] = useState("");
-  const [unreadMessages, setUnreadMessages] = useState({});
-  const messagesInitializedRef = useRef({});
-  const processedMessagesRef = useRef(new Set());
-  const inputRef = useRef(null);
+  const [draft, setDraft] = useState("");
+  const [search, setSearch] = useState("");
+  const [online, setOnline] = useState(() => new Set());
+  const [typingChats, setTypingChats] = useState({});
+  const [showJump, setShowJump] = useState(false);
+  const [sendMessage] = useSendMessageMutation();
 
+  const scrollRef = useRef(null);
+  const textareaRef = useRef(null);
+  const activeChatRef = useRef(activeChatId);
+  const typingTimers = useRef({});
+  const lastTypingSent = useRef(0);
+  activeChatRef.current = activeChatId;
+
+  // Redirect to login when signed out
   useEffect(() => {
-    socket.emit("client_connect", "hello data from client");
+    if (!localStorage.getItem("token")) router.replace("/auth/login");
+  }, [router]);
 
-    if (userId) {
-      socket.emit("user_connected", userId);
-    }
+  // The other person in each chat
+  const conversations = useMemo(
+    () =>
+      chats.map((chat) => {
+        const partner = chat.participants?.find((p) => idOf(p) !== myId) || chat.receiver;
+        return { ...chat, chatId: idOf(chat), partner, partnerId: idOf(partner) };
+      }),
+    [chats, myId]
+  );
 
-    return () => {
-      processedMessagesRef.current.clear();
-    };
-  }, [userId]);
+  const activeConversation = conversations.find((c) => c.chatId === activeChatId);
+  const partner = activeConversation?.partner;
+  const partnerOnline = activeConversation && online.has(activeConversation.partnerId);
+  const partnerTyping = !!typingChats[activeChatId];
 
+  const filtered = conversations.filter((c) => !search.trim() || c.partner?.fullName?.toLowerCase().includes(search.trim().toLowerCase()));
+  const totalUnread = conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+
+  // Load messages for the selected chat
   useEffect(() => {
-    if (!activeChatId) return;
+    if (messagesData?.data?.attributes && activeChatId) setMessages(messagesData.data.attributes);
+  }, [messagesData, activeChatId]);
 
-    const eventName = `messages::${activeChatId}`;
+  // Update one conversation in the cached chat list (and move it to the top)
+  const patchChatList = useCallback(
+    (chatId, patch) => {
+      let found = false;
+      dispatch(
+        apiSlice.util.updateQueryData("getChatlist", undefined, (draftList) => {
+          const list = draftList?.data?.attributes;
+          if (!Array.isArray(list)) return;
+          const index = list.findIndex((c) => idOf(c) === chatId);
+          if (index === -1) return;
+          found = true;
+          const [chat] = list.splice(index, 1);
+          patch(chat);
+          list.unshift(chat);
+        })
+      );
+      if (!found) dispatch(apiSlice.util.invalidateTags([{ type: "Chat", id: "LIST" }]));
+    },
+    [dispatch]
+  );
 
-    const handleIncomingMessage = (message) => {
-      if (processedMessagesRef.current.has(message._id)) {
-        return;
-      }
+  const isNearBottom = () => {
+    const el = scrollRef.current;
+    return !el || el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+  };
 
-      processedMessagesRef.current.add(message._id);
+  const scrollToBottom = (smooth = true) => {
+    const el = scrollRef.current;
+    if (el) el.scrollTo({ top: el.scrollHeight, behavior: smooth ? "smooth" : "auto" });
+    setShowJump(false);
+  };
 
-      setMessages(prevMessages => {
-        const messageExists = prevMessages.some(msg => msg._id === message._id);
-
-        if (!messageExists) {
-          return [...prevMessages, message];
-        }
-
-        return prevMessages;
-      });
-    };
-
-    socket.on(eventName, handleIncomingMessage);
-
-    return () => {
-      socket.off(eventName, handleIncomingMessage);
-    };
-  }, [activeChatId]);
-
+  // Jump to the newest message when a chat opens
   useEffect(() => {
-    if (!userId || !chatData.length) return;
+    if (!messagesLoading) requestAnimationFrame(() => scrollToBottom(false));
+  }, [activeChatId, messagesLoading]);
 
-    chatData.forEach(chat => {
-      if (chat.id === activeChatId) return;
-
-      const eventName = `messages::${chat.id}`;
-
-      const handleBackgroundMessage = (message) => {
-        setUnreadMessages(prev => ({
-          ...prev,
-          [chat.id]: (prev[chat.id] || 0) + 1
-        }));
-      };
-
-      socket.on(eventName, handleBackgroundMessage);
-
-      return () => {
-        socket.off(eventName, handleBackgroundMessage);
-      };
-    });
-  }, [chatData, activeChatId, userId]);
-
+  // ---- Realtime ----
   useEffect(() => {
-    if (activeChatId) {
-      socket.emit("join_chat", activeChatId);
-    }
-  }, [activeChatId]);
+    if (!myId) return;
+    const socket = getSocket();
+    if (!socket) return;
 
-  useEffect(() => {
-    if (activeChatId && messagesData?.data?.attributes) {
-      const chatMessages = messagesData.data.attributes;
+    const queryPresence = () => socket.emit("presence:query", (ids) => setOnline(new Set(ids || [])));
+    if (socket.connected) queryPresence();
 
-      chatMessages.forEach(msg => {
-        processedMessagesRef.current.add(msg._id);
-      });
+    const onNewMessage = (message) => {
+      const chatId = String(message.chatId);
+      const fromMe = idOf(message.sender) === myId;
+      const isActive = chatId === activeChatRef.current;
 
-      messagesInitializedRef.current[activeChatId] = true;
-      setMessages(chatMessages);
-
-      setUnreadMessages(prev => ({
-        ...prev,
-        [activeChatId]: 0
-      }));
-    }
-  }, [activeChatId, messagesData]);
-
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({
-        behavior: "smooth",
-      });
-
-      if (window.innerWidth <= 768) {
-        window.scrollBy(0, -60); // Adjust scroll for mobile
-      } else {
-        window.scrollBy(0, -130); // Adjust scroll for desktop
-      }
-    }
-  }, [messages]);
-
-  const handleSendMessage = async () => {
-    if (newMessage.trim() && activeUser?.id && activeChatId) {
-      const messageData = {
-        receiver: activeUser.id,
-        text: newMessage,
-      };
-
-      const tempId = `temp-${Date.now()}`;
-      const optimisticMsg = {
-        _id: tempId,
-        text: newMessage,
-        sender: { id: userId },
-        createdAt: new Date().toISOString(),
-        chatId: activeChatId,
-        pending: true
-      };
-
-      processedMessagesRef.current.add(tempId);
-
-      setMessages(prevMessages => [...prevMessages, optimisticMsg]);
-      setNewMessage("");
-
-      try {
-        const response = await sendMessage(messageData).unwrap();
-        const actualMessageId = response?.data?.id || optimisticMsg._id;
-
-        processedMessagesRef.current.delete(tempId);
-        processedMessagesRef.current.add(actualMessageId);
-
-        setMessages(prevMessages =>
-          prevMessages.map(msg =>
-            msg._id === tempId
-              ? { ...msg, _id: actualMessageId, pending: false }
-              : msg
-          )
-        );
-
-        const messageForSocket = {
-          _id: actualMessageId,
-          text: newMessage,
-          sender: { id: userId },
-          receiver: { id: activeUser.id },
-          createdAt: new Date().toISOString(),
-          chatId: activeChatId
-        };
-
-        socket.emit("send_message", {
-          chatId: activeChatId,
-          message: messageForSocket
+      if (isActive) {
+        const stickToBottom = fromMe || isNearBottom();
+        setMessages((prev) => {
+          if (prev.some((m) => idOf(m) === idOf(message))) return prev;
+          if (message.clientId && prev.some((m) => m.clientId === message.clientId)) {
+            return prev.map((m) => (m.clientId === message.clientId ? { ...message, pending: false } : m));
+          }
+          return [...prev, message];
         });
-      } catch (error) {
-        console.error("Error sending message:", error);
-        setMessages(prevMessages =>
-          prevMessages.map(msg =>
-            msg._id === tempId
-              ? { ...msg, error: true, pending: false }
-              : msg
-          )
-        );
+        if (stickToBottom) requestAnimationFrame(() => scrollToBottom());
+        else setShowJump(true);
+        if (!fromMe) socket.emit("messages:read", { chatId });
+        setTypingChats((t) => ({ ...t, [chatId]: false }));
       }
-    }
-  };
 
-  const handleUserSelect = (user) => {
-    processedMessagesRef.current.clear();
+      patchChatList(chatId, (chat) => {
+        chat.lastMessage = { id: idOf(message), text: message.text, sender: idOf(message.sender), isRead: isActive && !fromMe, createdAt: message.createdAt };
+        chat.updatedAt = message.createdAt;
+        if (!fromMe && !isActive) chat.unreadCount = (chat.unreadCount || 0) + 1;
+      });
+    };
 
-    setActiveUser(user);
-    setActiveChatId(user?.chatId);
-    setUnreadMessages(prev => ({
-      ...prev,
-      [user.chatId]: 0
-    }));
+    const onRead = ({ chatId, readerId }) => {
+      if (readerId === myId) return;
+      if (chatId === activeChatRef.current) {
+        setMessages((prev) => prev.map((m) => (idOf(m.sender) === myId ? { ...m, isRead: true } : m)));
+      }
+      patchChatList(chatId, (chat) => {
+        if (chat.lastMessage) chat.lastMessage.isRead = true;
+      });
+    };
 
+    const onTyping = ({ chatId, isTyping }) => {
+      clearTimeout(typingTimers.current[chatId]);
+      setTypingChats((t) => ({ ...t, [chatId]: isTyping }));
+      // Fallback in case the "stopped typing" event is missed
+      if (isTyping) typingTimers.current[chatId] = setTimeout(() => setTypingChats((t) => ({ ...t, [chatId]: false })), 5000);
+    };
+
+    const onPresence = ({ userId, online: isOnline }) =>
+      setOnline((prev) => {
+        const next = new Set(prev);
+        isOnline ? next.add(userId) : next.delete(userId);
+        return next;
+      });
+
+    socket.on("connect", queryPresence);
+    socket.on("message:new", onNewMessage);
+    socket.on("messages:read", onRead);
+    socket.on("typing", onTyping);
+    socket.on("presence:update", onPresence);
+    return () => {
+      socket.off("connect", queryPresence);
+      socket.off("message:new", onNewMessage);
+      socket.off("messages:read", onRead);
+      socket.off("typing", onTyping);
+      socket.off("presence:update", onPresence);
+    };
+  }, [myId, patchChatList]);
+
+  // Re-check presence when the list of partners changes (e.g. a new chat)
+  useEffect(() => {
+    const socket = getSocket();
+    if (socket?.connected) socket.emit("presence:query", (ids) => setOnline(new Set(ids || [])));
+  }, [conversations.length]);
+
+  const openChat = (chatId) => {
+    if (chatId === activeChatId) return;
     setMessages([]);
+    setDraft("");
+    setActiveChatId(chatId);
+    router.replace(`/messages?chatId=${chatId}`, { scroll: false });
+    patchChatListUnread(chatId);
+  };
 
-    if (!messagesInitializedRef.current[user.chatId]) {
-      setTimeout(() => {
-        refetchMessages();
-      }, 100);
+  const patchChatListUnread = (chatId) =>
+    dispatch(
+      apiSlice.util.updateQueryData("getChatlist", undefined, (draftList) => {
+        const chat = draftList?.data?.attributes?.find((c) => idOf(c) === chatId);
+        if (chat) chat.unreadCount = 0;
+      })
+    );
+
+  const closeChat = () => {
+    setActiveChatId(null);
+    router.replace("/messages", { scroll: false });
+  };
+
+  const emitTyping = (isTyping) => {
+    const socket = getSocket();
+    if (!socket || !activeChatId) return;
+    socket.emit("typing", { chatId: activeChatId, isTyping });
+  };
+
+  const handleDraftChange = (e) => {
+    setDraft(e.target.value.slice(0, MAX_LENGTH));
+    const now = Date.now();
+    if (now - lastTypingSent.current > 2000) {
+      lastTypingSent.current = now;
+      emitTyping(true);
     }
+    clearTimeout(typingTimers.current.self);
+    typingTimers.current.self = setTimeout(() => {
+      emitTyping(false);
+      lastTypingSent.current = 0;
+    }, 2500);
+  };
 
-    if (window.innerWidth < 768) {
-      setShowSidebar(false);
+  const deliver = async (text, clientId) => {
+    try {
+      const res = await sendMessage({ chatId: activeChatId, text, clientId }).unwrap();
+      const saved = res?.data?.attributes;
+      // The socket usually delivers first; this covers a slow or missing socket
+      if (saved) {
+        setMessages((prev) => prev.map((m) => (m.clientId === clientId && m.pending ? { ...saved, pending: false } : m)));
+      }
+    } catch {
+      setMessages((prev) => prev.map((m) => (m.clientId === clientId ? { ...m, pending: false, failed: true } : m)));
     }
   };
 
-  const formatTime = (timestamp) => {
-    if (!timestamp) return "Just now";
-
-    const messageDate = new Date(timestamp);
-    const now = new Date();
-
-    if (messageDate.toDateString() === now.toDateString()) {
-      return messageDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    return messageDate.toLocaleDateString();
+  const handleSend = () => {
+    const text = draft.trim();
+    if (!text || !activeChatId) return;
+    const clientId = `c-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    setMessages((prev) => [
+      ...prev,
+      { _id: clientId, clientId, text, sender: { id: myId }, createdAt: new Date().toISOString(), pending: true },
+    ]);
+    setDraft("");
+    clearTimeout(typingTimers.current.self);
+    emitTyping(false);
+    lastTypingSent.current = 0;
+    requestAnimationFrame(() => scrollToBottom());
+    textareaRef.current?.focus();
+    deliver(text, clientId);
   };
 
-  return (
-    <div className="container mx-auto mt-4 md:mt-12 pb-20 px-2 md:px-4">
-      <h1 className="text-center text-2xl md:text-3xl font-bold text-green-600 mb-4 md:mb-8">Messages</h1>
-      <Button
-        onClick={() => window.history.back()}
-        className="bg-gray-800 text-white hover:bg-gray-700 px-6 py-2 rounded-lg mb-6"
-      >
-        Back
-      </Button>
-      <div className="flex bg-white shadow-lg rounded-lg overflow-hidden md:h-[90vh] h-[65vh]">
-        <button
-          className="md:hidden absolute top-24  left-4 p-2 bg-green-600 text-white rounded-lg"
-          onClick={() => setShowSidebar(!showSidebar)}
-        >
-          <Menu  size={24} />
-        </button>
+  const retry = (message) => {
+    setMessages((prev) => prev.map((m) => (m.clientId === message.clientId ? { ...m, failed: false, pending: true } : m)));
+    deliver(message.text, message.clientId);
+  };
 
-        {/* Sidebar */}
-        <div className={`${showSidebar ? 'block' : 'hidden'} w-full md:w-1/4 border-r bg-gray-50 md:block sidebar`}>
-          {/* <Button
-            onClick={() => window.history.back()}
-            className="bg-gray-800 text-white hover:bg-gray-700 mt-4 px-6 py-2 rounded-lg mb-6"
-          >
-            Back
-          </Button> */}
-          <h1 className="text-2xl text-green-600 ml-5 mt-4">Chat List</h1>
+  // ---- Render helpers ----
+  const renderMessages = () => {
+    let lastDay = null;
+    return messages.map((message, index) => {
+      const mine = idOf(message.sender) === myId;
+      const prev = messages[index - 1];
+      const next = messages[index + 1];
+      const showDay = !lastDay || !sameDay(lastDay, message.createdAt);
+      lastDay = message.createdAt;
+      const groupedWithPrev = prev && !showDay && idOf(prev.sender) === idOf(message.sender);
+      const groupedWithNext = next && sameDay(next.createdAt, message.createdAt) && idOf(next.sender) === idOf(message.sender);
 
-          <div className="p-4 overflow-y-auto h-full">
-            {users.length > 0 ? (
-              users.map((user) => (
-                <div
-                  key={user.id}
-                  className={`flex items-center gap-4 p-3 rounded-lg cursor-pointer hover:bg-gray-200 relative ${activeUser?.id === user.id ? "bg-gray-200" : ""}`}
-                  onClick={() => handleUserSelect(user)}
-                >
-                  <img
-                    src={user?.avatar}
-                    alt={user.name}
-                    className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-800">{user.name}</h4>
-                    <p className="text-sm text-gray-500">{user.status}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500">No chat lists available</p>
-            )}
-          </div>
-        </div>
-
-        {/* Chat area */}
-        <div className={`${!showSidebar ? 'block' : 'hidden'} w-full md:h-[700px] h-[550px] md:mt-10 md:w-3/4 flex flex-col md:block`}>
-          <div className="p-4 border-b bg-gray-50 flex items-center">
-            {!showSidebar && activeUser && (
-              <button
-                className="md:hidden mr-3 text-green-600"
-                onClick={() => setShowSidebar(true)}
+      return (
+        <React.Fragment key={message.clientId || idOf(message)}>
+          {showDay && (
+            <div className="my-4 flex items-center justify-center">
+              <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-500 shadow-sm">{dayLabel(message.createdAt)}</span>
+            </div>
+          )}
+          <div className={`flex ${mine ? "justify-end" : "justify-start"} ${groupedWithPrev ? "mt-0.5" : "mt-3"}`}>
+            <div className={`max-w-[80%] md:max-w-[65%] ${mine ? "items-end" : "items-start"} flex flex-col`}>
+              <div
+                className={`whitespace-pre-wrap break-words px-4 py-2.5 text-[15px] leading-relaxed shadow-sm ${
+                  mine
+                    ? `bg-primary text-white ${message.failed ? "opacity-70" : ""} rounded-2xl ${groupedWithNext ? "rounded-br-md" : "rounded-br-sm"}`
+                    : `border border-gray-100 bg-white text-gray-800 rounded-2xl ${groupedWithNext ? "rounded-bl-md" : "rounded-bl-sm"}`
+                }`}
               >
-                <Menu className=" md:mt-0 mt-10" size={24} />
-              </button>
-            )}
-            <div className="md:mt-2 mt-10">
-              <h2 className="text-lg font-semibold text-gray-800">
-                {activeUser?.name || "Select a chat"}
-              </h2>
-              <p className="text-sm text-gray-500">
-                {activeUser?.status || ""}
-              </p>
+                {message.text}
+                <span className={`ml-3 inline-flex translate-y-0.5 items-center gap-1 align-bottom text-[11px] ${mine ? "text-white/75" : "text-gray-400"}`}>
+                  {timeLabel(message.createdAt)}
+                  {mine && <MessageStatus message={message} />}
+                </span>
+              </div>
+              {message.failed && (
+                <button type="button" onClick={() => retry(message)} className="mt-1 flex items-center gap-1 text-xs font-medium text-red-500 hover:underline">
+                  <HiOutlineExclamationCircle size={14} /> Not sent · Tap to retry
+                </button>
+              )}
             </div>
           </div>
+        </React.Fragment>
+      );
+    });
+  };
 
-          <div
-            className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#f9fafb]"
-            style={{
-              height: showSidebar 
-                ? "calc(90% - 150px)" 
-                : "calc(100vh - 100px)", // Adjust height based on sidebar visibility
-              paddingBottom: "50px", // Ensure space for the input area
-            }}
-          >
-            {messages.length > 0 ? (
-              messages.map((msg) => (
-                <div
-                  key={msg._id}
-                  className={`flex ${msg.sender?.id === userId ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`px-4 py-2 rounded-lg max-w-[80%] break-words ${
-                      msg.pending
-                        ? "bg-gray-400 text-white"
-                        : msg.error
-                          ? "bg-red-500 text-white"
-                          : msg.sender?.id === userId
-                            ? "bg-green-600 text-white"
-                            : "bg-gray-200 text-gray-800"
+  const conversationList = (
+    <aside className={`${activeChatId ? "hidden md:flex" : "flex"} w-full flex-col border-r border-gray-100 bg-white md:w-[340px] md:shrink-0`}>
+      <div className="border-b border-gray-100 p-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-navy">Messages</h1>
+          {totalUnread > 0 && <span className="rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-white">{totalUnread} new</span>}
+        </div>
+        <Input
+          allowClear
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          prefix={<HiOutlineMagnifyingGlass className="text-gray-400" />}
+          placeholder="Search conversations"
+          className="!mt-3 !rounded-lg !bg-gray-50"
+        />
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        {chatsLoading ? (
+          <div className="space-y-4 p-4">
+            {[1, 2, 3, 4].map((i) => <Skeleton key={i} avatar active paragraph={{ rows: 1 }} />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center px-6 py-16 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary text-primaryDark">
+              <HiOutlineChatBubbleLeftRight size={26} />
+            </span>
+            <p className="mt-4 font-semibold text-navy">{search ? "No matching conversations" : "No conversations yet"}</p>
+            {!search && (
+              <>
+                <p className="mt-1 text-sm text-gray-500">Find a property you like and message the landlord from its page.</p>
+                <Link href="/property" className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primaryDark">
+                  Browse properties
+                </Link>
+              </>
+            )}
+          </div>
+        ) : (
+          <ul>
+            {filtered.map((c) => {
+              const active = c.chatId === activeChatId;
+              const typing = typingChats[c.chatId];
+              const lastFromMe = c.lastMessage && c.lastMessage.sender === myId;
+              return (
+                <li key={c.chatId}>
+                  <button
+                    type="button"
+                    onClick={() => openChat(c.chatId)}
+                    className={`flex w-full items-center gap-3 border-l-[3px] px-4 py-3 text-left transition-colors ${
+                      active ? "border-primary bg-secondary/60" : "border-transparent hover:bg-gray-50"
                     }`}
                   >
-                    <p>{msg.text}</p>
-                    <div className="flex justify-between items-center mt-1">
-                      <p className={`text-xs ${msg.sender?.id === userId ? "text-gray-200" : "text-gray-500"}`}>
-                        {formatTime(msg?.createdAt)}
-                      </p>
-                      {msg.pending && (
-                        <span className="text-xs text-gray-200 ml-2">Sending...</span>
-                      )}
-                      {msg.error && (
-                        <span className="text-xs text-gray-200 ml-2">Failed to send</span>
-                      )}
+                    <PresenceAvatar person={c.partner} online={online.has(c.partnerId)} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <p className={`truncate ${c.unreadCount ? "font-bold text-gray-900" : "font-semibold text-gray-800"}`}>
+                          {c.partner?.fullName || "Unknown user"}
+                        </p>
+                        <span className={`shrink-0 text-xs ${c.unreadCount ? "font-semibold text-primaryDark" : "text-gray-400"}`}>
+                          {listTime(c.lastMessage?.createdAt || c.updatedAt)}
+                        </span>
+                      </div>
+                      <div className="mt-0.5 flex items-center justify-between gap-2">
+                        <p className={`truncate text-sm ${typing ? "italic text-primaryDark" : c.unreadCount ? "font-medium text-gray-800" : "text-gray-500"}`}>
+                          {typing ? "typing…" : c.lastMessage ? `${lastFromMe ? "You: " : ""}${c.lastMessage.text}` : ROLE_LABEL[c.partner?.role] || "Start the conversation"}
+                        </p>
+                        {c.unreadCount > 0 && (
+                          <span className="flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-white">
+                            {c.unreadCount > 99 ? "99+" : c.unreadCount}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500">No messages available</p>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          <div className="p-3 md:p-4 border-t bg-gray-50 flex items-center gap-2 md:gap-4">
-            <input
-              ref={inputRef}
-              type="text"
-              className="flex-1 border rounded-lg px-3 md:px-4 py-2 text-sm md:text-base"
-              placeholder="Type your message"
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-              disabled={!activeUser}
-            />
-            <button
-              className={`bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-500 text-sm md:text-base whitespace-nowrap ${(!activeUser || !newMessage.trim() || isLoading) ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={handleSendMessage}
-              disabled={!activeUser || !newMessage.trim()}
-            >
-              Send
-            </button>
-          </div>
-          
-        </div>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
-     
-      
+    </aside>
+  );
+
+  const chatPanel = activeChatId ? (
+    <section className="flex min-w-0 flex-1 flex-col bg-[#F5F7FB]">
+      {/* Header */}
+      <header className="flex items-center gap-3 border-b border-gray-100 bg-white px-4 py-3">
+        <button type="button" onClick={closeChat} aria-label="Back to conversations" className="-ml-1 rounded-lg p-2 text-gray-600 hover:bg-gray-100 md:hidden">
+          <HiOutlineArrowLeft size={20} />
+        </button>
+        {activeConversation ? (
+          <>
+            <PresenceAvatar person={partner} online={partnerOnline} size={42} />
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-gray-900">{partner?.fullName || "Unknown user"}</p>
+              <p className={`text-xs ${partnerTyping ? "text-primaryDark" : partnerOnline ? "text-primaryDark" : "text-gray-500"}`}>
+                {partnerTyping ? "typing…" : partnerOnline ? "Online" : ROLE_LABEL[partner?.role] || "Offline"}
+              </p>
+            </div>
+          </>
+        ) : (
+          <Skeleton.Input active size="small" />
+        )}
+      </header>
+
+      {/* Messages */}
+      <div
+        ref={scrollRef}
+        onScroll={() => isNearBottom() && setShowJump(false)}
+        className="relative flex-1 overflow-y-auto px-4 py-2 md:px-8"
+      >
+        {messagesLoading && messages.length === 0 ? (
+          <div className="space-y-4 py-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className={`flex ${i % 2 ? "justify-start" : "justify-end"}`}>
+                <Skeleton.Input active className={`!h-10 ${i % 2 ? "!w-56" : "!w-40"}`} />
+              </div>
+            ))}
+          </div>
+        ) : messagesError ? (
+          <p className="py-16 text-center text-sm text-red-500">This conversation couldn&apos;t be loaded.</p>
+        ) : messages.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center text-center">
+            <PresenceAvatar person={partner} size={64} />
+            <p className="mt-3 font-semibold text-navy">Say hello to {partner?.fullName?.split(" ")[0] || "them"} 👋</p>
+            <p className="mt-1 text-sm text-gray-500">Ask about availability, price or a viewing time.</p>
+          </div>
+        ) : (
+          <div className="pb-2">{renderMessages()}</div>
+        )}
+        {partnerTyping && (
+          <div className="mt-3">
+            <TypingBubble />
+          </div>
+        )}
+      </div>
+
+      {showJump && (
+        <button
+          type="button"
+          onClick={() => scrollToBottom()}
+          className="absolute bottom-24 left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full bg-navy px-4 py-2 text-xs font-semibold text-white shadow-lg md:left-[calc(50%+170px)]"
+        >
+          New messages <HiChevronDown size={14} />
+        </button>
+      )}
+
+      {/* Composer */}
+      <div className="border-t border-gray-100 bg-white p-3 md:p-4">
+        <div className="flex items-end gap-2 rounded-2xl border border-gray-200 bg-gray-50 px-3 py-2 focus-within:border-primary focus-within:bg-white">
+          <textarea
+            ref={textareaRef}
+            rows={1}
+            value={draft}
+            onChange={handleDraftChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder="Write a message…"
+            className="max-h-36 min-h-[24px] flex-1 resize-none bg-transparent py-1.5 text-[15px] outline-none [field-sizing:content]"
+          />
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={!draft.trim()}
+            aria-label="Send message"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition-colors hover:bg-primaryDark disabled:cursor-not-allowed disabled:bg-gray-300"
+          >
+            <HiOutlinePaperAirplane size={18} />
+          </button>
+        </div>
+        <p className="mt-1.5 hidden px-1 text-[11px] text-gray-400 md:block">
+          Enter to send · Shift + Enter for a new line
+          {draft.length > MAX_LENGTH - 200 && <span className="float-right">{draft.length}/{MAX_LENGTH}</span>}
+        </p>
+      </div>
+    </section>
+  ) : (
+    <section className="hidden flex-1 flex-col items-center justify-center bg-[#F5F7FB] text-center md:flex">
+      <span className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-primaryDark shadow-sm">
+        <HiOutlineChatBubbleLeftRight size={36} />
+      </span>
+      <h2 className="mt-5 text-xl font-semibold text-navy">Your messages</h2>
+      <p className="mt-1 max-w-xs text-sm text-gray-500">Pick a conversation on the left to read and reply in real time.</p>
+    </section>
+  );
+
+  return (
+    <div className="bg-gray-50 md:px-6 md:py-6">
+      <div className="relative mx-auto flex h-[calc(100dvh-72px)] max-w-7xl overflow-hidden border-gray-100 bg-white md:h-[calc(100dvh-72px-48px)] md:rounded-2xl md:border md:shadow-sm">
+        {conversationList}
+        {chatPanel}
+      </div>
     </div>
   );
 };

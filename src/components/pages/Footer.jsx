@@ -11,7 +11,7 @@ const Footer = () => {
         backgroundImage: "url('/images/bg.png')", // Replace with your background image
       }}
     >
-      <div className=" container grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="container grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
         {/* Column 1: Logo and About Info */}
         <div>
             <div className="my-4">

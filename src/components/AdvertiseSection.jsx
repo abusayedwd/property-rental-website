@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import { Button, Modal } from 'antd';
 import { MailOutlined } from '@ant-design/icons';
-import Header from './customComponent/Header';
+import { useGetContactQuery } from '@/redux/fetures/information/contact';
 
 const AdvertiseSection = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
-  const emailAddress = "contact@mynexthome.ng";
+  // Email comes from the contact details set in the admin dashboard
+  const { data: contact } = useGetContactQuery();
+  const emailAddress = contact?.data?.attributes?.[0]?.email || "";
   
   const handleEmailClick = () => {
     // Open Gmail directly in a new tab
@@ -22,14 +24,13 @@ const AdvertiseSection = () => {
   };
 
   return (
-    <section className="p-6 container ">
-      <Header size="large" className="text-[#2FC639] mt-5 py-4">Advertise With Us</Header>
-      
-      {/* Main content button to trigger modal */}
-      <div className="rounded-lg bg-navy p-6 shadow-md">
-        <h2 className="text-3xl font-bold text-white mb-4">Advertise Your Business</h2>
-
-        <p className="mb-4 text-gray-200">You can advertise your business on our website.</p>
+    <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <div className="flex flex-col gap-6 rounded-3xl bg-navy p-8 shadow-xl md:flex-row md:items-center md:justify-between md:p-12">
+        <div className="max-w-xl">
+          <p className="text-sm font-semibold uppercase tracking-wider text-primary">Advertise with us</p>
+          <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">Put your business in front of home seekers</h2>
+          <p className="mt-3 text-white/70">Place your banner on our home page and reach people actively looking for a new home.</p>
+        </div>
         {/* <p className="mb-4">Send us a banner of 1200 x 400.</p>
         <p className="mb-4">Price:$ 50,000 per month.</p>
         <p className="mb-4">
@@ -47,23 +48,24 @@ const AdvertiseSection = () => {
           type="primary"
           icon={<MailOutlined />}
           onClick={showModal} // Show the modal
-          className="mt-4 bg-primary hover:bg-primaryDark text-white"
+          size="large"
+          className="!h-12 shrink-0 !rounded-full !border-none !bg-primary !px-6 !font-semibold hover:!bg-primaryDark"
         >
-          View Full Advertisement Details
+          See advertising details
         </Button>
       </div>
 
       {/* Full Details Modal */}
       <Modal
         title="Full Advertisement Details"
-        visible={isModalVisible}
+        open={isModalVisible}
         onCancel={handleCancel}
         footer={null} // No footer buttons
         centered
-        width="80%" // Adjust the width for full-page effect
-        bodyStyle={{ height: '80vh', overflowY: 'auto' }} // Allow scrolling if content overflows
+        width={720}
+        styles={{ body: { maxHeight: '75vh', overflowY: 'auto' } }}
       >
-        <div className="p-6">
+        <div className="p-1 sm:p-4">
           <h2 className="text-2xl font-semibold mb-4">Looking to promote your brand or business? We’ve got you covered!</h2>
           <p className="mb-4">Reach a highly engaged audience by placing your banner on our front page. Here are all the details you need:</p>
           

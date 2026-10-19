@@ -1,58 +1,33 @@
-"use client"
-import React, { useEffect } from 'react';
-import { Home, Users, FileText, Key } from 'lucide-react';
-import AOS from "aos";
-import 'aos/dist/aos.css';
+"use client";
+import React from "react";
+import { Home, Users, FileText, Key } from "lucide-react";
+
+const steps = [
+  { title: "Find a home", description: "Search listings by location, price and property type to find homes that match what you need.", Icon: Home },
+  { title: "Meet the landlord", description: "Message landlords directly through the platform to ask questions and arrange a viewing.", Icon: Users },
+  { title: "Agree the terms", description: "Go through the rent or sale terms with the owner and agree the details.", Icon: FileText },
+  { title: "Take the keys", description: "Settle the payment with the owner and move in. Your next home is ready.", Icon: Key },
+];
 
 export default function HowItWorks() {
-    useEffect(() => {
-        AOS.init({
-          duration: 1000,  // Animation duration
-          easing: 'ease-in-out',  // Easing function
-        });
-      }, []);
-
-  const steps = [
-    {
-      title: "Find real estate",
-      description: "Search listings by location, price, and property type to find homes that match what you need.",
-      icon: <Home className="w-12 h-12 text-primary" />
-    },
-    {
-      title: "Meet the landlord",
-      description: "Message landlords directly through the platform to ask questions and schedule a viewing.",
-      icon: <Users className="w-12 h-12 text-primary" />
-    },
-    {
-      title: "Sort the paperwork",
-      description: "Review the lease or sale terms and complete the paperwork securely, all in one place.",
-      icon: <FileText className="w-12 h-12 text-primary" />
-    },
-    {
-      title: "Take the keys",
-      description: "Finalize payment and move in — your next home is ready whenever you are.",
-      icon: <Key className="w-12 h-12 text-primary" />
-    }
-  ];
-
   return (
-    <div className="container mx-auto py-12">
-      <div className=" mb-16">
-        <h2 className="text-4xl font-bold text-[#2FC639] mb-4">How It works?</h2>
-        <h3 className="text-4xl font-bold text-gray-500">Find a perfect home</h3>
+    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-24">
+      <div className="mx-auto max-w-2xl text-center">
+        <p className="text-sm font-semibold uppercase tracking-wider text-primaryDark">How it works</p>
+        <h2 className="mt-2 text-3xl font-bold text-navy md:text-4xl">Find a perfect home in four steps</h2>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" data-aos="zoom-out-right">
-        {steps.map((step, index) => (
-          <div key={index} className="flex flex-col items-center text-center p-6 border-r border-gray-200 last:border-r-0">
-            <div className="mb-4">
-              {step.icon}
-            </div>
-            <h4 className="text-xl font-semibold mb-3">{step.title}</h4>
-            <p className="text-gray-400 text-sm">{step.description}</p>
+      <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {steps.map(({ title, description, Icon }, index) => (
+          <div key={title} className="relative rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow hover:shadow-lg">
+            <span className="absolute right-5 top-5 text-4xl font-bold text-gray-100">0{index + 1}</span>
+            <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary text-primaryDark">
+              <Icon className="h-7 w-7" />
+            </span>
+            <h3 className="mt-5 text-lg font-semibold text-navy">{title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-gray-600">{description}</p>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

@@ -1,83 +1,57 @@
 "use client";
-
 import React from "react";
-import { PhoneOutlined, MailOutlined, EnvironmentOutlined } from "@ant-design/icons";
-import Header from "./customComponent/Header";
+import { HiOutlinePhone, HiOutlineEnvelope, HiOutlineMapPin } from "react-icons/hi2";
 import { useGetContactQuery } from "@/redux/fetures/information/contact";
 
+const ContactCard = ({ icon: Icon, label, value, href }) => {
+  const content = (
+    <>
+      <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-secondary text-primaryDark transition-colors group-hover:bg-primary group-hover:text-white">
+        <Icon size={22} />
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm text-gray-500">{label}</p>
+        <p className="break-words font-semibold text-navy">{value || "—"}</p>
+      </div>
+    </>
+  );
+  const className = "group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md";
+  return href && value ? (
+    <a href={href} className={className}>
+      {content}
+    </a>
+  ) : (
+    <div className={className}>{content}</div>
+  );
+};
+
 const ContactUs = () => {
+  const { data: contact } = useGetContactQuery();
+  const info = contact?.data?.attributes?.[0];
 
-  const {data: contact} = useGetContactQuery();
-  console.log(contact?.data?.attributes[0])
-  const userContact = contact?.data?.attributes[0]
-  
   return (
-    <div className="md:py-12 container">
-      {/* Page Title */}
-      <div className="text-center mb-12">
-        <p className="text-blue-500 text-[40px] font-[Montserrat] font-semibold">For any help</p>
-        
-        <Header size="extraLarge" className="text-[#2FC639] mt-5"> Contact With Us </Header>
-           
-      </div>
-
-      {/* Content Section */}
-      <div className="  grid grid-cols-1 lg:grid-cols-2 items-center gap-12 md:mt-24">
-        {/* Left Section: Image */}
-        <div className="relative flex justify-center">
-        <img
-              src="/images/davispAb.jpg"
-              alt="House Exterior"
-              className="  mk:relative bottom-6 object-cover md:h-[400px] md:w-[80%] rounded-lg shadow-md"
-            /> 
-          {/* Decorative Background (Buildings) */}
-          <div
-            className=" "
-            aria-hidden="true"
-          >
-           
-          </div>
+    <section className="bg-gray-50 py-16 md:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mx-auto max-w-2xl text-center">
+          <p className="text-sm font-semibold uppercase tracking-wider text-primaryDark">Need help?</p>
+          <h2 className="mt-2 text-3xl font-bold text-navy md:text-4xl">Get in touch with us</h2>
+          <p className="mt-3 text-gray-500">Questions about a listing or your account? Our team is happy to help.</p>
         </div>
-
-        {/* Right Section: Contact Details */}
-        <div className="space-y-6">
-          {/* Call Us */}
-          <div className="flex items-center bg-gray-800 p-4 rounded-lg shadow-md">
-            <div className="w-12 h-12 bg-green-600 text-white flex items-center justify-center rounded-full">
-              <PhoneOutlined className="text-xl" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-lg font-semibold">Call Us</h3>
-              <p className="">{userContact?.phone}</p>
-            </div>
-          </div>
-
-          {/* Email Now */}
-          <div className="flex items-center bg-gray-800 p-4 rounded-lg shadow-md">
-            <div className="w-12 h-12 bg-green-600 text-white flex items-center justify-center rounded-full">
-              <MailOutlined className="text-xl" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-lg font-semibold  ">Email Now</h3>
-              <p className=" ">{userContact?.email}</p>
-            </div>
-          </div>
-
-          {/* Address */}
-          <div className="flex items-center bg-gray-800 p-4 rounded-lg shadow-md">
-            <div className="w-12 h-12 bg-green-600 text-white flex items-center justify-center rounded-full">
-              <EnvironmentOutlined className="text-xl" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-lg font-semibold  ">Address</h3>
-              <p className=" ">
-                {userContact?.address}
-              </p>
-            </div>
+        <div className="mt-12 grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
+          <img
+            src="/images/davispAb.jpg"
+            alt="Customer support"
+            loading="lazy"
+            className="aspect-[4/3] w-full rounded-2xl object-cover shadow-xl lg:aspect-[5/4]"
+          />
+          <div className="space-y-4">
+            <ContactCard icon={HiOutlinePhone} label="Call us" value={info?.phone} href={`tel:${info?.phone}`} />
+            <ContactCard icon={HiOutlineEnvelope} label="Email us" value={info?.email} href={`mailto:${info?.email}`} />
+            <ContactCard icon={HiOutlineMapPin} label="Visit us" value={info?.address} />
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

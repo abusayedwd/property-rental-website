@@ -226,7 +226,7 @@ import React, { useState, useEffect } from "react";
 import { Input, Radio, Button, Upload, message, Select } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import { useParams, useRouter } from "next/navigation";
-import states from "@/components/statesData";
+import { districtOptions, getAreaOptions, filterLocationOption } from "@/components/statesData";
 import toast, { Toaster } from "react-hot-toast";
 import { useUpdatePropertyMutation } from "@/redux/fetures/property/editProperty";
 import { useGetSinglepropertyQuery } from "@/redux/fetures/property/getPropertyById";
@@ -377,13 +377,14 @@ const EditProperty = () => {
   };
 
   return (
-    <div className="container mx-auto my-12">
+    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 md:py-12">
       <Toaster />
-      <h1 className="text-center text-3xl font-bold text-blue-600 mb-8">
-        Edit Property
-      </h1>
+      <div className="mx-auto mb-6 max-w-4xl">
+        <h1 className="text-2xl font-bold text-navy md:text-3xl">Edit property</h1>
+        <p className="mt-1 text-gray-500">Update your listing details and photos.</p>
+      </div>
 
-      <div className="max-w-4xl mx-auto bg-white p-8 border rounded-lg shadow-lg">
+      <div className="mx-auto max-w-4xl rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-8">
         {isLoading ? (
           <p>Loading property details...</p>
         ) : (
@@ -427,38 +428,34 @@ const EditProperty = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <Select
                 className="w-full"
-                placeholder="Select a state"
+                placeholder="Select district / city"
                 value={selectedState}
                 onChange={handleStateChange}
-              >
-                {Object.keys(states).map((state) => (
-                  <Option key={state} value={state}>
-                    {state}
-                  </Option>
-                ))}
-              </Select>
+                options={districtOptions}
+                showSearch
+                filterOption={filterLocationOption}
+              />
 
               <Select
                 className="w-full"
-                placeholder="Select a local government"
+                placeholder="Select area / upazila"
                 value={selectedSubState}
                 onChange={handleSubStateChange}
                 open={openSubState}
+                onDropdownVisibleChange={setOpenSubState}
                 disabled={!selectedState}
-              >
-                {(selectedState ? states[selectedState] : [])?.map((subState) => (
-                  <Option key={subState} value={subState}>
-                    {subState}
-                  </Option>
-                ))}
-              </Select>
+                options={getAreaOptions(selectedState)}
+                showSearch
+                filterOption={filterLocationOption}
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <Input
                 name="price"
                 value={form.price}
-                placeholder="Price"
+                placeholder="Price (৳ BDT)"
+                prefix="৳"
                 onChange={handleChange}
               />
               <Select

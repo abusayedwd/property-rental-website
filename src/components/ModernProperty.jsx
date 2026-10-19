@@ -1,56 +1,47 @@
 import React from "react";
 import Link from "next/link";
+import { HiOutlineCheckCircle, HiArrowRight } from "react-icons/hi2";
+
+const points = [
+  "Real photos and full details on every listing",
+  "Message landlords directly, no middlemen",
+  "Prices shown up front in Taka",
+];
 
 export default function ModernProperty() {
   return (
-    <div className="container mt-12 flex min-h-screen w-full flex-col items-center md:flex-row">
-      <div className="relative mb-8 w-full md:mb-0 md:w-1/2">
-        <div className="relative w-full overflow-hidden rounded-lg">
-          <div className="absolute bottom-0 left-0 top-0 w-2 bg-primary"></div>
-          <img
-            src="/images/premium.jpg"
-            alt="Modern apartment balcony with city view"
-            className="h-auto w-full rounded-lg shadow-md"
-          />
-          <div className="absolute bottom-0 left-0 right-0 h-2 bg-primary"></div>
-        </div>
+    <section className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:gap-12 md:py-24">
+      <div className="relative">
+        <img
+          src="/images/premium.jpg"
+          alt="Modern apartment balcony with city view"
+          loading="lazy"
+          className="aspect-[4/3] w-full rounded-2xl object-cover shadow-xl"
+        />
+        <div className="absolute -bottom-3 -left-3 -z-10 h-full w-full rounded-2xl bg-secondary md:-bottom-5 md:-left-5" />
       </div>
-
-      <div className="w-full md:w-1/2 md:pl-12">
-        <h1 className="mb-6 text-4xl font-bold text-[#2FC639] md:text-5xl">
-          Modern Spaces and Premium Design
-        </h1>
-
-        <p className="mb-8 text-gray-600">
-          Every listing on MyNextHome is reviewed for quality — from natural light and
-          layout to finish and location — so you spend less time filtering and more time
-          finding a place that actually feels like home.
+      <div>
+        <p className="text-sm font-semibold uppercase tracking-wider text-primaryDark">Why people choose us</p>
+        <h2 className="mt-2 text-3xl font-bold leading-tight text-navy md:text-4xl lg:text-5xl">Modern spaces, simple search</h2>
+        <p className="mt-4 text-base leading-relaxed text-gray-600 md:text-lg">
+          Spend less time filtering and more time finding a place that actually feels like home, whether it&apos;s a
+          compact studio or a family duplex.
         </p>
-
-        <ul className="mb-8 space-y-2">
-          <li className="flex items-start text-gray-600">
-            <span className="mr-2 text-primary">—</span>
-            <span>Verified listings with real photos and accurate details</span>
-          </li>
-          <li className="flex items-start text-gray-600">
-            <span className="mr-2 text-primary">—</span>
-            <span>Direct messaging with landlords, no middlemen</span>
-          </li>
-          <li className="flex items-start text-gray-600">
-            <span className="mr-2 text-primary">—</span>
-            <span>Transparent pricing with no hidden fees</span>
-          </li>
+        <ul className="mt-6 space-y-3">
+          {points.map((point) => (
+            <li key={point} className="flex items-start gap-3 text-gray-700">
+              <HiOutlineCheckCircle size={22} className="mt-0.5 shrink-0 text-primary" />
+              {point}
+            </li>
+          ))}
         </ul>
-
-        <Link href="/property">
-          <button
-            type="button"
-            className="rounded-lg bg-primary px-8 py-3 font-semibold text-white transition-colors hover:bg-primaryDark"
-          >
-            View More
-          </button>
+        <Link
+          href="/property"
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-lg shadow-primary/25 transition-colors hover:bg-primaryDark"
+        >
+          Browse properties <HiArrowRight size={18} />
         </Link>
       </div>
-    </div>
+    </section>
   );
 }

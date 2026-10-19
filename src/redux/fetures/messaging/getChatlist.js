@@ -1,15 +1,13 @@
+import { apiSlice } from "../../api/apiSlice";
 
-const { apiSlice } = require("@/redux/api/apiSlice");
-
-
+// The user's conversations with last message and unread count, newest first
 const getChatlist = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getChatlist: builder.query({
             query: () => `/chating/getChatlist`,
-            providesTags: [{type: "Chat"}]
-        })
+            providesTags: [{ type: "Chat", id: "LIST" }],
+        }),
+    }),
+});
 
-    })
-})
-
-export const {useGetChatlistQuery} = getChatlist
+export const { useGetChatlistQuery } = getChatlist;

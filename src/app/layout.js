@@ -87,7 +87,7 @@ export default function RootLayout({ children }) {
         {/* Metadata */}
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
-        <link rel="icon" href="/images/logo.png" sizes="32x32" type="image/png" /> {/* Favicon */}
+        <link rel="icon" href="/images/logo.png" sizes="32x32" type="image/png" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-wrap`}>
 

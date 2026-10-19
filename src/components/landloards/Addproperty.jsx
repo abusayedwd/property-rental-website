@@ -112,7 +112,7 @@
 //     }
 
 //     if (!selectedState || !selectedSubState) {
-//       message.error('Please select both state and local government');
+//       message.error('Please select both district and area');
 //       return false;
 //     }
 
@@ -216,7 +216,7 @@
 //         {/* House Details */}
 //         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 //           <div>
-//             <p className="text-gray-700 mb-2">Sort Description</p>
+//             <p className="text-gray-700 mb-2">Short description</p>
 //             <Input
 //               name="houseName"
 //               value={form.houseName}
@@ -343,7 +343,7 @@
 //           <div>
 //             <p className="text-gray-700 mb-2">Available Date for Property</p>
 //             <Space direction="vertical">
-//         <DatePicker onChange={onChange} />
+//         <DatePicker onChange={onChange} className="w-full" />
      
 //   </Space>
 //           </div>
@@ -394,7 +394,7 @@ import React, { useState } from "react";
 import { Input, Radio, Button, Upload, message, Select, Space, DatePicker } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
-import states from "@/components/statesData";
+import { districtOptions, getAreaOptions, filterLocationOption } from "@/components/statesData";
 import { useAddPropertyMutation } from "@/redux/fetures/property/addProperty";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -523,7 +523,7 @@ const Addproperty = () => {
 
     // Validate state and sub-state selection
     if (!selectedState || !selectedSubState) {
-      formErrors.location = 'Please select both state and local government';
+      formErrors.location = 'Please select both district and area';
     }
 
     // Validate image upload: ensure at least one image is uploaded
@@ -578,14 +578,14 @@ const Addproperty = () => {
   };
 
   return (
-    <div className="md:container w-[95%] mx-auto my-12">
+    <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 md:py-12">
       <Toaster />
-      <h1 className="text-center text-3xl font-bold text-green-600 mb-8">
-        Add Property
-      </h1>
-  
+      <div className="mx-auto mb-6 max-w-4xl">
+        <h1 className="text-2xl font-bold text-navy md:text-3xl">Add a property</h1>
+        <p className="mt-1 text-gray-500">Fill in the details below. Clear photos and an accurate price get the most responses.</p>
+      </div>
 
-      <div className="max-w-4xl mx-auto bg-white p-8 border rounded-lg shadow-lg">
+      <div className="mx-auto max-w-4xl rounded-2xl border border-gray-100 bg-white p-5 shadow-sm md:p-8">
         {/* Post Type */}
         <div className="mb-6">
           <p className="text-gray-700">Create Property:</p>
@@ -623,7 +623,7 @@ const Addproperty = () => {
         {/* House Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <p className="text-gray-700 mb-2">Sort Description</p>
+            <p className="text-gray-700 mb-2">Short description</p>
             <Input
               name="houseName"
               value={form.houseName}
@@ -647,38 +647,33 @@ const Addproperty = () => {
         {/* State & Local Government */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <p className="text-gray-700 mb-2">Select State</p>
+            <p className="text-gray-700 mb-2">District / City</p>
             <Select
               className="w-full"
-              placeholder="Select a state"
+              placeholder="Select district / city"
               value={selectedState}
               onChange={handleStateChange}
-            >
-              {Object.keys(states).map((state) => (
-                <Option key={state} value={state}>
-                  {state}
-                </Option>
-              ))}
-            </Select>
+              options={districtOptions}
+              showSearch
+              filterOption={filterLocationOption}
+            />
             {errors.location && <p className="text-red-500">{errors.location}</p>}
           </div>
 
           <div>
-            <p className="text-gray-700 mb-2">Select Local Government</p>
+            <p className="text-gray-700 mb-2">Area / Upazila</p>
             <Select
               className="w-full"
-              placeholder="Select a local government"
+              placeholder="Select area / upazila"
               value={selectedSubState}
               onChange={handleSubStateChange}
               open={openSubState}
+              onDropdownVisibleChange={setOpenSubState}
               disabled={!selectedState}
-            >
-              {selectedState && states[selectedState]?.map((subState) => (
-                <Option key={subState} value={subState}>
-                  {subState}
-                </Option>
-              ))}
-            </Select>
+              options={getAreaOptions(selectedState)}
+              showSearch
+              filterOption={filterLocationOption}
+            />
             {errors.location && <p className="text-red-500">{errors.location}</p>}
           </div>
         </div>
@@ -686,11 +681,12 @@ const Addproperty = () => {
         {/* Price & Property Type */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <p className="text-gray-700 mb-2">Price</p>
+            <p className="text-gray-700 mb-2">Price (৳ BDT)</p>
             <Input
               name="price"
               value={form.price}
-              placeholder="Price"
+              placeholder="e.g. 25000"
+              prefix="৳"
               onChange={handleChange}
               type="number"
             />
@@ -757,7 +753,7 @@ const Addproperty = () => {
           <div>
             <p className="text-gray-700 mb-2">Available Date for Property</p>
             <Space direction="vertical">
-              <DatePicker onChange={onChange} />
+              <DatePicker onChange={onChange} className="w-full" />
             </Space>
             {errors.date && <p className="text-red-500">{errors.date}</p>}
           </div>

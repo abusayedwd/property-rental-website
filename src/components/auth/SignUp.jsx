@@ -1,17 +1,58 @@
 "use client"
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Button, Radio, Checkbox } from 'antd';
+import { Form, Input, Button, Checkbox } from 'antd';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { HiOutlineMail, HiOutlineLockClosed, HiOutlineUser, HiOutlineOfficeBuilding, HiOutlineHome, HiOutlineKey } from 'react-icons/hi';
 import { useSignUpMutation } from '@/redux/fetures/auth/signUp';
 import toast from 'react-hot-toast';
- 
- 
+import AuthLayout, { FieldLabel, FormError, buttonClass, inputClass } from './AuthLayout';
+
+// Mirrors the server rule: at least 8 characters, 1 letter and 1 number
+export const passwordRules = [
+  { required: true, message: 'Please enter a password' },
+  { min: 8, message: 'Password must be at least 8 characters' },
+  { pattern: /^(?=.*[A-Za-z])(?=.*\d).+$/, message: 'Password must contain at least 1 letter and 1 number' },
+];
+
+const roles = [
+  { value: 'user', label: 'Tenant / Buyer', description: 'Looking for a home', icon: HiOutlineHome },
+  { value: 'landlord', label: 'Landlord', description: 'Listing a property', icon: HiOutlineKey },
+];
+
+const RoleSelect = ({ value, onChange }) => (
+  <div className="grid grid-cols-2 gap-3" role="radiogroup">
+    {roles.map(({ value: roleValue, label, description, icon: Icon }) => {
+      const selected = value === roleValue;
+      return (
+        <button
+          key={roleValue}
+          type="button"
+          role="radio"
+          aria-checked={selected}
+          onClick={() => onChange?.(roleValue)}
+          className={`flex items-start gap-3 rounded-lg border p-3 text-left transition-all ${
+            selected
+              ? 'border-primary bg-secondary ring-1 ring-primary'
+              : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+          }`}
+        >
+          <span className={`mt-0.5 ${selected ? 'text-primaryDark' : 'text-gray-400'}`}>
+            <Icon size={20} />
+          </span>
+          <span>
+            <span className="block text-sm font-semibold text-navy">{label}</span>
+            <span className="block text-xs text-gray-500">{description}</span>
+          </span>
+        </button>
+      );
+    })}
+  </div>
+);
 
 const SignUp = () => {
-
   const router = useRouter()
-
+  const [error, setError] = useState('')
   const [pathName, setPathName] = useState("");
 
   useEffect(() => {
@@ -20,157 +61,168 @@ const SignUp = () => {
     }
   }, []);
 
-  // console.log(pathName)
-  // const {data: users} = useGetUsersQuery()
-  // console.log(users)
-
   const [register, {isLoading}] =  useSignUpMutation()
 
-
   const onFinish = async (values) => {
-    // Destructure to exclude confirmPassword
-    const { confirmPassword, agreement, ...formValues } = values;
-    console.log('Received values of form: ', formValues);
+    // Exclude confirmPassword/agreement and empty optional fields
+    const { confirmPassword, agreement, ...rest } = values;
+    const formValues = Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== undefined && v !== ''));
+    setError('');
 
-   try{
-    const res = await register(formValues).unwrap();
-     console.log(res)
-     if(res.code == 201){
-      toast.success(res.message)
-     }
-     setTimeout(() => {
-      router.push(`/auth/sendOtp?email=${values.email}&path=${pathName}`)
-     }, 1000);
-   }catch(error){
-    toast.error(error.data.message)
-    console.log(error.data)
-   }
-
-
-    
+    try {
+      const res = await register(formValues).unwrap();
+      if (res.code == 201) {
+        toast.success(res.message)
+      }
+      setTimeout(() => {
+        router.push(`/auth/sendOtp?email=${values.email}&path=${pathName}`)
+      }, 1000);
+    } catch (error) {
+      setError(error?.data?.message || 'Could not create your account. Please try again.')
+    }
   };
 
   return (
-    <div className="flex justify-center items-center lg:min-h-[700px] bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-[550Px]">
-        <h1 className="text-2xl font-bold mb-6 text-center">Create Your Account</h1>
-        <Form
-          name="signup_form"
-          initialValues={{ role: 'user' }}
-          onFinish={onFinish}
+    <AuthLayout
+      wide
+      image="/images/premium.jpg"
+      heading="Join a community of renters and landlords"
+      subheading="Create a free account to list properties, save favourites and talk to owners directly."
+      title="Create your account"
+      subtitle="It only takes a minute to get started."
+    >
+      <Form
+        name="signup_form"
+        layout="vertical"
+        requiredMark={false}
+        initialValues={{ role: 'user' }}
+        onFinish={onFinish}
+      >
+        <Form.Item
+          name="role"
+          label={<FieldLabel>I am a</FieldLabel>}
+          rules={[{ required: true, message: 'Please select your role' }]}
         >
-          {/* Name and Email */}
-          <div className="flex space-x-4">
-            <Form.Item
-              name="fullName"
-              rules={[{ required: true, message: 'Please input your name!' }]}
-              className="flex-1"
-            >
-              <Input placeholder="fullName" className="w-full p-2 border rounded" />
-            </Form.Item>
-            <Form.Item
-              name="company"
-             
-              className="flex-1"
-            >
-              <Input placeholder="Company Name (Optional)" className="w-full p-2 border rounded" />
-            </Form.Item>
-          </div>
+          <RoleSelect />
+        </Form.Item>
 
-          {/* Street and Steel Name */}
-          <div className="flex space-x-4">
+        <div className="grid gap-x-4 md:grid-cols-2">
           <Form.Item
-              name="email"
-              rules={[{ required: true, message: 'Please input your email!' }]}
-              className="flex-1"
-            >
-              <Input placeholder="Email" className="w-full p-2 border rounded" />
-            </Form.Item>
-           
-             
-          </div>
+            name="fullName"
+            label={<FieldLabel>Full name</FieldLabel>}
+            rules={[{ required: true, whitespace: true, message: 'Please enter your name' }]}
+          >
+            <Input
+              size="large"
+              placeholder="John Doe"
+              autoComplete="name"
+              prefix={<HiOutlineUser className="mr-1 text-gray-400" size={18} />}
+              className={inputClass}
+            />
+          </Form.Item>
+          <Form.Item
+            name="company"
+            label={<FieldLabel>Company <span className="font-normal text-gray-400">(optional)</span></FieldLabel>}
+          >
+            <Input
+              size="large"
+              placeholder="Company name"
+              autoComplete="organization"
+              prefix={<HiOutlineOfficeBuilding className="mr-1 text-gray-400" size={18} />}
+              className={inputClass}
+            />
+          </Form.Item>
+        </div>
 
-          
-          {/* Password */}
+        <Form.Item
+          name="email"
+          label={<FieldLabel>Email address</FieldLabel>}
+          rules={[
+            { required: true, message: 'Please enter your email' },
+            { type: 'email', message: 'Please enter a valid email' },
+          ]}
+        >
+          <Input
+            size="large"
+            placeholder="you@example.com"
+            autoComplete="email"
+            prefix={<HiOutlineMail className="mr-1 text-gray-400" size={18} />}
+            className={inputClass}
+          />
+        </Form.Item>
+
+        <div className="grid gap-x-4 md:grid-cols-2">
           <Form.Item
             name="password"
-            rules={[{ required: true, message: 'Please input your password!' }]}
+            label={<FieldLabel>Password</FieldLabel>}
+            rules={passwordRules}
           >
             <Input.Password
-              placeholder="Password"
-              className="w-full p-2 border rounded"
+              size="large"
+              placeholder="Min. 8 characters"
+              autoComplete="new-password"
+              prefix={<HiOutlineLockClosed className="mr-1 text-gray-400" size={18} />}
+              className={inputClass}
             />
           </Form.Item>
 
-          {/* Confirm Password (not logged to console) */}
           <Form.Item
             name="confirmPassword"
+            label={<FieldLabel>Confirm password</FieldLabel>}
             dependencies={['password']}
             rules={[
-              { required: true, message: 'Please confirm your password!' },
+              { required: true, message: 'Please confirm your password' },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue('password') === value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error('The two passwords do not match!'));
+                  return Promise.reject(new Error('Passwords do not match'));
                 },
               }),
             ]}
           >
             <Input.Password
-              placeholder="Confirm Password"
-              className="w-full p-2 border rounded"
+              size="large"
+              placeholder="Re-enter password"
+              autoComplete="new-password"
+              prefix={<HiOutlineLockClosed className="mr-1 text-gray-400" size={18} />}
+              className={inputClass}
             />
           </Form.Item>
+        </div>
 
-          {/* Role Selection */}
-          <Form.Item
-            name="role"
-            rules={[{ required: true, message: 'Please select your role!' }]}
-          >
-            <Radio.Group>
-              <Radio value="user">User</Radio>
-              <Radio value="landlord">Landlord</Radio>
-            </Radio.Group>
-          </Form.Item>
+        <Form.Item
+          name="agreement"
+          valuePropName="checked"
+          rules={[
+            { validator: (_, value) => value ? Promise.resolve() : Promise.reject(new Error('Please accept the terms to continue')) },
+          ]}
+        >
+          <Checkbox>
+            <span className="text-sm text-gray-600">
+              I agree to the{" "}
+              <Link href="/terms" className="font-medium text-primary hover:underline">Terms of Use</Link>
+              {" "}and{" "}
+              <Link href="/privacy" className="font-medium text-primary hover:underline">Privacy Policy</Link>
+            </span>
+          </Checkbox>
+        </Form.Item>
 
-          {/* Agreement Checkbox */}
-          <Form.Item
-            name="agreement"
-            valuePropName="checked"
-            rules={[
-              { validator: (_, value) => value ? Promise.resolve() : Promise.reject('Should accept agreement') },
-            ]}
-          >
-            <Checkbox>
-            Have read & agreed to Peared's Terms of Use and Privacy Policy.
-            </Checkbox>
-          </Form.Item>
+        <FormError message={error} />
 
-          {/* Submit Button */}
-          <Form.Item>
-            <Button
-           
-              htmlType="submit"
-            className="w-full !bg-[#2E7D32] text-white p-3 rounded "
-            >
-              Create Account
-            </Button>
-          </Form.Item>
+        <Button htmlType="submit" loading={isLoading} className={buttonClass}>
+          Create account
+        </Button>
 
-          {/* Already have an account? Log in */}
-          <div className="text-center">
-            <h1>
-            Already have an account?  
-            <Link href="/auth/login" className="text-blue-500 hover:underline">
-             Log in
-            </Link>
-            </h1>
-          </div>
-        </Form>
-      </div>
-    </div>
+        <p className="mt-8 text-center text-sm text-gray-600">
+          Already have an account?{" "}
+          <Link href="/auth/login" className="font-semibold text-primary hover:text-primaryDark hover:underline">
+            Log in
+          </Link>
+        </p>
+      </Form>
+    </AuthLayout>
   );
 };
 

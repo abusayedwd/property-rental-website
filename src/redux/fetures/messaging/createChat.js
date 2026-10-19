@@ -8,7 +8,8 @@ const creatChat = apiSlice.injectEndpoints({
                 url: `/chating/create`,
                 method: "POST",
                 body:  data
-            })
+            }),
+            invalidatesTags: [{ type: "Chat", id: "LIST" }]
         })
     })
 })

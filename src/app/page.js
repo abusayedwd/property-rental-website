@@ -11,7 +11,8 @@ import EnquiryPage from "@/components/Enquery";
 import FaQpage from "@/components/FaQpage";
 import HowItWorks from "@/components/HowItWorks";
 import AnimatedStatsSection from "@/components/information/AnimatedStatsSection";
-import TestimonialsSection from "@/components/information/Testomonials";
+// Testimonials hidden until there are real customer reviews
+// import TestimonialsSection from "@/components/information/Testomonials";
 import ModernProperty from "@/components/ModernProperty";
 import PopularRent from "@/components/PopularRent";
 import PopularSell from "@/components/PopularSell";
@@ -49,7 +50,7 @@ export default function Home() {
           <FaQpage />
           <AdvertiseSection />
           <ContactUs />
-          <TestimonialsSection />
+          {/* <TestimonialsSection /> */}
         </>
       )}
     </div>

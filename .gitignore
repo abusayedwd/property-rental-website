@@ -34,13 +34,5 @@ yarn-error.log*
 .env*
 
 # vercel
-<<<<<<< HEAD
 .vercel
 
-
-branch_structure.json
-temp_auto_push.bat
-temp_interactive_push.bat
-=======
-.vercel
->>>>>>> 51e91b4 (fix and update contact page blog page)

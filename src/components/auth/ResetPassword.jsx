@@ -2,105 +2,100 @@
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Button } from 'antd';
 import { useRouter } from 'next/navigation';
+import { HiOutlineLockClosed, HiOutlineShieldCheck } from 'react-icons/hi';
 import { useResetPasswordMutation } from '@/redux/fetures/auth/resetPassword';
-import toast, { Toaster } from 'react-hot-toast';
-
+import toast from 'react-hot-toast';
+import AuthLayout, { FieldLabel, FormError, buttonClass, inputClass } from './AuthLayout';
+import { passwordRules } from './SignUp';
 
 const ResetPassword = () => {
-
- const router = useRouter()
+  const router = useRouter()
   const [email, setEmail] = useState('')
- 
- const [resetPassword, {isLoading}] = useResetPasswordMutation()
+  const [error, setError] = useState('')
+
+  const [resetPassword, {isLoading}] = useResetPasswordMutation()
   useEffect(() => {
     // Extract query parameters on client-side
     const params = new URLSearchParams(window.location.search);
-    setEmail(params.get('email') || ''); 
+    setEmail(params.get('email') || '');
   }, []);
 
-
   const onFinish = async(values) => {
-  
+    setError('');
     const data = {
       email,
       password: values?.confirmPassword,
     }
     try{
-    const res = await resetPassword(data).unwrap();
+      const res = await resetPassword(data).unwrap();
       if(res?.code == 200){
         toast.success(res?.message)
         router.push(`/auth/login`);
       }
     }catch(error){
-      console.log(error)
+      setError(error?.data?.message || 'Could not reset your password. Please try again.')
     }
-    // console.log('Received values of form: ',  data);
   };
-  
 
   return (
-    <div className="flex justify-center items-center lg:min-h-[700px] bg-gray-100">
-      <Toaster />
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Reset Password</h1>
-        <p className="text-center mb-6">
-          Your password must be 8-10 characters long.
-        </p>
-
-        <Form
-          name="reset_password_form"
-          onFinish={onFinish}
+    <AuthLayout
+      image="/images/appr.jpg"
+      heading="Secure your account"
+      subheading="Pick a strong password you don't use anywhere else."
+      highlights={[]}
+      icon={<HiOutlineShieldCheck size={24} />}
+      title="Set a new password"
+      subtitle="Use at least 8 characters, including a letter and a number."
+      backHref="/auth/login"
+      backLabel="Back to login"
+    >
+      <Form name="reset_password_form" layout="vertical" requiredMark={false} onFinish={onFinish}>
+        <Form.Item
+          name="newPassword"
+          label={<FieldLabel>New password</FieldLabel>}
+          rules={passwordRules}
         >
-          {/* New Password */}
-          <Form.Item
-            name="newPassword"
-            rules={[
-              { required: true, message: 'Please input your new password!' },
-              { min: 6, message: 'Password must be at least 6 characters long!' },
-              { max: 12, message: 'Password must be at most 12 characters long!' },
-            ]}
-          >
-            <Input.Password
-              placeholder="New Password"
-              className="w-full p-2 border rounded"
-            />
-          </Form.Item>
+          <Input.Password
+            size="large"
+            placeholder="Min. 8 characters"
+            autoComplete="new-password"
+            prefix={<HiOutlineLockClosed className="mr-1 text-gray-400" size={18} />}
+            className={inputClass}
+          />
+        </Form.Item>
 
-          {/* Confirm Password */}
-          <Form.Item
-            name="confirmPassword"
-            dependencies={['newPassword']}
-            rules={[
-              { required: true, message: 'Please confirm your password!' },
-              ({ getFieldValue }) => ({
-                validator(_, value) {
-                  if (!value || getFieldValue('newPassword') === value) {
-                    return Promise.resolve();
-                  }
-                  return Promise.reject(new Error('The two passwords do not match!'));
-                },
-              }),
-            ]}
-          >
-            <Input.Password
-              placeholder="Confirm Password"
-              className="w-full p-2 border rounded"
-            />
-          </Form.Item>
+        <Form.Item
+          name="confirmPassword"
+          label={<FieldLabel>Confirm new password</FieldLabel>}
+          dependencies={['newPassword']}
+          rules={[
+            { required: true, message: 'Please confirm your password' },
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (!value || getFieldValue('newPassword') === value) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('Passwords do not match'));
+              },
+            }),
+          ]}
+        >
+          <Input.Password
+            size="large"
+            placeholder="Re-enter password"
+            autoComplete="new-password"
+            prefix={<HiOutlineLockClosed className="mr-1 text-gray-400" size={18} />}
+            className={inputClass}
+          />
+        </Form.Item>
 
-          {/* Reset Password Button */}
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-               className="w-full !bg-[#2E7D32] text-white p-3 rounded "
-            >
-              Reset Password
-            </Button>
-          </Form.Item>
-        </Form>
-      </div>
-    </div>
+        <FormError message={error} />
+
+        <Button htmlType="submit" loading={isLoading} className={`${buttonClass} mt-2`}>
+          Reset password
+        </Button>
+      </Form>
+    </AuthLayout>
   );
 };
 

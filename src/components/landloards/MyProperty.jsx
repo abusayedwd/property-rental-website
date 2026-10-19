@@ -1,247 +1,285 @@
-
-
 "use client";
-import React, { useState } from "react";
-import { Button, Tag, Pagination, Menu, Dropdown, Space } from "antd";
-import {
-  EnvironmentOutlined,
-  HomeOutlined,
-  AppstoreAddOutlined,
-  MoreOutlined,
-} from "@ant-design/icons";
+import React, { useMemo, useState } from "react";
 import Link from "next/link";
-import Header from "../customComponent/Header";
+import { Dropdown, Modal, Pagination, Segmented, Tooltip } from "antd";
+import toast from "react-hot-toast";
+import {
+  HiOutlinePlus,
+  HiOutlinePencilSquare,
+  HiOutlineEye,
+  HiOutlineEllipsisVertical,
+  HiOutlineBolt,
+  HiOutlineTrash,
+  HiOutlineCheckCircle,
+  HiOutlineHomeModern,
+  HiOutlineSparkles,
+  HiOutlineArchiveBox,
+} from "react-icons/hi2";
 import { useGetMypropertyQuery } from "@/redux/fetures/property/getMyproperty";
-import url from "@/redux/api/baseUrl";
 import { usePaymentMutation } from "@/redux/fetures/payment/payment";
 import { usePropertyStatusMutation } from "@/redux/fetures/property/propertyStatus";
-import toast, { Toaster } from "react-hot-toast";
-import { MdBathroom, MdOutlineBathtub, MdOutlineRealEstateAgent } from "react-icons/md";
+import { useDeletePropertyMutation } from "@/redux/fetures/property/deleteProperty";
+import PropertyCard, { PropertyCardSkeleton } from "@/components/property/PropertyCard";
 
-const MyProperty = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [value, setValue] = useState("");
+const PAGE_SIZE = 8;
+const PROMOTION_PRICE = "$10";
+const isClosed = (p) => ["sold", "rented"].includes(p.propertyType);
 
-  const { data: myProperty, isLoading } = useGetMypropertyQuery({
-    page: currentPage,
-    limit: pageSize,
-  });
-  const properties = myProperty?.data?.attributes?.results || [];
-  const totalResults = myProperty?.data?.attributes?.totalResults || 0;
+const StatTile = ({ icon: Icon, label, value, accent }) => (
+  <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+    <span className={`flex h-12 w-12 items-center justify-center rounded-xl ${accent}`}>
+      <Icon size={24} />
+    </span>
+    <div>
+      <p className="text-2xl font-bold text-navy">{value}</p>
+      <p className="text-sm text-gray-500">{label}</p>
+    </div>
+  </div>
+);
 
-  const handlePageChange = (page, pageSize) => {
-    setCurrentPage(page);
-    setPageSize(pageSize);
-  };
+const OwnerActions = ({ property, onPromote, onStatus, onDelete, promoting }) => {
+  const closed = isClosed(property);
+  const closeLabel = property.propertyType === "sell" ? "Mark as sold" : "Mark as rented";
 
-  const [payment] = usePaymentMutation();
-
-  // Handle payment for promotion
-  const handlePromotionPayment = async (propertyId) => {
-    console.log(propertyId);
-    const id = { propertyId };
-    try {
-      const res = await payment(id).unwrap();
-      console.log(res);
-      if (res?.status === 200 && res?.url) {
-        window.location.href = res.url;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // Get Property Status
-  const getPropertyStatus = (propertyType) => {
-    switch (propertyType) {
-      case "sold":
-        return "Sold";
-      case "rented":
-        return "Rented";
-      case "sell":
-      case "for sell":
-        return "For Sale";
-      case "rent":
-      case "for rent":
-        return "For Rent";
-      default:
-        return "Unknown";
-    }
-  };
-
-  // Dropdown menu
-  const [selectedProperty, setSelectedProperty] = useState(null);
-  // console.log(selectedProperty)
-  const [updatestatus] = usePropertyStatusMutation();
-
-  const renderDropdownMenu = (property) => (
-    <Menu
-      onClick={async ({ key }) => {
-        setSelectedProperty({ id: property.id, type: key });
-        console.log(`Selected: ${key} for property ${property.id}`);
-        try {
-          const res = await updatestatus({
-            id: property?.id,
-            propertyType: key,
-          });
-          console.log(res);
-          if (res.error?.status == 403) {
-            toast.error(res?.error?.data?.message);
-          } else {
-            toast.success(res?.data?.message);
-          }
-        } catch (error) {
-          console.log(error);
-          toast.error(res?.error?.data?.message);
-        }
-      }}
-      items={[
-        { key: "rented", label: "rented" },
-        { key: "sold", label: "sold" },
-      ]}
-    />
-  );
+  const menuItems = [
+    {
+      key: "status",
+      icon: <HiOutlineCheckCircle size={16} />,
+      // The server only allows this for promoted listings
+      disabled: closed || !property.isPromotion,
+      label: (
+        <Tooltip
+          placement="left"
+          title={!closed && !property.isPromotion ? "Only featured listings can be marked as closed" : undefined}
+        >
+          <span>{closeLabel}</span>
+        </Tooltip>
+      ),
+      onClick: () => onStatus(property, property.propertyType === "sell" ? "sold" : "rented"),
+    },
+    { type: "divider" },
+    { key: "delete", icon: <HiOutlineTrash size={16} />, label: "Delete listing", danger: true, onClick: () => onDelete(property) },
+  ];
 
   return (
-    <div className="md:container w-[95%] mx-auto my-6 min-h-screen md:my-12">
-      <Toaster />
-      <div className="text-center mb-8">
-        <Header size="large" className="text-green-700">
-          My Property
-        </Header>
-      </div>
+    <div className="flex items-center gap-2">
+      <Link
+        href={`/editpost/${property.id}`}
+        className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 transition-colors hover:border-primary hover:text-primaryDark"
+      >
+        <HiOutlinePencilSquare size={16} /> Edit
+      </Link>
 
-      <div className="text-right py-4">
-        <Link href="/addproperty">
-          <Button className="!text-white !bg-[#1A3459] p-4 font-semibold">
-            Add Property
-          </Button>
-        </Link>
-      </div>
+      {closed ? (
+        <span className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-gray-100 text-sm font-medium text-gray-500">
+          <HiOutlineArchiveBox size={16} /> Closed
+        </span>
+      ) : property.isPromotion ? (
+        <span className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-50 text-sm font-semibold text-amber-700">
+          <HiOutlineBolt size={16} /> Featured
+        </span>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onPromote(property)}
+          disabled={promoting}
+          title={`Feature this listing for ${PROMOTION_PRICE}`}
+          className="flex h-9 flex-1 items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-navy px-2 text-sm font-semibold text-white transition-colors hover:bg-navyDark disabled:opacity-60"
+        >
+          <HiOutlineSparkles size={15} className="shrink-0" /> Promote {PROMOTION_PRICE}
+        </button>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-4  gap-6">
-        {isLoading ? (
-          <p className="text-center text-gray-500">Loading properties...</p>
-        ) : properties?.length === 0 ? (
-          <p className="text-center text-gray-500">No properties found.</p>
-        ) : (
-          properties.map((property) => (
-            <div
-              key={property.id}
-              className="border rounded-lg shadow-md overflow-hidden bg-white"
-            >
-              {/* Property Image & Status */}
-              <div className="relative">
-                <img
-                  src={
-                    property?.images
-                      ? url + property.images[0]?.url
-                      : "/images/default-home.png"
-                  }
-                  alt={property.houseName}
-                  className="w-full h-[200px] object-cover"
-                />
-                <Tag
-                  color="red"
-                  className="absolute top-2 left-2 px-3 py-1 text-sm font-semibold"
-                >
-                  {getPropertyStatus(property.propertyType)}
-                </Tag>
+      <Dropdown menu={{ items: menuItems }} trigger={["click"]} placement="topRight">
+        <button
+          type="button"
+          aria-label="More actions"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
+        >
+          <HiOutlineEllipsisVertical size={18} />
+        </button>
+      </Dropdown>
+    </div>
+  );
+};
 
-                {/* Show Dropdown only if NOT Sold or Rented */}
-                {!(
-                  property.propertyType === "sold" ||
-                  property.propertyType === "rented"
-                ) && (
-                  <Dropdown
-                    overlay={renderDropdownMenu(property)}
-                    trigger={["click"]}
-                  >
-                    <MoreOutlined className="absolute top-2 font-bold  right-2 text-2xl cursor-pointer" />
-                  </Dropdown>
-                )}
-              </div>
+const TABS = [
+  { value: "all", label: "All" },
+  { value: "active", label: "Active" },
+  { value: "featured", label: "Featured" },
+  { value: "closed", label: "Rented / Sold" },
+];
 
-              {/* Property Details */}
-              <div className="p-4 bg-green-50">
-                <h2 className="text-lg font-bold text-gray-800 mb-1">
-                  {property.houseName || "Unnamed Property"}
-                </h2>
-                <p className="text-gray-500 text-sm flex items-center gap-2 mb-2">
-                  <EnvironmentOutlined />
-                  {property.place || "No address provided"}
-                </p>
+const MyProperty = () => {
+  const [tab, setTab] = useState("all");
+  const [page, setPage] = useState(1);
 
-                <div className="flex justify-between items-center mb-3">
-                  <p className="text-green-600 font-bold text-xl">
-                    ${property.price || "N/A"}
-                  </p>
-                  <div className="text-gray-500 text-sm flex items-center gap-1">
-                    <HomeOutlined />
-                    Type: {property.type || "N/A"}
-                  </div>
-                  <div className="text-gray-500 text-sm">
-                    {property.state || "N/A"}, {property.subState || ""}
-                  </div>
-                </div>
+  // Landlords have a handful of listings: load them all once, then filter and page locally
+  const { data: myProperty, isLoading, isError } = useGetMypropertyQuery({ limit: 200, sortBy: "createdAt:desc" });
+  const all = myProperty?.data?.attributes?.results || [];
 
-                <div className="grid grid-cols-3 gap-2 text-gray-600 text-sm mb-4">
-                  <div className="flex items-center gap-1">
-                    <MdBathroom />
-                    Rooms: {property?.rooms || "N/A"}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MdOutlineBathtub />
-                    Baths: {property.baths || "N/A"}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <MdOutlineRealEstateAgent />
-                    State: {property.state || "N/A"}
-                  </div>
-                </div>
+  const [payment, { isLoading: promoting }] = usePaymentMutation();
+  const [updateStatus] = usePropertyStatusMutation();
+  const [deleteProperty] = useDeletePropertyMutation();
 
-                {/* Promotion Section */}
-                <div className="flex gap-3 mt-3">
-                  <Link href={`/detailsHome/${property.id}`}>
-                    <button className="px-2 py-1 bg-green-600 text-white rounded-lg hover:bg-blue-600 transition-all duration-300">
-                      Details
-                    </button>
-                  </Link>
-                  <Link href={`/editpost/${property.id}`}>
-                    <button className="px-2 py-1 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-all duration-300">
-                      Edit
-                    </button>
-                  </Link>
-                  <div className="text-right">
-                    {property?.isPromotion ? (
-                      <span className="bg-green-500 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                        Promoted
-                      </span>
-                    ) : (
-                      <button
-                        className="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition"
-                        onClick={() => handlePromotionPayment(property?.id)}
-                      >
-                        Promote For - $ 10
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
+  const counts = useMemo(
+    () => ({
+      all: all.length,
+      active: all.filter((p) => !isClosed(p)).length,
+      featured: all.filter((p) => p.isPromotion && !isClosed(p)).length,
+      closed: all.filter(isClosed).length,
+    }),
+    [all]
+  );
+
+  const filtered = all.filter((p) =>
+    tab === "active" ? !isClosed(p) : tab === "featured" ? p.isPromotion && !isClosed(p) : tab === "closed" ? isClosed(p) : true
+  );
+  const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const handlePromote = async (property) => {
+    try {
+      const res = await payment({ propertyId: property.id }).unwrap();
+      if (res?.status === 200 && res?.url) {
+        window.location.href = res.url; // Stripe checkout
+      }
+    } catch (error) {
+      toast.error(error?.data?.message || "Could not start the payment. Please try again.");
+    }
+  };
+
+  const handleStatus = (property, propertyType) => {
+    Modal.confirm({
+      title: propertyType === "sold" ? "Mark this property as sold?" : "Mark this property as rented?",
+      content: "It will show as closed and be removed from the site after one week.",
+      okText: propertyType === "sold" ? "Mark as sold" : "Mark as rented",
+      centered: true,
+      onOk: async () => {
+        try {
+          const res = await updateStatus({ id: property.id, propertyType }).unwrap();
+          toast.success(res?.message || "Status updated");
+        } catch (error) {
+          toast.error(error?.data?.message || "Could not update the status");
+        }
+      },
+    });
+  };
+
+  const handleDelete = (property) => {
+    Modal.confirm({
+      title: "Delete this listing?",
+      content: `"${property.houseName}" will be removed permanently. This can't be undone.`,
+      okText: "Delete",
+      okButtonProps: { danger: true },
+      centered: true,
+      onOk: async () => {
+        try {
+          await deleteProperty(property.id).unwrap();
+          toast.success("Listing deleted");
+        } catch (error) {
+          toast.error(error?.data?.message || "Could not delete the listing");
+        }
+      },
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-16">
+      <div className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
+        {/* Header */}
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-navy md:text-3xl">My properties</h1>
+            <p className="mt-1 text-gray-500">Manage your listings, promote them, and keep their status up to date.</p>
+          </div>
+          <Link
+            href="/addproperty"
+            className="flex h-11 items-center gap-2 rounded-lg bg-primary px-5 font-semibold text-white shadow-lg shadow-primary/25 transition-colors hover:bg-primaryDark"
+          >
+            <HiOutlinePlus size={18} /> Add property
+          </Link>
+        </div>
+
+        {/* Stats */}
+        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatTile icon={HiOutlineHomeModern} label="Total listings" value={counts.all} accent="bg-secondary text-primaryDark" />
+          <StatTile icon={HiOutlineEye} label="Active" value={counts.active} accent="bg-blue-50 text-blue-600" />
+          <StatTile icon={HiOutlineBolt} label="Featured" value={counts.featured} accent="bg-amber-50 text-amber-600" />
+          <StatTile icon={HiOutlineArchiveBox} label="Rented / Sold" value={counts.closed} accent="bg-gray-100 text-gray-600" />
+        </div>
+
+        {/* Tabs */}
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+          <Segmented
+            value={tab}
+            onChange={(v) => {
+              setTab(v);
+              setPage(1);
+            }}
+            options={TABS.map((t) => ({ value: t.value, label: `${t.label} (${counts[t.value]})` }))}
+          />
+          {counts.active > counts.featured && (
+            <p className="text-sm text-gray-500">
+              <HiOutlineSparkles className="mr-1 inline text-amber-500" />
+              Featured listings show first in search results.
+            </p>
+          )}
+        </div>
+
+        {/* Grid */}
+        <div className="mt-6">
+          {isLoading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[1, 2, 3, 4].map((i) => <PropertyCardSkeleton key={i} />)}
             </div>
-          ))
-        )}
-      </div>
+          ) : isError ? (
+            <p className="rounded-2xl bg-white p-10 text-center text-red-500 shadow-sm">Could not load your properties. Please try again.</p>
+          ) : visible.length === 0 ? (
+            <div className="flex flex-col items-center rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary text-primaryDark">
+                <HiOutlineHomeModern size={30} />
+              </span>
+              <h2 className="mt-4 text-lg font-semibold text-navy">
+                {all.length === 0 ? "You haven't listed a property yet" : "Nothing in this tab"}
+              </h2>
+              <p className="mt-1 max-w-sm text-sm text-gray-500">
+                {all.length === 0
+                  ? "Add your first listing and start getting messages from tenants and buyers."
+                  : "Try another tab to see the rest of your listings."}
+              </p>
+              {all.length === 0 && (
+                <Link href="/addproperty" className="mt-5 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primaryDark">
+                  List a property
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {visible.map((property) => (
+                <PropertyCard
+                  key={property.id}
+                  property={property}
+                  showFavorite={false}
+                  actions={
+                    <OwnerActions
+                      property={property}
+                      onPromote={handlePromote}
+                      onStatus={handleStatus}
+                      onDelete={handleDelete}
+                      promoting={promoting}
+                    />
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </div>
 
-      <div className="flex justify-center mt-6">
-        <Pagination
-          current={currentPage}
-          pageSize={pageSize}
-          total={totalResults}
-          showSizeChanger
-          onChange={handlePageChange}
-        />
+        {filtered.length > PAGE_SIZE && (
+          <div className="mt-10 flex justify-center">
+            <Pagination current={page} pageSize={PAGE_SIZE} total={filtered.length} onChange={setPage} showSizeChanger={false} />
+          </div>
+        )}
       </div>
     </div>
   );

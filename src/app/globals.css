@@ -11,3 +11,15 @@ body {
   background-color: var(--background);
   color: var(--foreground);
 }
+
+/* Swiper sliders: brand colours */
+.swiper {
+  --swiper-theme-color: #00bf63;
+  --swiper-pagination-bullet-inactive-color: #94a3b8;
+  --swiper-pagination-bullet-inactive-opacity: 0.5;
+}
+.swiper-pagination-bullet-active {
+  width: 22px !important;
+  border-radius: 9999px !important;
+  transition: width 0.3s;
+}
