@@ -1,4 +1,4 @@
-import { API_URL } from "@/utils/site";
+import { API_URL, PUBLIC_API_URL } from "@/utils/site";
 
 const STATUS = { rent: "For rent", sell: "For sale", rented: "Rented", sold: "Sold" };
 
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }) {
     location,
   ].filter(Boolean).join(" · ");
   const description = [facts, property.textArea].filter(Boolean).join(". ").slice(0, 160);
-  const image = property.images?.[0]?.url ? `${API_URL}${property.images[0].url}` : "/images/Hero.jpg";
+  const image = property.images?.[0]?.url ? `${PUBLIC_API_URL}${property.images[0].url}` : "/images/Hero.jpg";
   const title = property.houseName || "Property details";
 
   return {

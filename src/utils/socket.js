@@ -13,12 +13,13 @@ export const getSocket = () => {
 
   socket?.disconnect();
   socketToken = token;
-  socket = io(baseUrl, {
-    auth: { token },
-    transports: ["websocket", "polling"],
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 10000,
-  });
+
+  const proxied = baseUrl.startsWith("/");
+  socket = proxied
+    ? // Through the site's /backend proxy: same origin, custom path, and HTTP
+      // long-polling because the proxy can't carry websocket connections
+      io(window.location.origin, { path: `${baseUrl}/socket.io`, auth: { token }, transports: ["polling"] })
+    : io(baseUrl, { auth: { token }, transports: ["websocket", "polling"], reconnectionDelay: 1000, reconnectionDelayMax: 10000 });
   return socket;
 };
 
