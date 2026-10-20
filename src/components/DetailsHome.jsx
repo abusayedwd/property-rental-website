@@ -14,6 +14,8 @@ import {
   HiOutlineArrowLeft,
   HiOutlineCheckBadge,
   HiChevronRight,
+  HiOutlineFlag,
+  HiOutlineEye,
 } from "react-icons/hi2";
 import { MdOutlineBed } from "react-icons/md";
 import { LuBath } from "react-icons/lu";
@@ -25,6 +27,9 @@ import { useCreatChatMutation } from "@/redux/fetures/messaging/createChat";
 import { formatPrice } from "@/utils/formatPrice";
 import FavoriteButton from "@/components/FavoriteButton";
 import PropertyCard from "@/components/property/PropertyCard";
+import ViewingRequestModal from "@/components/property/ViewingRequestModal";
+import ReportListingModal from "@/components/property/ReportListingModal";
+import { useGetViewingsQuery } from "@/redux/fetures/engagement/viewings";
 
 const statusInfo = (type) =>
   ({
@@ -185,6 +190,10 @@ const DetailsPage = () => {
   const { data: propertys, isLoading } = useGetSinglepropertyQuery(id, { skip: !id });
   const property = propertys?.data?.attributes;
 
+  const [viewingOpen, setViewingOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const { data: myViewings } = useGetViewingsQuery("sent", { skip: !viewer });
+
   if (isLoading) return <DetailsSkeleton />;
 
   if (!property) {
@@ -207,6 +216,24 @@ const DetailsPage = () => {
   const mapQuery = encodeURIComponent([property.place, property.subState, property.state, "Bangladesh"].filter(Boolean).join(", "));
   const isClosed = ["sold", "rented"].includes(property.propertyType);
   const isOwner = viewer && owner?.id && viewer.id === owner.id;
+  const canRequestViewing = !isClosed && !isOwner && owner?.id && viewer?.role !== "landlord";
+
+  // The viewer's upcoming request for this property, if any
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const activeViewing = (myViewings?.data?.attributes || []).find(
+    (v) => (v.propertyId?.id || v.propertyId) === property.id && ["pending", "confirmed"].includes(v.status) && new Date(v.date) >= today
+  );
+
+  // Viewings and reports need an account
+  const requireLogin = (message) => {
+    if (viewer) return true;
+    toast.error(message);
+    router.push("/auth/login");
+    return false;
+  };
+  const openViewing = () => requireLogin("Please log in to request a viewing") && setViewingOpen(true);
+  const openReport = () => requireLogin("Please log in to report a listing") && setReportOpen(true);
 
   const contactLandlord = async () => {
     if (!viewer) {
@@ -261,6 +288,11 @@ const DetailsPage = () => {
                 </span>
               )}
               <span className="rounded-md bg-gray-200/70 px-2.5 py-1 text-xs font-medium capitalize text-gray-700">{property.type}</span>
+              {property.views > 0 && (
+                <span className="flex items-center gap-1 rounded-md bg-gray-200/70 px-2.5 py-1 text-xs font-medium text-gray-700">
+                  <HiOutlineEye size={13} /> {property.views.toLocaleString()} {property.views === 1 ? "view" : "views"}
+                </span>
+              )}
             </div>
             <h1 className="mt-3 text-2xl font-bold text-navy md:text-3xl">{property.houseName}</h1>
             <p className="mt-2 flex items-center gap-1.5 text-gray-500">
@@ -380,11 +412,48 @@ const DetailsPage = () => {
                   </Button>
                 ) : null}
 
+                {canRequestViewing &&
+                  (activeViewing ? (
+                    <Link
+                      href="/viewings"
+                      className={`mt-3 flex items-start gap-3 rounded-lg p-3 text-sm ${activeViewing.status === "confirmed" ? "bg-secondary text-primaryDark" : "bg-amber-50 text-amber-800"}`}
+                    >
+                      <HiOutlineCalendarDays size={20} className="mt-0.5 shrink-0" />
+                      <span>
+                        <span className="block font-semibold">
+                          {activeViewing.status === "confirmed" ? "Viewing confirmed" : "Viewing requested · waiting for reply"}
+                        </span>
+                        <span className="block text-xs opacity-80">
+                          {new Date(activeViewing.date).toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })} ·{" "}
+                          {activeViewing.timeSlot}
+                        </span>
+                      </span>
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={openViewing}
+                      className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-primary font-semibold text-primaryDark transition-colors hover:bg-secondary"
+                    >
+                      <HiOutlineCalendarDays size={18} /> Request a viewing
+                    </button>
+                  ))}
+
                 <div className="mt-3 flex items-center justify-center">
                   <FavoriteButton propertyId={property.id || id} className="!shadow-none" />
                   <span className="text-sm text-gray-500">Save to favorites</span>
                 </div>
               </div>
+
+              {!isOwner && (
+                <button
+                  type="button"
+                  onClick={openReport}
+                  className="flex w-full items-center justify-center gap-1.5 text-xs text-gray-400 transition-colors hover:text-red-500"
+                >
+                  <HiOutlineFlag size={14} /> Report this listing
+                </button>
+              )}
 
               <button
                 type="button"
@@ -409,6 +478,16 @@ const DetailsPage = () => {
           </p>
           <p className="text-xs text-gray-500">{status.label}</p>
         </div>
+        {canRequestViewing && !activeViewing && (
+          <button
+            type="button"
+            onClick={openViewing}
+            aria-label="Request a viewing"
+            className="ml-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-primary text-primaryDark"
+          >
+            <HiOutlineCalendarDays size={20} />
+          </button>
+        )}
         {!isClosed && !isOwner && owner?.id && viewer?.role !== "landlord" && (
           <Button
             onClick={contactLandlord}
@@ -420,6 +499,9 @@ const DetailsPage = () => {
           </Button>
         )}
       </div>
+
+      <ViewingRequestModal open={viewingOpen} onClose={() => setViewingOpen(false)} property={property} />
+      <ReportListingModal open={reportOpen} onClose={() => setReportOpen(false)} propertyId={property.id} />
     </div>
   );
 };

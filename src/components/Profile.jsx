@@ -197,6 +197,7 @@ const Profile = () => {
         ]
       : [{ href: "/property", label: "Browse properties", icon: HiOutlineHomeModern }]),
     { href: "/favorites", label: "Saved homes", icon: HiOutlineHeart },
+    { href: "/viewings", label: "My viewings", icon: HiOutlineCalendarDays },
     { href: "/messages", label: "Messages", icon: HiOutlineChatBubbleLeftRight },
     { href: "/profile/editProfile", label: "Edit profile", icon: HiOutlinePencilSquare },
   ];

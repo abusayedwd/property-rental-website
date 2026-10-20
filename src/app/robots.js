@@ -6,7 +6,7 @@ export default function robots() {
       userAgent: "*",
       allow: "/",
       // Account pages are private
-      disallow: ["/profile", "/favorites", "/messages", "/myproperty", "/addproperty", "/editpost", "/auth/sendOtp", "/auth/resetPassword", "/auth/forgotPassword"],
+      disallow: ["/profile", "/favorites", "/messages", "/viewings", "/myproperty", "/addproperty", "/editpost", "/auth/sendOtp", "/auth/resetPassword", "/auth/forgotPassword"],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

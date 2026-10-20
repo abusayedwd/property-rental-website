@@ -14,6 +14,9 @@ import {
   HiOutlineHomeModern,
   HiOutlineSparkles,
   HiOutlineArchiveBox,
+  HiOutlineHeart,
+  HiOutlineCalendarDays,
+  HiOutlineEyeSlash,
 } from "react-icons/hi2";
 import { useGetMypropertyQuery } from "@/redux/fetures/property/getMyproperty";
 import { usePaymentMutation } from "@/redux/fetures/payment/payment";
@@ -24,6 +27,37 @@ import PropertyCard, { PropertyCardSkeleton } from "@/components/property/Proper
 const PAGE_SIZE = 8;
 const PROMOTION_PRICE = "$10";
 const isClosed = (p) => ["sold", "rented"].includes(p.propertyType);
+
+// Views, saves and waiting viewing requests for one listing
+const ListingStats = ({ property }) => (
+  <div className="mb-3 space-y-2">
+    {property.moderation?.status === "hidden" && (
+      <div className="flex items-start gap-2 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+        <HiOutlineEyeSlash size={16} className="mt-0.5 shrink-0" />
+        <span>
+          <span className="font-semibold">Hidden by admin.</span> {property.moderation.reason || "This listing isn't visible to the public."}
+        </span>
+      </div>
+    )}
+    <div className="grid grid-cols-3 divide-x divide-gray-100 rounded-lg bg-white text-center ring-1 ring-gray-100">
+      <span className="flex flex-col items-center py-2" title="Page views">
+        <span className="flex items-center gap-1 text-sm font-semibold text-navy"><HiOutlineEye size={14} className="text-gray-400" />{property.views ?? 0}</span>
+        <span className="text-[11px] text-gray-500">Views</span>
+      </span>
+      <span className="flex flex-col items-center py-2" title="Saved to favorites">
+        <span className="flex items-center gap-1 text-sm font-semibold text-navy"><HiOutlineHeart size={14} className="text-gray-400" />{property.saves ?? 0}</span>
+        <span className="text-[11px] text-gray-500">Saves</span>
+      </span>
+      <Link href="/viewings?tab=received" className="flex flex-col items-center py-2 transition-colors hover:bg-gray-50" title="Viewing requests waiting for your reply">
+        <span className={`flex items-center gap-1 text-sm font-semibold ${property.pendingViewings ? "text-amber-600" : "text-navy"}`}>
+          <HiOutlineCalendarDays size={14} className={property.pendingViewings ? "text-amber-500" : "text-gray-400"} />
+          {property.pendingViewings ?? 0}
+        </span>
+        <span className="text-[11px] text-gray-500">Requests</span>
+      </Link>
+    </div>
+  </div>
+);
 
 const StatTile = ({ icon: Icon, label, value, accent }) => (
   <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
@@ -261,6 +295,8 @@ const MyProperty = () => {
                   property={property}
                   showFavorite={false}
                   actions={
+                    <>
+                    <ListingStats property={property} />
                     <OwnerActions
                       property={property}
                       onPromote={handlePromote}
@@ -268,6 +304,7 @@ const MyProperty = () => {
                       onDelete={handleDelete}
                       promoting={promoting}
                     />
+                    </>
                   }
                 />
               ))}

@@ -7,6 +7,7 @@ import { useGetFavoriteIdsQuery } from "@/redux/fetures/favorite/favorite";
 import { useGetChatlistQuery } from "@/redux/fetures/messaging/getChatlist";
 import { apiSlice } from "@/redux/api/apiSlice";
 import { getSocket, disconnectSocket } from "@/utils/socket";
+import NotificationBell from "@/components/NotificationBell";
 import { useDispatch } from "react-redux";
 import { LockOutlined } from "@ant-design/icons";
 import { Avatar, Button, Dropdown, Form, Input, Modal } from "antd";
@@ -25,6 +26,7 @@ import {
   HiOutlineKey,
   HiOutlineArrowRightOnRectangle,
   HiChevronDown,
+  HiOutlineCalendarDays,
 } from "react-icons/hi2";
 
 const NAV_HEIGHT = 72;
@@ -176,6 +178,7 @@ const Navbar = () => {
           { key: "addproperty", icon: <HiOutlinePlusCircle size={16} />, label: <Link href="/addproperty">Add Property</Link> },
         ]
       : []),
+    { key: "viewings", icon: <HiOutlineCalendarDays size={16} />, label: <Link href="/viewings">My viewings</Link> },
     { key: "messages", icon: <HiOutlineChatBubbleLeftRight size={16} />, label: <Link href="/messages">Messages</Link> },
     { key: "password", icon: <HiOutlineKey size={16} />, label: "Change Password", onClick: () => setIsModalOpen(true) },
     { type: "divider" },
@@ -240,6 +243,7 @@ const Navbar = () => {
           <div className="flex items-center gap-1 sm:gap-2">
             {profile ? (
               <>
+                <NotificationBell userId={profile.id} />
                 <Link href="/favorites" aria-label="Favorites" title="Favorites" className={`${iconButton} hidden md:flex`}>
                   <HiOutlineHeart size={21} />
                   {favoriteCount > 0 && (
@@ -372,6 +376,7 @@ const Navbar = () => {
                         { href: "/addproperty", label: "Add Property", icon: HiOutlinePlusCircle },
                       ]
                     : []),
+                  { href: "/viewings", label: "My viewings", icon: HiOutlineCalendarDays },
                   { href: "/messages", label: "Messages", icon: HiOutlineChatBubbleLeftRight, badge: unreadMessages },
                 ].map(({ href, label, icon: Icon, badge }) => (
                   <li key={href}>
