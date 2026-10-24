@@ -36,7 +36,7 @@ A full-stack platform for renting, buying and listing property across all 64 dis
 - **Verified owner badge** after an NID check (documents stored privately and deleted after review)
 - Per-listing analytics: views, saves and pending viewing requests
 - Confirm/decline viewing requests; mark properties rented or sold
-- Promote a listing to "Featured" for 7/15/30 days, paid in Taka with **SSLCommerz** (bKash, Nagad, Rocket, cards)
+- Promote a listing to "Featured" for 7/15/30 days, priced in Taka and paid with **Stripe Checkout** (SSLCommerz for bKash/Nagad is built in and turns on when its keys are added)
 
 **Admins** (separate React dashboard)
 - Overview with earnings chart, user and landlord management (details, block/unblock)
@@ -55,7 +55,7 @@ A full-stack platform for renting, buying and listing property across all 64 dis
 |---|---|
 | Website | Next.js 15 (App Router), React 19, Redux Toolkit / RTK Query, Tailwind CSS, Ant Design, Leaflet, Socket.io client |
 | Admin dashboard | React 18 + Vite, Redux Toolkit, Ant Design, Recharts |
-| API | Node.js, Express, MongoDB Atlas + Mongoose (geo queries), Passport JWT, Socket.io, SSLCommerz, Cloudinary, Nodemailer, Multer |
+| API | Node.js, Express, MongoDB Atlas + Mongoose (geo queries), Passport JWT, Socket.io, Stripe, Cloudinary, Nodemailer, Multer |
 | Deployment | Vercel (website), Node server on a VPS |
 
 ## Architecture

@@ -10,6 +10,11 @@ const payment = apiSlice.injectEndpoints({
         body,
       }),
     }),
+    // After Stripe Checkout: confirm the payment and turn on Featured
+    confirmStripePayment: builder.mutation({
+      query: (sessionId) => ({ url: `/payment/stripe/confirm?session_id=${encodeURIComponent(sessionId)}`, method: "GET" }),
+      invalidatesTags: ["Property"],
+    }),
     // Featured plans in Taka
     getPromotionPlans: builder.query({
       query: () => "/payment/plans",
@@ -18,4 +23,4 @@ const payment = apiSlice.injectEndpoints({
   }),
 });
 
-export const { usePaymentMutation, useGetPromotionPlansQuery } = payment;
+export const { usePaymentMutation, useGetPromotionPlansQuery, useConfirmStripePaymentMutation } = payment;

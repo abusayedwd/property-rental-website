@@ -23,7 +23,7 @@ import {
   HiOutlineArrowPath,
 } from "react-icons/hi2";
 import { useGetMypropertyQuery } from "@/redux/fetures/property/getMyproperty";
-import { usePaymentMutation, useGetPromotionPlansQuery } from "@/redux/fetures/payment/payment";
+import { usePaymentMutation, useGetPromotionPlansQuery, useConfirmStripePaymentMutation } from "@/redux/fetures/payment/payment";
 import { track } from "@/components/Analytics";
 import { usePropertyStatusMutation } from "@/redux/fetures/property/propertyStatus";
 import { useDeletePropertyMutation } from "@/redux/fetures/property/deleteProperty";
@@ -228,7 +228,7 @@ const PromoteModal = ({ property, onClose }) => {
             {isLoading ? "Opening payment…" : selected ? `Pay ৳${selected.price.toLocaleString("en-IN")}` : "Loading plans…"}
           </button>
           <p className="mt-3 text-center text-xs text-gray-400">
-            {provider === "sslcommerz" ? "Secure payment by SSLCommerz · bKash, Nagad, Rocket, Visa, Mastercard" : "Secure card payment"}
+            {provider === "sslcommerz" ? "Secure payment by SSLCommerz · bKash, Nagad, Rocket, Visa, Mastercard" : "Secure card payment by Stripe · Visa, Mastercard"}
           </p>
         </div>
       )}
@@ -257,15 +257,28 @@ const MyProperty = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const [confirmStripe] = useConfirmStripePaymentMutation();
+
   // Coming back from the payment page
   useEffect(() => {
     const result = searchParams.get("payment");
     if (!result) return;
-    if (result === "success") toast.success("Payment received. Your listing is now Featured!", { duration: 6000 });
+    const sessionId = searchParams.get("session_id");
+    router.replace("/myproperty");
+    if (result === "success" && sessionId) {
+      // Stripe: check the payment with the server before showing success
+      confirmStripe(sessionId)
+        .unwrap()
+        .then((res) =>
+          res?.paid
+            ? toast.success("Payment received. Your listing is now Featured!", { duration: 6000 })
+            : toast("Your payment is still processing. Featured will turn on as soon as it completes.")
+        )
+        .catch((error) => toast.error(error?.data?.message || "We couldn't confirm the payment. Please contact support."));
+    } else if (result === "success") toast.success("Payment received. Your listing is now Featured!", { duration: 6000 });
     else if (result === "cancelled") toast("Payment cancelled. Nothing was charged.");
     else toast.error("The payment didn't go through. Please try again.");
-    router.replace("/myproperty");
-  }, [searchParams, router]);
+  }, [searchParams, router, confirmStripe]);
   const [deleteProperty] = useDeletePropertyMutation();
 
   const counts = useMemo(

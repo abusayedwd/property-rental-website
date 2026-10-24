@@ -14,6 +14,7 @@ const AdvertiseSection = () => {
   const email = contact?.data?.attributes?.[0]?.email || "";
   const { data: plansData } = useGetPromotionPlansQuery();
   const plans = plansData?.data?.attributes?.plans || [];
+  const provider = plansData?.data?.attributes?.provider;
   const cheapest = plans.length ? Math.min(...plans.map((p) => p.price)) : null;
 
   return (
@@ -47,7 +48,9 @@ const AdvertiseSection = () => {
             >
               {cheapest ? `Promote from ৳${cheapest.toLocaleString("en-IN")}` : "Promote a listing"}
             </Link>
-            <p className="mt-2 text-center text-xs text-white/50">Pay with bKash, Nagad, Rocket or card</p>
+            <p className="mt-2 text-center text-xs text-white/50">
+              {provider === "sslcommerz" ? "Pay with bKash, Nagad, Rocket or card" : "Pay securely by card"}
+            </p>
           </div>
 
           {/* Banner ads */}
