@@ -66,7 +66,15 @@ export const PROPERTY_TYPES = [
   { value: "other", label: "Other" },
 ];
 
-export const labelOf = (list, value) => list.find((x) => x.value === value)?.label || value;
+// Older listings may use values that are no longer offered in the form
+const LEGACY_LABELS = { "self-con": "Self-contained flat" };
+
+export const labelOf = (list, value) => {
+  const found = list.find((x) => x.value === value)?.label;
+  if (found) return found;
+  if (!value) return value;
+  return LEGACY_LABELS[value] || String(value).charAt(0).toUpperCase() + String(value).slice(1);
+};
 
 // Moderation state shown to the owner on My Properties
 export const MODERATION_LABELS = {
