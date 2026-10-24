@@ -17,6 +17,7 @@ import { districtOptions, getAreaOptions, filterLocationOption } from "@/compone
 import { LocationPickerMap } from "@/components/map";
 import { AMENITIES, FURNISHING, PROPERTY_TYPES, TENANT_TYPES } from "@/utils/listing";
 import { mediaUrl } from "@/utils/media";
+import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
 
 const MAX_PHOTOS = 5;
 
@@ -110,6 +111,16 @@ const ListingForm = ({ mode = "add", initial, onSubmit, submitting }) => {
   useEffect(() => {
     if (initial) setValues(fromProperty(initial));
   }, [initial]);
+
+  // Only signed-in landlords can list a property
+  const [hasToken, setHasToken] = useState(null);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setHasToken(!!token);
+    if (!token) router.replace("/auth/login");
+  }, [router]);
+  const { data: me, isLoading: loadingMe } = useLogedUserQuery(undefined, { skip: !hasToken });
+  const role = me?.data?.attributes?.user?.role;
 
   const set = (key, value) => {
     setValues((v) => ({ ...v, [key]: value }));
@@ -211,9 +222,23 @@ const ListingForm = ({ mode = "add", initial, onSubmit, submitting }) => {
       toast.success(res?.message || "Saved");
       setTimeout(() => router.push("/myproperty"), 900);
     } catch (error) {
-      toast.error(error?.data?.message || "Could not save the listing. Please try again.");
+      const status = error?.status;
+      const reason =
+        status === 401
+          ? "Your login has expired. Please log in again."
+          : status === 403
+            ? "Only landlord accounts can add or edit properties."
+            : status === 413
+              ? "The photos are too large. Use smaller photos (under 8 MB each)."
+              : status === "FETCH_ERROR"
+                ? "Can't reach the server. Check your internet connection and try again."
+                : error?.data?.message || "Could not save the listing. Please try again.";
+      toast.error(reason, { duration: 6000 });
+      if (status === 401) router.push("/auth/login");
     }
   };
+
+  const missing = Object.values(errors).filter(Boolean);
 
   const uploadProps = {
     listType: "picture-card",
@@ -239,6 +264,27 @@ const ListingForm = ({ mode = "add", initial, onSubmit, submitting }) => {
   };
 
   const status = initial?.moderation?.status;
+
+  if (hasToken === null || (hasToken && loadingMe)) {
+    return <div className="min-h-[60vh] bg-gray-50" />;
+  }
+  if (hasToken && role && role !== "landlord") {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-sm">
+          <h1 className="text-xl font-bold text-navy">Landlord account needed</h1>
+          <p className="mt-2 text-gray-500">
+            You're signed in as a {role === "admin" ? "admin" : "tenant / buyer"}. To list a property, sign up with a separate
+            <b> landlord (owner)</b> account.
+          </p>
+          <div className="mt-6 flex justify-center gap-3">
+            <Link href="/auth/singup" className="rounded-lg bg-primary px-5 py-2.5 font-semibold text-white hover:bg-primaryDark">Create landlord account</Link>
+            <Link href="/property" className="rounded-lg border border-gray-200 px-5 py-2.5 font-medium text-gray-700 hover:bg-gray-50">Browse homes</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8 sm:px-6 md:py-12">
@@ -455,6 +501,16 @@ const ListingForm = ({ mode = "add", initial, onSubmit, submitting }) => {
                     ? "Our team checks every new listing, usually within a few hours, before it appears in search."
                     : "Edits to a live listing show up right away."}
                 </div>
+                {missing.length > 0 && (
+                  <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                    <p className="mb-1 font-semibold">Please fix before submitting:</p>
+                    <ul className="list-disc space-y-0.5 pl-4">
+                      {missing.map((m) => (
+                        <li key={m}>{m}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <Button
                   type="primary"
                   block
