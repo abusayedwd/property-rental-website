@@ -117,6 +117,13 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
   const closePasswordModal = () => {
     setIsModalOpen(false);
     setError("");
@@ -217,10 +224,10 @@ const Navbar = () => {
             : "bg-[#222F55]"
         }`}
       >
-        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6" style={{ height: NAV_HEIGHT }}>
+        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6" style={{ height: NAV_HEIGHT }}>
           {/* Logo */}
-          <Link href="/" className="shrink-0">
-            <img className="h-5 w-auto md:h-7" src="/images/logo.png" alt="MyNextHome" />
+          <Link href="/" className="min-w-0 shrink">
+            <img className="h-4 w-auto max-w-full min-[400px]:h-5 md:h-7" src="/images/logo.png" alt="MyNextHome" />
           </Link>
 
           {/* Desktop links */}
@@ -278,6 +285,8 @@ const Navbar = () => {
                   </Link>
                 )}
 
+                {/* On small phones the drawer shows the profile, so the avatar menu is hidden there */}
+                <div className="hidden min-[400px]:block">
                 <Dropdown
                   menu={{ items: userMenuItems }}
                   trigger={["click"]}
@@ -298,6 +307,7 @@ const Navbar = () => {
                     <HiChevronDown size={14} className="hidden text-white/70 md:block" />
                   </button>
                 </Dropdown>
+                </div>
               </>
             ) : (
               <div className="hidden items-center gap-2 md:flex">
@@ -318,7 +328,7 @@ const Navbar = () => {
               type="button"
               onClick={() => setLang(lang === "bn" ? "en" : "bn")}
               title={lang === "bn" ? "Switch to English" : "বাংলায় দেখুন"}
-              className="ml-1 flex h-9 items-center rounded-full px-3 text-sm font-semibold text-white/85 ring-1 ring-white/20 transition-colors hover:bg-white/10 hover:text-white"
+              className="ml-1 hidden h-9 items-center rounded-full px-3 text-sm font-semibold text-white/85 ring-1 ring-white/20 transition-colors hover:bg-white/10 hover:text-white lg:flex"
             >
               {lang === "bn" ? "EN" : "বাং"}
             </button>
@@ -371,7 +381,7 @@ const Navbar = () => {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`block rounded-lg px-3 py-2.5 text-[15px] font-medium transition-colors ${
+                  className={`block rounded-lg px-3 py-2 text-[15px] font-medium transition-colors ${
                     isActive(pathname, link) ? "bg-primary/15 text-primary" : "text-white/75 hover:bg-white/5 hover:text-white"
                   }`}
                 >
@@ -400,7 +410,7 @@ const Navbar = () => {
                   { href: "/messages", label: t("nav.messages"), icon: HiOutlineChatBubbleLeftRight, badge: unreadMessages },
                 ].map(({ href, label, icon: Icon, badge }) => (
                   <li key={href}>
-                    <Link href={href} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/75 transition-colors hover:bg-white/5 hover:text-white">
+                    <Link href={href} className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-white/75 transition-colors hover:bg-white/5 hover:text-white">
                       <Icon size={18} /> {label}
                       {badge > 0 && <span className="ml-auto rounded-full bg-red-500 px-2 text-xs font-semibold">{badge}</span>}
                     </Link>
@@ -412,7 +422,7 @@ const Navbar = () => {
                     onClick={() => { setIsMobileMenuOpen(false); setIsModalOpen(true); }}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/75 transition-colors hover:bg-white/5 hover:text-white"
                   >
-                    <HiOutlineKey size={18} /> Change Password
+                    <HiOutlineKey size={18} /> {t("nav.changePassword")}
                   </button>
                 </li>
               </ul>
@@ -420,14 +430,32 @@ const Navbar = () => {
           )}
         </nav>
 
-        <div className="border-t border-white/10 p-4">
+        <div className="space-y-3 border-t border-white/10 p-4">
+          <div className="grid grid-cols-2 gap-1 rounded-lg bg-white/5 p-1" role="group" aria-label="Language">
+            {[
+              { value: "en", label: "English" },
+              { value: "bn", label: "বাংলা" },
+            ].map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setLang(option.value)}
+                aria-pressed={lang === option.value}
+                className={`rounded-md py-2 text-sm font-medium transition-colors ${
+                  lang === option.value ? "bg-primary text-white" : "text-white/70 hover:text-white"
+                }`}
+              >
+                {option.label}
+              </button>
+            ))}
+          </div>
           {profile ? (
             <button
               type="button"
               onClick={() => { setIsMobileMenuOpen(false); setIsLogoutModalOpen(true); }}
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-white/5 py-2.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/10"
             >
-              <HiOutlineArrowRightOnRectangle size={18} /> Log out
+              <HiOutlineArrowRightOnRectangle size={18} /> {t("nav.logout")}
             </button>
           ) : (
             <div className="grid grid-cols-2 gap-2">

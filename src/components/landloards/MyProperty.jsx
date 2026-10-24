@@ -83,8 +83,8 @@ const ListingStats = ({ property }) => (
 );
 
 const StatTile = ({ icon: Icon, label, value, accent }) => (
-  <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-    <span className={`flex h-12 w-12 items-center justify-center rounded-xl ${accent}`}>
+  <div className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm md:gap-4 md:p-5">
+    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl md:h-12 md:w-12 ${accent}`}>
       <Icon size={24} />
     </span>
     <div>
@@ -354,7 +354,7 @@ const MyProperty = () => {
         </div>
 
         {/* Stats */}
-        <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
           <StatTile icon={HiOutlineHomeModern} label="Total listings" value={counts.all} accent="bg-secondary text-primaryDark" />
           <StatTile icon={HiOutlineEye} label="Live" value={counts.active} accent="bg-blue-50 text-blue-600" />
           <StatTile icon={HiOutlineBolt} label="Featured" value={counts.featured} accent="bg-amber-50 text-amber-600" />
@@ -363,6 +363,8 @@ const MyProperty = () => {
 
         {/* Tabs */}
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+          {/* Tabs scroll sideways on small phones instead of being cut off */}
+          <div className="-mx-4 max-w-[calc(100%+2rem)] overflow-x-auto px-4 sm:mx-0 sm:max-w-full sm:px-0">
           <Segmented
             value={tab}
             onChange={(v) => {
@@ -371,6 +373,7 @@ const MyProperty = () => {
             }}
             options={TABS.map((t) => ({ value: t.value, label: `${t.label} (${counts[t.value]})` }))}
           />
+          </div>
           {counts.active > counts.featured && (
             <p className="text-sm text-gray-500">
               <HiOutlineSparkles className="mr-1 inline text-amber-500" />
