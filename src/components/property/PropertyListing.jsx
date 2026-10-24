@@ -1,8 +1,23 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Input, InputNumber, Pagination, Select, Segmented } from "antd";
-import { HiOutlineMagnifyingGlass, HiOutlineXMark, HiOutlineAdjustmentsHorizontal, HiOutlineHomeModern } from "react-icons/hi2";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Input, InputNumber, Pagination, Select, Segmented, Switch } from "antd";
+import toast from "react-hot-toast";
+import {
+  HiOutlineMagnifyingGlass,
+  HiOutlineXMark,
+  HiOutlineAdjustmentsHorizontal,
+  HiOutlineHomeModern,
+  HiOutlineBellAlert,
+  HiOutlineMap,
+  HiOutlineSquares2X2,
+} from "react-icons/hi2";
 import { useGetAllpropertyQuery } from "@/redux/fetures/property/getAllProperty";
+import { useCreateSavedSearchMutation } from "@/redux/fetures/engagement/savedSearches";
+import { AMENITIES, FURNISHING, PROPERTY_TYPES, TENANT_TYPES, labelOf } from "@/utils/listing";
+import { SearchResultsMap } from "@/components/map";
+import { useT } from "@/i18n/LanguageProvider";
 import { districtOptions, getAreaOptions, filterLocationOption } from "@/components/statesData";
 import PropertyCard, { PropertyCardSkeleton } from "./PropertyCard";
 
@@ -16,10 +31,8 @@ const SORT_OPTIONS = [
 ];
 
 // Same values the Add Property form uses
-const TYPE_OPTIONS = ["duplex", "bungalow", "studio", "flat", "self-con", "warehouse", "other"].map((t) => ({
-  value: t,
-  label: t.charAt(0).toUpperCase() + t.slice(1),
-}));
+const TYPE_OPTIONS = PROPERTY_TYPES;
+const TENANT_OPTIONS = TENANT_TYPES.filter((t) => t.value !== "any");
 
 const BED_OPTIONS = [
   { value: "", label: "Any beds" },
@@ -29,7 +42,20 @@ const BED_OPTIONS = [
 const takaFormatter = (v) => (v ? `৳ ${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "");
 const takaParser = (v) => (v ? v.replace(/[৳,\s]/g, "") : "");
 
-const EMPTY_FILTERS = { search: "", state: undefined, subState: undefined, propertyType: "", type: undefined, minPrice: null, maxPrice: null, minRooms: "" };
+const EMPTY_FILTERS = {
+  search: "",
+  state: undefined,
+  subState: undefined,
+  propertyType: "",
+  type: undefined,
+  minPrice: null,
+  maxPrice: null,
+  minRooms: "",
+  tenantType: undefined,
+  furnishing: undefined,
+  amenities: [],
+  verifiedOnly: false,
+};
 
 const useDebounced = (value, delay = 350) => {
   const [debounced, setDebounced] = useState(value);
@@ -46,6 +72,7 @@ const useDebounced = (value, delay = 350) => {
  * - `lockedType`: "rent" | "sell" to fix the listing type (See all pages)
  */
 const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse properties", subtitle }) => {
+  const t = useT();
   const [filters, setFilters] = useState(() => ({
     ...EMPTY_FILTERS,
     ...Object.fromEntries(Object.entries(initialFilters).filter(([, v]) => v)),
@@ -54,7 +81,10 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
   const [sortBy, setSortBy] = useState(SORT_OPTIONS[0].value);
   const [page, setPage] = useState(1);
   const [showMore, setShowMore] = useState(false);
+  const [view, setView] = useState("list");
   const topRef = useRef(null);
+  const router = useRouter();
+  const [saveSearch, { isLoading: saving }] = useCreateSavedSearchMutation();
 
   const search = useDebounced(filters.search);
   const minPrice = useDebounced(filters.minPrice);
@@ -70,12 +100,67 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
       minPrice,
       maxPrice,
       minRooms: filters.minRooms,
+      tenantType: filters.tenantType,
+      furnishing: filters.furnishing,
+      amenities: filters.amenities.join(","),
+      verifiedOnly: filters.verifiedOnly ? "true" : "",
       sortBy,
       page,
       limit: PAGE_SIZE,
     }),
-    [search, filters.state, filters.subState, filters.propertyType, filters.type, minPrice, maxPrice, filters.minRooms, sortBy, page]
+    [search, filters.state, filters.subState, filters.propertyType, filters.type, minPrice, maxPrice, filters.minRooms, filters.tenantType, filters.furnishing, filters.amenities, filters.verifiedOnly, sortBy, page]
   );
+
+  // The map loads its own pins for the visible area, using the same filters
+  const mapFilters = useMemo(
+    () => ({
+      propertyType: filters.propertyType,
+      type: filters.type,
+      minPrice,
+      maxPrice,
+      minRooms: filters.minRooms,
+      tenantType: filters.tenantType,
+      furnishing: filters.furnishing,
+      amenities: filters.amenities.join(","),
+    }),
+    [filters.propertyType, filters.type, minPrice, maxPrice, filters.minRooms, filters.tenantType, filters.furnishing, filters.amenities]
+  );
+
+  // Get an alert when new listings match these filters
+  const onSaveSearch = async () => {
+    if (!localStorage.getItem("token")) {
+      toast.error("Log in to save searches and get alerts");
+      router.push("/auth/login");
+      return;
+    }
+    try {
+      const res = await saveSearch({
+        filters: {
+          propertyType: filters.propertyType || undefined,
+          type: filters.type,
+          state: filters.state,
+          subState: filters.subState,
+          minPrice: filters.minPrice ?? undefined,
+          maxPrice: filters.maxPrice ?? undefined,
+          minRooms: filters.minRooms || undefined,
+          tenantType: filters.tenantType,
+        },
+      }).unwrap();
+      toast.success(
+        (t) => (
+          <span>
+            {res?.message || "Search saved"}{" "}
+            <Link href="/saved-searches" onClick={() => toast.dismiss(t.id)} className="font-semibold text-primaryDark underline">
+              Manage
+            </Link>
+          </span>
+        ),
+        { duration: 5000 }
+      );
+    } catch (error) {
+      toast.error(error?.data?.message || "Could not save this search");
+    }
+  };
 
   const { data, isLoading, isFetching, isError } = useGetAllpropertyQuery(params);
   const result = data?.data?.attributes;
@@ -107,7 +192,12 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
     filters.minRooms && { key: "beds", label: `${filters.minRooms}+ beds`, clear: { minRooms: "" } },
     filters.minPrice != null && { key: "min", label: `Min ${takaFormatter(filters.minPrice)}`, clear: { minPrice: null } },
     filters.maxPrice != null && { key: "max", label: `Max ${takaFormatter(filters.maxPrice)}`, clear: { maxPrice: null } },
+    filters.tenantType && { key: "tenant", label: labelOf(TENANT_TYPES, filters.tenantType), clear: { tenantType: undefined } },
+    filters.furnishing && { key: "furn", label: labelOf(FURNISHING, filters.furnishing), clear: { furnishing: undefined } },
+    ...filters.amenities.map((a) => ({ key: `am-${a}`, label: labelOf(AMENITIES, a), clear: { amenities: filters.amenities.filter((x) => x !== a) } })),
+    filters.verifiedOnly && { key: "verified", label: "Verified owners", clear: { verifiedOnly: false } },
   ].filter(Boolean);
+  const canSave = Boolean(filters.state || filters.propertyType || filters.type || filters.minPrice || filters.maxPrice || filters.minRooms || filters.tenantType);
 
   const showSkeleton = isLoading || (isFetching && !properties.length);
 
@@ -128,7 +218,7 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
               value={filters.search}
               onChange={(e) => update({ search: e.target.value })}
               prefix={<HiOutlineMagnifyingGlass className="mr-1 text-gray-400" size={18} />}
-              placeholder="Search by name, area or address"
+              placeholder={t("search.placeholder")}
               className="!rounded-lg md:flex-1"
             />
             {!lockedType && (
@@ -137,9 +227,9 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
                 value={filters.propertyType}
                 onChange={(v) => update({ propertyType: v })}
                 options={[
-                  { label: "All", value: "" },
-                  { label: "Rent", value: "rent" },
-                  { label: "Buy", value: "sell" },
+                  { label: t("search.all"), value: "" },
+                  { label: t("search.rent"), value: "rent" },
+                  { label: t("search.buy"), value: "sell" },
                 ]}
                 className="self-start md:self-auto"
               />
@@ -149,7 +239,7 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
               onClick={() => setShowMore((s) => !s)}
               className="flex h-10 items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 md:hidden"
             >
-              <HiOutlineAdjustmentsHorizontal size={18} /> {showMore ? "Hide filters" : "More filters"}
+              <HiOutlineAdjustmentsHorizontal size={18} /> {showMore ? t("search.hideFilters") : t("search.moreFilters")}
             </button>
           </div>
 
@@ -157,7 +247,7 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
             <Select
               size="large"
               className="col-span-2 md:col-span-1 lg:col-span-1"
-              placeholder="District"
+              placeholder={t("search.district")}
               value={filters.state}
               onChange={(v) => update({ state: v, subState: undefined })}
               options={districtOptions}
@@ -168,7 +258,7 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
             <Select
               size="large"
               className="col-span-2 md:col-span-1 lg:col-span-1"
-              placeholder={filters.state ? "Area" : "Area (pick district)"}
+              placeholder={filters.state ? t("search.area") : t("search.areaPick")}
               value={filters.subState}
               onChange={(v) => update({ subState: v })}
               options={getAreaOptions(filters.state)}
@@ -179,19 +269,19 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
             />
             <Select
               size="large"
-              placeholder="Property type"
+              placeholder={t("search.type")}
               value={filters.type}
               onChange={(v) => update({ type: v })}
               options={TYPE_OPTIONS}
               allowClear
             />
-            <Select size="large" value={filters.minRooms} onChange={(v) => update({ minRooms: v })} options={BED_OPTIONS} />
+            <Select size="large" value={filters.minRooms} onChange={(v) => update({ minRooms: v })} options={BED_OPTIONS.map((o) => ({ ...o, label: o.value ? `${o.value}+ ${t("card.beds")}` : t("search.anyBeds") }))} />
             <InputNumber
               size="large"
               className="!w-full"
               min={0}
               step={5000}
-              placeholder="Min price"
+              placeholder={t("search.minPrice")}
               value={filters.minPrice}
               onChange={(v) => update({ minPrice: v })}
               formatter={takaFormatter}
@@ -202,12 +292,43 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
               className="!w-full"
               min={0}
               step={5000}
-              placeholder="Max price"
+              placeholder={t("search.maxPrice")}
               value={filters.maxPrice}
               onChange={(v) => update({ maxPrice: v })}
               formatter={takaFormatter}
               parser={takaParser}
             />
+            <Select
+              size="large"
+              placeholder={t("search.suitableFor")}
+              value={filters.tenantType}
+              onChange={(v) => update({ tenantType: v })}
+              options={TENANT_OPTIONS}
+              allowClear
+            />
+            <Select
+              size="large"
+              placeholder={t("search.furnishing")}
+              value={filters.furnishing}
+              onChange={(v) => update({ furnishing: v })}
+              options={FURNISHING}
+              allowClear
+            />
+            <Select
+              size="large"
+              mode="multiple"
+              maxTagCount="responsive"
+              className="col-span-2 lg:col-span-3"
+              placeholder={t("search.facilities")}
+              value={filters.amenities}
+              onChange={(v) => update({ amenities: v })}
+              options={AMENITIES}
+              allowClear
+            />
+            <label className="col-span-2 flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-3 text-sm text-gray-700 lg:col-span-1">
+              <Switch size="small" checked={filters.verifiedOnly} onChange={(v) => update({ verifiedOnly: v })} />
+              {t("search.verifiedOnly")}
+            </label>
           </div>
 
           {chips.length > 0 && (
@@ -217,13 +338,13 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
                   key={chip.key}
                   type="button"
                   onClick={() => update(chip.clear)}
-                  className="flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-sm font-medium capitalize text-primaryDark transition-colors hover:bg-primary/20"
+                  className="flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-sm font-medium text-primaryDark transition-colors hover:bg-primary/20"
                 >
                   {chip.label} <HiOutlineXMark size={14} />
                 </button>
               ))}
               <button type="button" onClick={clearAll} className="ml-1 text-sm font-medium text-gray-500 underline-offset-2 hover:text-red-500 hover:underline">
-                Clear all
+                {t("search.clearAll")}
               </button>
             </div>
           )}
@@ -233,18 +354,44 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
         <div className="mb-4 mt-6 flex flex-wrap items-center justify-between gap-3">
           <p className="text-gray-600">
             {showSkeleton ? (
-              "Searching..."
+              t("search.searching")
             ) : (
               <>
-                <span className="font-semibold text-navy">{total}</span> {total === 1 ? "property" : "properties"} found
+                <span className="font-semibold text-navy">{total}</span> {total === 1 ? t("search.property") : t("search.properties")} {t("search.found")}
               </>
             )}
           </p>
-          <Select value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} options={SORT_OPTIONS} className="w-52" />
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={onSaveSearch}
+              disabled={!canSave || saving}
+              title={canSave ? "Get an alert when new homes match" : "Pick a district, type or price first"}
+              className="flex h-8 items-center gap-1.5 rounded-lg border border-primary px-3 text-sm font-medium text-primaryDark transition-colors hover:bg-secondary disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400 disabled:hover:bg-transparent"
+            >
+              <HiOutlineBellAlert size={16} /> {saving ? "…" : t("search.saveSearch")}
+            </button>
+            <Segmented
+              value={view}
+              onChange={setView}
+              options={[
+                { value: "list", label: <span className="flex items-center gap-1"><HiOutlineSquares2X2 /> {t("search.list")}</span> },
+                { value: "map", label: <span className="flex items-center gap-1"><HiOutlineMap /> {t("search.map")}</span> },
+              ]}
+            />
+            {view === "list" && <Select value={sortBy} onChange={(v) => { setSortBy(v); setPage(1); }} options={SORT_OPTIONS.map((o, i) => ({ ...o, label: t(`search.sort${i}`) }))} className="w-48" />}
+          </div>
         </div>
 
+        {view === "map" && (
+          <div className="mb-8">
+            <SearchResultsMap filters={mapFilters} height={600} />
+            <p className="mt-2 text-xs text-gray-400">{t("search.mapNote")}</p>
+          </div>
+        )}
+
         {/* Grid */}
-        {isError ? (
+        {view === "map" ? null : isError ? (
           <p className="rounded-2xl bg-white p-10 text-center text-red-500 shadow-sm">Could not load properties. Please try again.</p>
         ) : showSkeleton ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -255,11 +402,11 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
             <span className="flex h-16 w-16 items-center justify-center rounded-full bg-secondary text-primaryDark">
               <HiOutlineHomeModern size={30} />
             </span>
-            <h2 className="mt-4 text-lg font-semibold text-navy">No properties match your filters</h2>
-            <p className="mt-1 max-w-sm text-sm text-gray-500">Try a different area, widen your price range, or clear some filters.</p>
+            <h2 className="mt-4 text-lg font-semibold text-navy">{t("search.noResults")}</h2>
+            <p className="mt-1 max-w-sm text-sm text-gray-500">{t("search.noResultsHint")}</p>
             {chips.length > 0 && (
               <button type="button" onClick={clearAll} className="mt-5 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primaryDark">
-                Clear all filters
+                {t("search.clearFilters")}
               </button>
             )}
           </div>
@@ -271,7 +418,7 @@ const PropertyListing = ({ initialFilters = {}, lockedType, title = "Browse prop
           </div>
         )}
 
-        {total > PAGE_SIZE && (
+        {view === "list" && total > PAGE_SIZE && (
           <div className="mt-10 flex justify-center">
             <Pagination current={page} pageSize={PAGE_SIZE} total={total} onChange={changePage} showSizeChanger={false} />
           </div>

@@ -12,6 +12,12 @@ import {
   HiOutlineEye,
   HiOutlineFlag,
   HiOutlineInformationCircle,
+  HiOutlineClock,
+  HiOutlineCheckCircle,
+  HiOutlineExclamationTriangle,
+  HiOutlineBellAlert,
+  HiOutlineShieldCheck,
+  HiOutlineSparkles,
 } from "react-icons/hi2";
 import notificationsApi, {
   useGetNotificationsQuery,
@@ -28,6 +34,12 @@ const TYPE_STYLE = {
   listing_hidden: { icon: HiOutlineEyeSlash, className: "bg-amber-50 text-amber-600" },
   listing_restored: { icon: HiOutlineEye, className: "bg-secondary text-primaryDark" },
   report_update: { icon: HiOutlineFlag, className: "bg-gray-100 text-gray-600" },
+  listing_pending: { icon: HiOutlineClock, className: "bg-amber-50 text-amber-600" },
+  listing_approved: { icon: HiOutlineCheckCircle, className: "bg-secondary text-primaryDark" },
+  listing_rejected: { icon: HiOutlineExclamationTriangle, className: "bg-red-50 text-red-500" },
+  saved_search: { icon: HiOutlineBellAlert, className: "bg-blue-50 text-blue-600" },
+  verification_update: { icon: HiOutlineShieldCheck, className: "bg-secondary text-primaryDark" },
+  payment: { icon: HiOutlineSparkles, className: "bg-amber-50 text-amber-600" },
   system: { icon: HiOutlineInformationCircle, className: "bg-gray-100 text-gray-600" },
 };
 
@@ -70,7 +82,9 @@ const NotificationBell = ({ userId, className = "" }) => {
       );
       // Keep related pages fresh (viewing lists, listing stats)
       if (notification.type?.startsWith("viewing")) dispatch(apiSlice.util.invalidateTags([{ type: "Viewing", id: "sent" }, { type: "Viewing", id: "received" }]));
-      if (notification.type?.startsWith("listing")) dispatch(apiSlice.util.invalidateTags([{ type: "Property" }]));
+      if (notification.type?.startsWith("listing") || notification.type === "payment") dispatch(apiSlice.util.invalidateTags([{ type: "Property" }]));
+      if (notification.type === "verification_update") dispatch(apiSlice.util.invalidateTags(["Verification", "Profile"]));
+      if (notification.type === "saved_search") dispatch(apiSlice.util.invalidateTags(["SavedSearch"]));
       toast(notification.title, { icon: "🔔", id: `notif-${notification.id}` });
     };
     socket.on("notification:new", onNew);

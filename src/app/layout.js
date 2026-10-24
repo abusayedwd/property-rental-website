@@ -53,13 +53,15 @@
 
  
 
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/pages/Navbar";
 import Footer from "@/components/pages/Footer";
 import { ConfigProvider } from "antd";
 import Providers from "@/redux/Providers";
 import { SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, SITE_URL } from "@/utils/site";
+import { Suspense } from "react";
+import Analytics from "@/components/Analytics";
  
  
 
@@ -71,6 +73,14 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+// Used when the visitor switches the site to Bangla
+const hindSiliguri = Hind_Siliguri({
+  variable: "--font-bangla",
+  subsets: ["bengali", "latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
 export const metadata = {
@@ -98,6 +108,10 @@ export const metadata = {
     description: SITE_DESCRIPTION,
     images: ["/images/Hero.jpg"],
   },
+  // Google Search Console ownership check (Settings → Ownership verification → HTML tag)
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
+    verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
+  }),
 };
 
 export const viewport = {
@@ -110,7 +124,7 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-wrap`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${hindSiliguri.variable} antialiased bg-white text-wrap`}>
 
         
 
@@ -122,6 +136,9 @@ export default function RootLayout({ children }) {
           <Footer />
           {/* </ProviderTheme> */}
         </Providers>
+        <Suspense fallback={null}>
+          <Analytics />
+        </Suspense>
       </body>
     </html>
   );

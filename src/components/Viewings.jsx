@@ -12,10 +12,11 @@ import {
   HiOutlineCheck,
   HiOutlineXMark,
 } from "react-icons/hi2";
-import url from "@/redux/api/baseUrl";
 import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
 import { useGetViewingsQuery, useUpdateViewingMutation } from "@/redux/fetures/engagement/viewings";
 import { useCreatChatMutation } from "@/redux/fetures/messaging/createChat";
+import { mediaUrl } from "@/utils/media";
+import { listingPath } from "@/utils/listing";
 
 const SLOT = { morning: "Morning · 9am–12pm", afternoon: "Afternoon · 12pm–4pm", evening: "Evening · 4pm–8pm" };
 const STATUS = {
@@ -45,9 +46,9 @@ const ViewingCard = ({ viewing, received, onAction, onMessage, busy }) => {
   return (
     <article className={`overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm ${past ? "opacity-75" : ""}`}>
       <div className="flex flex-col gap-4 p-4 md:flex-row md:p-5">
-        <Link href={property ? `/detailsHome/${property.id}` : "#"} className="shrink-0">
+        <Link href={property ? listingPath(property) : "#"} className="shrink-0">
           <img
-            src={property?.images?.[0]?.url ? url + property.images[0].url : "/images/luxury_apartments.jpg"}
+            src={mediaUrl(property?.images?.[0]?.url) || "/images/luxury_apartments.jpg"}
             alt={property?.houseName || "Property"}
             className="h-40 w-full rounded-xl object-cover md:h-28 md:w-40"
           />
@@ -55,7 +56,7 @@ const ViewingCard = ({ viewing, received, onAction, onMessage, busy }) => {
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-start justify-between gap-2">
-            <Link href={property ? `/detailsHome/${property.id}` : "#"} className="min-w-0">
+            <Link href={property ? listingPath(property) : "#"} className="min-w-0">
               <h3 className="line-clamp-1 font-semibold text-navy hover:text-primaryDark">{property?.houseName || "Listing removed"}</h3>
             </Link>
             <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${status.className}`}>
@@ -91,7 +92,7 @@ const ViewingCard = ({ viewing, received, onAction, onMessage, busy }) => {
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 bg-gray-50/60 px-4 py-3 md:px-5">
         <div className="flex min-w-0 items-center gap-2">
-          <Avatar size={30} src={person?.image?.url ? url + person.image.url : undefined} className="!bg-primary !text-xs">
+          <Avatar size={30} src={mediaUrl(person?.image?.url) || undefined} className="!bg-primary !text-xs">
             {person?.fullName?.[0]?.toUpperCase()}
           </Avatar>
           <span className="truncate text-sm text-gray-700">

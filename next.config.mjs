@@ -13,7 +13,16 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
   images: {
     // Hosts that next/image may load from
-    remotePatterns: [{ protocol: "https", hostname: "sayed3040.sobhoy.com" }],
+    remotePatterns: [
+      { protocol: "https", hostname: "sayed3040.sobhoy.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+    ],
+  },
+  async redirects() {
+    return [
+      // Old listing links (shared before the readable URLs) keep working
+      { source: "/detailsHome/:id", destination: "/listing/:id", permanent: true },
+    ];
   },
   async rewrites() {
     return [

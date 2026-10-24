@@ -1,4 +1,5 @@
 import { SITE_URL, API_URL } from "@/utils/site";
+import { listingPath } from "@/utils/listing";
 
 export const revalidate = 3600; // rebuild the sitemap at most once an hour
 
@@ -9,7 +10,7 @@ async function getPropertyIds() {
   try {
     const res = await fetch(`${API_URL}/v1/property/getAllProperties?limit=1000`, { signal: AbortSignal.timeout(5000) });
     if (!res.ok) return [];
-    return ((await res.json())?.data?.attributes?.results || []).map((p) => ({ id: p.id, updatedAt: p.updatedAt }));
+    return ((await res.json())?.data?.attributes?.results || []).map((p) => ({ path: listingPath(p), updatedAt: p.updatedAt }));
   } catch {
     return [];
   }
@@ -26,7 +27,7 @@ export default async function sitemap() {
       priority: route === "" ? 1 : 0.7,
     })),
     ...properties.map((p) => ({
-      url: `${SITE_URL}/detailsHome/${p.id}`,
+      url: `${SITE_URL}${p.path}`,
       lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
       changeFrequency: "weekly",
       priority: 0.8,

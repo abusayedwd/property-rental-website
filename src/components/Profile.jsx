@@ -25,14 +25,16 @@ import {
   HiOutlineSparkles,
   HiOutlineUsers,
   HiOutlineBanknotes,
+  HiOutlineBellAlert,
 } from "react-icons/hi2";
 import { FaWhatsapp, FaFacebook, FaLinkedin } from "react-icons/fa";
-import url from "@/redux/api/baseUrl";
 import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
 import { useGetFavoritesQuery } from "@/redux/fetures/favorite/favorite";
 import { useGetMypropertyQuery } from "@/redux/fetures/property/getMyproperty";
 import { useGetChatlistQuery } from "@/redux/fetures/messaging/getChatlist";
 import { formatPrice } from "@/utils/formatPrice";
+import { mediaUrl } from "@/utils/media";
+import { listingPath } from "@/utils/listing";
 
 const formatDate = (value, opts = { day: "numeric", month: "long", year: "numeric" }) => {
   if (!value) return null;
@@ -114,11 +116,11 @@ const Stat = ({ icon: Icon, label, value, href, accent }) => (
 
 const MiniProperty = ({ property }) => (
   <Link
-    href={`/detailsHome/${property.id}`}
+    href={listingPath(property)}
     className="flex items-center gap-3 rounded-xl p-2 transition-colors hover:bg-gray-50"
   >
     <img
-      src={property?.images?.[0]?.url ? url + property.images[0].url : "/images/luxury_apartments.jpg"}
+      src={mediaUrl(property?.images?.[0]?.url) || "/images/luxury_apartments.jpg"}
       alt={property.houseName}
       className="h-16 w-20 shrink-0 rounded-lg object-cover"
     />
@@ -174,7 +176,7 @@ const Profile = () => {
   const myProperties = myPropertyData?.data?.attributes?.results || [];
   const listingCount = myPropertyData?.data?.attributes?.totalResults ?? myProperties.length;
 
-  const avatarSrc = user.image?.url ? url + user.image.url : undefined;
+  const avatarSrc = mediaUrl(user.image?.url) || undefined;
   const address = [user.street, user.streetName, user.city, user.distric].filter(Boolean).join(", ");
 
   // Profile completion: which useful fields are filled in
@@ -194,9 +196,11 @@ const Profile = () => {
       ? [
           { href: "/addproperty", label: "List a new property", icon: HiOutlinePlusCircle },
           { href: "/myproperty", label: "Manage my properties", icon: HiOutlineHomeModern },
+          ...(user.isVerifiedOwner ? [] : [{ href: "/verification", label: "Get the Verified owner badge", icon: HiOutlineShieldCheck }]),
         ]
       : [{ href: "/property", label: "Browse properties", icon: HiOutlineHomeModern }]),
     { href: "/favorites", label: "Saved homes", icon: HiOutlineHeart },
+    { href: "/saved-searches", label: "Saved searches & alerts", icon: HiOutlineBellAlert },
     { href: "/viewings", label: "My viewings", icon: HiOutlineCalendarDays },
     { href: "/messages", label: "Messages", icon: HiOutlineChatBubbleLeftRight },
     { href: "/profile/editProfile", label: "Edit profile", icon: HiOutlinePencilSquare },
@@ -247,6 +251,11 @@ const Profile = () => {
                   </span>
                   {user.company && (
                     <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{user.company}</span>
+                  )}
+                  {isLandlord && user.isVerifiedOwner && (
+                    <span className="flex items-center gap-1 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
+                      <HiOutlineShieldCheck size={14} /> Verified owner
+                    </span>
                   )}
                   {isLandlord && user.experienceYears > 0 && (
                     <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">

@@ -1,44 +1,19 @@
-"use client"
-
-
-import React, { useEffect, useState } from 'react';
-import { Typography, Divider } from 'antd';
-import Header from '../customComponent/Header';
-import { usePrivacyPolicyQuery } from '@/redux/fetures/information/getProvacy';
-
-const { Title, Paragraph } = Typography;
-
-const decodeHtml = (html) => {
-  const txt = document.createElement("textarea");
-  txt.innerHTML = html;
-  return txt.value;
-};
+"use client";
+import LegalPage from "./LegalPage";
+import { usePrivacyPolicyQuery } from "@/redux/fetures/information/getProvacy";
+import { PRIVACY_POLICY } from "@/content/legal";
 
 const PrivacyPolicy = () => {
-
-
-  const [content, setContent] = useState("");
-
- 
-  const { data: privacy } = usePrivacyPolicyQuery();
-  console.log(privacy)
-
-  useEffect(() => {
-    if (privacy) {
-      // Decode the HTML content before setting it
-      const decodedContent = decodeHtml(privacy.data.attributes?.text);
-      setContent(decodedContent);
-    }
-  }, [privacy]);
-
-
+  const { data } = usePrivacyPolicyQuery();
+  const doc = data?.data?.attributes;
   return (
-    <div className="bg-white p-6 max-w-4xl mx-auto mt-12 shadow-md rounded-lg">
-    <Header size="extraLarge" className="text-green-700 mt-5 text-center mb-12">
-       Privacy policy
-    </Header>
-    <div dangerouslySetInnerHTML={{ __html:  content }} />
-  </div>
+    <LegalPage
+      title="Privacy policy"
+      intro="What we collect, why, and how you stay in control of your information."
+      adminHtml={doc?.text}
+      fallbackHtml={PRIVACY_POLICY}
+      updatedAt={doc?.updatedAt}
+    />
   );
 };
 

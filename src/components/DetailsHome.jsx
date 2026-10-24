@@ -16,12 +16,22 @@ import {
   HiChevronRight,
   HiOutlineFlag,
   HiOutlineEye,
+  HiOutlinePhone,
+  HiOutlineShieldCheck,
+  HiOutlineCheckCircle,
+  HiOutlineSquare3Stack3D,
+  HiOutlineClock,
 } from "react-icons/hi2";
+import { FaWhatsapp } from "react-icons/fa";
 import { MdOutlineBed } from "react-icons/md";
 import { LuBath } from "react-icons/lu";
 import { useGetSinglepropertyQuery } from "@/redux/fetures/property/getPropertyById";
 import { useGetAllpropertyQuery } from "@/redux/fetures/property/getAllProperty";
-import url from "@/redux/api/baseUrl";
+import { mediaUrl } from "@/utils/media";
+import { AMENITIES, FURNISHING, PROPERTY_TYPES, TENANT_TYPES, idFromSlug, labelOf, listingPath } from "@/utils/listing";
+import { ListingLocationMap } from "@/components/map";
+import { useLazyGetOwnerContactQuery } from "@/redux/fetures/property/ownerContact";
+import { useT } from "@/i18n/LanguageProvider";
 import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
 import { useCreatChatMutation } from "@/redux/fetures/messaging/createChat";
 import { formatPrice } from "@/utils/formatPrice";
@@ -39,7 +49,7 @@ const statusInfo = (type) =>
     sold: { label: "Sold", className: "bg-gray-500 text-white" },
   })[type] || { label: "Property", className: "bg-gray-500 text-white" };
 
-const imageSrc = (image) => (image?.url ? `${url}${image.url}` : "/images/luxury_apartments.jpg");
+const imageSrc = (image) => mediaUrl(image?.url, "/images/luxury_apartments.jpg");
 
 const formatDate = (value) => {
   if (!value) return "—";
@@ -56,7 +66,7 @@ const Fact = ({ icon: Icon, label, value }) => (
     </span>
     <div className="min-w-0">
       <p className="text-xs text-gray-500">{label}</p>
-      <p className="truncate font-semibold capitalize text-navy">{value}</p>
+      <p className="truncate font-semibold text-navy">{value}</p>
     </div>
   </div>
 );
@@ -64,7 +74,7 @@ const Fact = ({ icon: Icon, label, value }) => (
 const DetailRow = ({ label, value }) => (
   <div className="flex justify-between gap-4 border-b border-gray-100 py-3 text-sm last:border-0">
     <span className="text-gray-500">{label}</span>
-    <span className="text-right font-medium capitalize text-gray-800">{value || "—"}</span>
+    <span className="text-right font-medium text-gray-800">{value || "—"}</span>
   </div>
 );
 
@@ -137,7 +147,7 @@ const Gallery = ({ images, title }) => {
 };
 
 const SimilarProperties = ({ property }) => {
-  const router = useRouter();
+  const t = useT();
   const { data } = useGetAllpropertyQuery(
     { state: property.state || "", subState: "", propertyType: "" },
     { skip: !property.state }
@@ -152,8 +162,8 @@ const SimilarProperties = ({ property }) => {
     <section className="mt-12">
       <div className="mb-5 flex items-end justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-navy">Similar properties</h2>
-          <p className="mt-1 text-gray-500">More homes in {property.state}</p>
+          <h2 className="text-2xl font-bold text-navy">{t("details.similar")}</h2>
+          <p className="mt-1 text-gray-500">{t("details.moreIn")} {property.state}</p>
         </div>
         <Link href="/property" className="hidden text-sm font-medium text-primaryDark hover:underline md:block">
           View all →
@@ -165,6 +175,72 @@ const SimilarProperties = ({ property }) => {
         ))}
       </div>
     </section>
+  );
+};
+
+// Bangladeshi numbers for WhatsApp links: 01XXXXXXXXX -> 8801XXXXXXXXX
+const whatsappLink = (number, text) => {
+  let digits = String(number || "").replace(/\D/g, "");
+  if (digits.startsWith("0")) digits = `88${digits}`;
+  return digits ? `https://wa.me/${digits}?text=${encodeURIComponent(text)}` : null;
+};
+
+const OwnerPhone = ({ property, viewer, onNeedLogin }) => {
+  const [loadContact, { data, isFetching, error }] = useLazyGetOwnerContactQuery();
+  const t = useT();
+  const contact = data?.data?.attributes;
+  const phone = contact?.phoneNumber || contact?.alternatePhone;
+  const whatsapp = whatsappLink(contact?.whatsappNumber || contact?.phoneNumber, `Hi, I saw "${property.houseName}" on MyNextHome. Is it still available?`);
+
+  if (!contact) {
+    return (
+      <button
+        type="button"
+        onClick={() => (viewer ? loadContact(property.id) : onNeedLogin())}
+        disabled={isFetching}
+        className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-gray-200 font-semibold text-navy transition-colors hover:bg-gray-50 disabled:opacity-60"
+      >
+        <HiOutlinePhone size={18} /> {isFetching ? "…" : viewer ? t("details.showPhone") : t("details.loginForPhone")}
+        {error && <span className="sr-only">Could not load</span>}
+      </button>
+    );
+  }
+  if (!phone && !whatsapp) {
+    return <p className="mt-3 rounded-lg bg-gray-50 p-3 text-center text-sm text-gray-500">The owner prefers messages on MyNextHome.</p>;
+  }
+  return (
+    <div className="mt-3 grid grid-cols-2 gap-2">
+      {phone && (
+        <a href={`tel:${phone}`} className="flex h-12 items-center justify-center gap-2 rounded-lg border border-gray-200 font-semibold text-navy hover:bg-gray-50">
+          <HiOutlinePhone size={18} /> {phone}
+        </a>
+      )}
+      {whatsapp && (
+        <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={`flex h-12 items-center justify-center gap-2 rounded-lg bg-[#25D366] font-semibold text-white hover:bg-[#1ebe5b] ${phone ? "" : "col-span-2"}`}>
+          <FaWhatsapp size={18} /> WhatsApp
+        </a>
+      )}
+    </div>
+  );
+};
+
+const ModerationNotice = ({ property }) => {
+  const status = property.moderation?.status;
+  if (!["pending", "rejected", "hidden"].includes(status)) return null;
+  const text = {
+    pending: ["Waiting for review", "Only you can see this listing until our team approves it, usually within a few hours."],
+    rejected: ["Needs changes", property.moderation?.reason || "Edit the listing and save it to send it for review again."],
+    hidden: ["Hidden by admin", property.moderation?.reason || "This listing is not visible to the public."],
+  }[status];
+  return (
+    <div className={`mt-4 flex items-start gap-3 rounded-xl border p-4 text-sm ${status === "pending" ? "border-amber-200 bg-amber-50 text-amber-800" : "border-red-200 bg-red-50 text-red-700"}`}>
+      <HiOutlineClock size={20} className="mt-0.5 shrink-0" />
+      <div>
+        <p className="font-semibold">{text[0]}</p>
+        <p className="mt-0.5">{text[1]}</p>
+      </div>
+      <Link href={`/editpost/${property.id}`} className="ml-auto shrink-0 font-semibold underline">Edit</Link>
+    </div>
   );
 };
 
@@ -180,8 +256,10 @@ const DetailsSkeleton = () => (
 );
 
 const DetailsPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
+  const id = idFromSlug(slug);
   const router = useRouter();
+  const t = useT();
 
   const { data: user } = useLogedUserQuery();
   const viewer = user?.data?.attributes?.user;
@@ -193,6 +271,13 @@ const DetailsPage = () => {
   const [viewingOpen, setViewingOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const { data: myViewings } = useGetViewingsQuery("sent", { skip: !viewer });
+
+  // Old or shortened links: show the readable address in the browser bar
+  React.useEffect(() => {
+    if (!property) return;
+    const canonical = listingPath(property);
+    if (window.location.pathname !== canonical) window.history.replaceState(null, "", canonical + window.location.search);
+  }, [property]);
 
   if (isLoading) return <DetailsSkeleton />;
 
@@ -214,6 +299,10 @@ const DetailsPage = () => {
   const owner = property.landlordId;
   const location = [property.subState, property.state].filter(Boolean).join(", ");
   const mapQuery = encodeURIComponent([property.place, property.subState, property.state, "Bangladesh"].filter(Boolean).join(", "));
+  const pin = property.location?.coordinates?.length === 2 ? { lat: property.location.coordinates[1], lng: property.location.coordinates[0] } : null;
+  const isRent = ["rent", "rented"].includes(property.propertyType);
+  const availableFrom = property.availableFrom || property.date;
+  const amenities = (property.amenities || []).map((a) => labelOf(AMENITIES, a));
   const isClosed = ["sold", "rented"].includes(property.propertyType);
   const isOwner = viewer && owner?.id && viewer.id === owner.id;
   const canRequestViewing = !isClosed && !isOwner && owner?.id && viewer?.role !== "landlord";
@@ -287,7 +376,10 @@ const DetailsPage = () => {
                   <HiOutlineCheckBadge size={14} /> Featured
                 </span>
               )}
-              <span className="rounded-md bg-gray-200/70 px-2.5 py-1 text-xs font-medium capitalize text-gray-700">{property.type}</span>
+              <span className="rounded-md bg-gray-200/70 px-2.5 py-1 text-xs font-medium capitalize text-gray-700">{labelOf(PROPERTY_TYPES, property.type)}</span>
+              {isRent && property.tenantType && property.tenantType !== "any" && (
+                <span className="rounded-md bg-secondary px-2.5 py-1 text-xs font-semibold text-primaryDark">{labelOf(TENANT_TYPES, property.tenantType)} only</span>
+              )}
               {property.views > 0 && (
                 <span className="flex items-center gap-1 rounded-md bg-gray-200/70 px-2.5 py-1 text-xs font-medium text-gray-700">
                   <HiOutlineEye size={13} /> {property.views.toLocaleString()} {property.views === 1 ? "view" : "views"}
@@ -306,11 +398,13 @@ const DetailsPage = () => {
               onClick={share}
               className="flex h-10 items-center gap-2 rounded-full border border-gray-200 bg-white px-4 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50"
             >
-              <HiOutlineShare size={17} /> Share
+              <HiOutlineShare size={17} /> {t("details.share")}
             </button>
             <FavoriteButton propertyId={property.id || id} className="border border-gray-200" />
           </div>
         </div>
+
+        {isOwner && <ModerationNotice property={property} />}
 
         {/* Gallery */}
         <div className="relative mt-6">
@@ -321,48 +415,84 @@ const DetailsPage = () => {
         <div className="mt-8 grid gap-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-              <Fact icon={MdOutlineBed} label="Bedrooms" value={property.rooms ?? 0} />
-              <Fact icon={LuBath} label="Bathrooms" value={property.baths ?? 0} />
-              <Fact icon={HiOutlineHomeModern} label="Property type" value={property.type || "—"} />
-              <Fact icon={HiOutlineCalendarDays} label="Available from" value={formatDate(property.date)} />
+              <Fact icon={MdOutlineBed} label={t("details.bedrooms")} value={property.rooms ?? 0} />
+              <Fact icon={LuBath} label={t("details.bathrooms")} value={property.baths ?? 0} />
+              {property.sizeSqft ? (
+                <Fact icon={HiOutlineSquare3Stack3D} label={t("details.size")} value={`${Number(property.sizeSqft).toLocaleString("en-IN")} sq ft`} />
+              ) : (
+                <Fact icon={HiOutlineHomeModern} label="Property type" value={labelOf(PROPERTY_TYPES, property.type) || "—"} />
+              )}
+              <Fact icon={HiOutlineCalendarDays} label={t("details.availableFrom")} value={availableFrom && new Date(availableFrom) > new Date() ? formatDate(availableFrom) : t("details.now")} />
             </div>
 
-            <Section title="About this property">
+            <Section title={t("details.about")}>
               <p className="whitespace-pre-line leading-relaxed text-gray-600">
                 {property.textArea || "The owner hasn't added a description yet."}
               </p>
             </Section>
 
-            <Section title="Property details">
+            <Section title={t("details.details")}>
               <div className="grid gap-x-10 md:grid-cols-2">
                 <div>
-                  <DetailRow label="Price" value={formatPrice(property.price)} />
-                  <DetailRow label="Status" value={status.label} />
-                  <DetailRow label="Property type" value={property.type} />
+                  <DetailRow label={isRent ? "Monthly rent" : "Price"} value={`${formatPrice(property.price)}${property.negotiable ? " (negotiable)" : ""}`} />
+                  {isRent && <DetailRow label="Advance" value={property.advanceMonths != null ? `${property.advanceMonths} ${property.advanceMonths === 1 ? "month" : "months"}` : null} />}
+                  {isRent && <DetailRow label="Service charge" value={property.serviceCharge ? `${formatPrice(property.serviceCharge)} /month` : null} />}
+                  <DetailRow label="Property type" value={labelOf(PROPERTY_TYPES, property.type)} />
+                  {isRent && <DetailRow label="Suitable for" value={labelOf(TENANT_TYPES, property.tenantType || "any")} />}
                   <DetailRow label="Bedrooms" value={property.rooms} />
+                  <DetailRow label="Bathrooms" value={property.baths} />
                 </div>
                 <div>
-                  <DetailRow label="Bathrooms" value={property.baths} />
+                  <DetailRow label="Size" value={property.sizeSqft ? `${Number(property.sizeSqft).toLocaleString("en-IN")} sq ft` : null} />
+                  <DetailRow label="Floor" value={property.floor} />
+                  <DetailRow label="Furnishing" value={property.furnishing ? labelOf(FURNISHING, property.furnishing) : null} />
                   <DetailRow label="District" value={property.state} />
                   <DetailRow label="Area" value={property.subState} />
+                  <DetailRow label="Status" value={status.label} />
                   <DetailRow label="Listed on" value={formatDate(property.createdAt)} />
                 </div>
               </div>
             </Section>
 
-            <Section title="Location">
+            {amenities.length > 0 && (
+              <Section title={t("details.facilities")}>
+                <ul className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                  {amenities.map((a) => (
+                    <li key={a} className="flex items-center gap-2 text-sm text-gray-700">
+                      <HiOutlineCheckCircle size={18} className="shrink-0 text-primary" /> {a}
+                    </li>
+                  ))}
+                </ul>
+              </Section>
+            )}
+
+            <Section title={t("details.location")}>
               <p className="mb-4 flex items-center gap-1.5 text-sm text-gray-600">
                 <HiOutlineMapPin className="shrink-0 text-primaryDark" /> {[property.place, location].filter(Boolean).join(", ")}
               </p>
               <div className="h-[320px] overflow-hidden rounded-xl border border-gray-100">
-                <iframe
-                  title="Property location"
-                  src={`https://maps.google.com/maps?q=${mapQuery}&z=14&output=embed`}
-                  className="h-full w-full"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                />
+                {pin ? (
+                  <ListingLocationMap lat={pin.lat} lng={pin.lng} />
+                ) : (
+                  <iframe
+                    title="Property location"
+                    src={`https://maps.google.com/maps?q=${mapQuery}&z=14&output=embed`}
+                    className="h-full w-full"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                  />
+                )}
               </div>
+              {pin && (
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${pin.lat},${pin.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex text-sm font-medium text-primaryDark hover:underline"
+                >
+                  {t("details.directions")}
+                </a>
+              )}
             </Section>
           </div>
 
@@ -371,22 +501,39 @@ const DetailsPage = () => {
             {/* top-24 clears the navbar when it slides back in */}
             <div className="sticky top-24 space-y-4">
               <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-lg shadow-gray-200/60">
-                <p className="text-sm text-gray-500">{property.propertyType === "rent" ? "Monthly rent" : "Price"}</p>
+                <p className="text-sm text-gray-500">{property.propertyType === "rent" ? t("details.monthlyRent") : t("details.price")}</p>
                 <p className="mt-1 text-3xl font-bold text-navy">
                   {formatPrice(property.price)}
-                  {property.propertyType === "rent" && <span className="text-base font-medium text-gray-500"> /month</span>}
+                  {property.propertyType === "rent" && <span className="text-base font-medium text-gray-500"> {t("card.perMonth")}</span>}
                 </p>
+                {(property.negotiable || (isRent && (property.advanceMonths || property.serviceCharge))) && (
+                  <p className="mt-1 text-sm text-gray-500">
+                    {[
+                      property.negotiable && "Negotiable",
+                      isRent && property.advanceMonths ? `${property.advanceMonths} months advance` : null,
+                      isRent && property.serviceCharge ? `+ ${formatPrice(property.serviceCharge)} service charge` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </p>
+                )}
 
                 <div className="my-5 h-px bg-gray-100" />
 
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">Listed by</p>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">{t("details.listedBy")}</p>
                 <div className="flex items-center gap-3">
-                  <Avatar size={48} src={owner?.image?.url ? url + owner.image.url : undefined} className="!bg-primary !font-semibold">
+                  <Avatar size={48} src={mediaUrl(owner?.image?.url)} className="!bg-primary !font-semibold">
                     {owner?.fullName?.[0]?.toUpperCase() || "?"}
                   </Avatar>
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-navy">{owner?.fullName || "Owner unavailable"}</p>
-                    <p className="text-sm text-gray-500">{owner?.company || "Property owner"}</p>
+                    {owner?.isVerifiedOwner ? (
+                      <p className="flex items-center gap-1 text-sm font-medium text-primaryDark">
+                        <HiOutlineShieldCheck size={16} /> {t("details.verifiedOwner")}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-gray-500">{owner?.company || "Property owner"}</p>
+                    )}
                   </div>
                 </div>
 
@@ -408,9 +555,13 @@ const DetailsPage = () => {
                     className="!mt-6 !flex !h-12 w-full items-center justify-center !rounded-lg !border-none !bg-primary !font-semibold !text-white hover:!bg-primaryDark"
                     icon={<HiOutlineChatBubbleLeftRight size={18} />}
                   >
-                    {viewer ? "Message landlord" : "Log in to contact"}
+                    {viewer ? t("details.message") : t("details.loginToContact")}
                   </Button>
                 ) : null}
+
+                {!isClosed && !isOwner && owner?.id && (
+                  <OwnerPhone property={property} viewer={viewer} onNeedLogin={() => requireLogin("Please log in to see the phone number")} />
+                )}
 
                 {canRequestViewing &&
                   (activeViewing ? (
@@ -435,13 +586,13 @@ const DetailsPage = () => {
                       onClick={openViewing}
                       className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-primary font-semibold text-primaryDark transition-colors hover:bg-secondary"
                     >
-                      <HiOutlineCalendarDays size={18} /> Request a viewing
+                      <HiOutlineCalendarDays size={18} /> {t("details.requestViewing")}
                     </button>
                   ))}
 
                 <div className="mt-3 flex items-center justify-center">
                   <FavoriteButton propertyId={property.id || id} className="!shadow-none" />
-                  <span className="text-sm text-gray-500">Save to favorites</span>
+                  <span className="text-sm text-gray-500">{t("details.saveFavorite")}</span>
                 </div>
               </div>
 
@@ -451,7 +602,7 @@ const DetailsPage = () => {
                   onClick={openReport}
                   className="flex w-full items-center justify-center gap-1.5 text-xs text-gray-400 transition-colors hover:text-red-500"
                 >
-                  <HiOutlineFlag size={14} /> Report this listing
+                  <HiOutlineFlag size={14} /> {t("details.report")}
                 </button>
               )}
 
@@ -460,7 +611,7 @@ const DetailsPage = () => {
                 onClick={() => router.back()}
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-3 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
               >
-                <HiOutlineArrowLeft size={16} /> Back to results
+                <HiOutlineArrowLeft size={16} /> {t("details.back")}
               </button>
             </div>
           </aside>

@@ -4,9 +4,11 @@ import { Skeleton } from "antd";
 import { MdOutlineBed } from "react-icons/md";
 import { LuBath } from "react-icons/lu";
 import { HiOutlineMapPin, HiOutlineHomeModern, HiOutlinePhoto, HiOutlineBolt } from "react-icons/hi2";
-import url from "@/redux/api/baseUrl";
 import { formatPrice } from "@/utils/formatPrice";
 import FavoriteButton from "@/components/FavoriteButton";
+import { mediaUrl } from "@/utils/media";
+import { useT } from "@/i18n/LanguageProvider";
+import { listingPath, labelOf, PROPERTY_TYPES } from "@/utils/listing";
 
 const STATUS = {
   rent: { label: "For Rent", className: "bg-primary text-white" },
@@ -21,21 +23,25 @@ const STATUS = {
 export const propertyStatus = (type) => STATUS[type] || { label: "Property", className: "bg-gray-700 text-white" };
 
 const imageSrc = (property) =>
-  property?.images?.[0]?.url ? url + property.images[0].url : "/images/luxury_apartments.jpg";
+  mediaUrl(property?.images?.[0]?.url) || "/images/luxury_apartments.jpg";
 
 /**
  * Shared listing card.
  * - `actions`: optional footer (e.g. owner buttons on My Property)
  * - `topRight`: replaces the favorite heart (e.g. an owner menu)
  */
+const STATUS_KEYS = { rent: "card.forRent", "for rent": "card.forRent", sell: "card.forSale", "for sell": "card.forSale", sale: "card.forSale", rented: "card.rented", sold: "card.sold" };
+
 const PropertyCard = ({ property, actions, topRight, showFavorite = true, className = "" }) => {
+  const t = useT();
   const status = propertyStatus(property.propertyType);
+  const statusLabel = STATUS_KEYS[property.propertyType] ? t(STATUS_KEYS[property.propertyType]) : status.label;
   const isClosed = ["sold", "rented"].includes(property.propertyType);
   const isRent = ["rent", "for rent", "rented"].includes(property.propertyType);
   const location = [property.subState, property.state].filter(Boolean).join(", ") || property.place;
   const photoCount = property.images?.length || 0;
   // Sample cards (shown when there are no listings yet) have no details page
-  const href = String(property.id).startsWith("demo-") ? "/property" : `/detailsHome/${property.id}`;
+  const href = listingPath(property);
 
   return (
     <article
@@ -54,10 +60,15 @@ const PropertyCard = ({ property, actions, topRight, showFavorite = true, classN
         </Link>
 
         <div className="pointer-events-none absolute left-3 top-3 flex flex-wrap gap-1.5">
-          <span className={`rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm ${status.className}`}>{status.label}</span>
+          <span className={`rounded-md px-2.5 py-1 text-xs font-semibold shadow-sm ${status.className}`}>{statusLabel}</span>
           {property.isPromotion && !isClosed && (
             <span className="flex items-center gap-1 rounded-md bg-amber-400 px-2 py-1 text-xs font-semibold text-amber-950 shadow-sm">
-              <HiOutlineBolt size={12} /> Featured
+              <HiOutlineBolt size={12} /> {t("card.featured")}
+            </span>
+          )}
+          {isRent && !isClosed && ["family", "bachelor"].includes(property.tenantType) && (
+            <span className="rounded-md bg-white/90 px-2 py-1 text-xs font-semibold text-navy shadow-sm">
+              {property.tenantType === "family" ? t("card.family") : t("card.bachelor")}
             </span>
           )}
         </div>
@@ -77,27 +88,27 @@ const PropertyCard = ({ property, actions, topRight, showFavorite = true, classN
       <Link href={href} className="flex flex-1 flex-col p-4">
         <p className="text-xl font-bold text-navy">
           {formatPrice(property.price)}
-          {isRent && <span className="text-sm font-medium text-gray-400"> /month</span>}
+          {isRent && <span className="text-sm font-medium text-gray-400"> {t("card.perMonth")}</span>}
         </p>
         <h3 className="mt-1 line-clamp-1 font-semibold text-gray-800 transition-colors group-hover:text-primaryDark">
           {property.houseName || "Unnamed property"}
         </h3>
         <p className="mt-1 flex items-center gap-1.5 text-sm text-gray-500">
           <HiOutlineMapPin size={15} className="shrink-0 text-primaryDark" />
-          <span className="line-clamp-1">{location || "Location not provided"}</span>
+          <span className="line-clamp-1">{location || t("card.noLocation")}</span>
         </p>
 
         <div className="flex-1" />
         <div className="mt-4 flex items-center gap-4 border-t border-gray-100 pt-3 text-sm text-gray-600">
           <span className="flex items-center gap-1.5" title="Bedrooms">
-            <MdOutlineBed size={18} className="text-gray-400" /> {property.rooms ?? 0} <span className="hidden xl:inline">Beds</span>
+            <MdOutlineBed size={18} className="text-gray-400" /> {property.rooms ?? 0} <span className="hidden xl:inline">{t("card.beds")}</span>
           </span>
           <span className="flex items-center gap-1.5" title="Bathrooms">
-            <LuBath size={16} className="text-gray-400" /> {property.baths ?? 0} <span className="hidden xl:inline">Baths</span>
+            <LuBath size={16} className="text-gray-400" /> {property.baths ?? 0} <span className="hidden xl:inline">{t("card.baths")}</span>
           </span>
           <span className="ml-auto flex min-w-0 items-center gap-1.5 capitalize" title="Property type">
             <HiOutlineHomeModern size={16} className="shrink-0 text-gray-400" />
-            <span className="truncate">{property.type || "—"}</span>
+            <span className="truncate">{labelOf(PROPERTY_TYPES, property.type) || "—"}</span>
           </span>
         </div>
       </Link>

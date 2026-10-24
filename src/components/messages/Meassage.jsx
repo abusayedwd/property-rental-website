@@ -15,19 +15,19 @@ import {
   HiCheck,
   HiChevronDown,
 } from "react-icons/hi2";
-import url from "@/redux/api/baseUrl";
 import { apiSlice } from "@/redux/api/apiSlice";
 import { useGetChatlistQuery } from "@/redux/fetures/messaging/getChatlist";
 import { useGetMessageQuery } from "@/redux/fetures/messaging/getMessage";
 import { useSendMessageMutation } from "@/redux/fetures/messaging/sendMessage";
 import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
 import { getSocket } from "@/utils/socket";
+import { mediaUrl } from "@/utils/media";
 
 const MAX_LENGTH = 2000;
 const ROLE_LABEL = { user: "Tenant / Buyer", landlord: "Landlord", admin: "Support" };
 
 const idOf = (value) => (value && typeof value === "object" ? String(value.id || value._id) : String(value || ""));
-const avatarSrc = (person) => (person?.image?.url ? url + person.image.url : undefined);
+const avatarSrc = (person) => (mediaUrl(person?.image?.url) || undefined);
 
 const sameDay = (a, b) => new Date(a).toDateString() === new Date(b).toDateString();
 

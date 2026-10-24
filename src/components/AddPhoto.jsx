@@ -4,7 +4,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Autoplay, Pagination } from "swiper/modules";
 import { useGetBannersQuery } from "@/redux/fetures/banner";
-import url from "@/redux/api/baseUrl";
+import { mediaUrl } from "@/utils/media";
 
 const FALLBACK = "/images/adds.png";
 
@@ -37,7 +37,7 @@ const AddPhoto = () => {
               className="block overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-sm transition-shadow hover:shadow-md"
             >
               <img
-                src={banner.image?.url ? url + banner.image.url : FALLBACK}
+                src={mediaUrl(banner.image?.url) || FALLBACK}
                 alt={banner.title || `Advertisement ${index + 1}`}
                 loading="lazy"
                 className="aspect-[2/1] w-full object-cover md:aspect-[5/2]"

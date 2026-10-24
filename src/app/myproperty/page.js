@@ -1,14 +1,10 @@
+import { Suspense } from "react";
+import MyProperty from "@/components/landloards/MyProperty";
 
-import MyProperty from '@/components/landloards/MyProperty';
-import React from 'react';
-
-const page = () => {
-    return (
-        <div>
-            
-            <MyProperty />
-        </div>
-    );
-};
-
-export default page;
+export default function MyPropertyPage() {
+  return (
+    <Suspense fallback={null}>
+      <MyProperty />
+    </Suspense>
+  );
+}

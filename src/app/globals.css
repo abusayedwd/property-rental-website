@@ -12,6 +12,14 @@ body {
   color: var(--foreground);
 }
 
+/* Bangla text gets a font made for Bengali script */
+html[lang="bn"] body,
+html[lang="bn"] .ant-select,
+html[lang="bn"] .ant-btn,
+html[lang="bn"] input {
+  font-family: var(--font-bangla), system-ui, sans-serif;
+}
+
 /* Swiper sliders: brand colours */
 .swiper {
   --swiper-theme-color: #00bf63;

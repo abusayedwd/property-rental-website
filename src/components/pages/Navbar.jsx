@@ -1,6 +1,5 @@
 "use client";
 
-import url from "@/redux/api/baseUrl";
 import { useChangPasswordMutation } from "@/redux/fetures/auth/changePassword";
 import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
 import { useGetFavoriteIdsQuery } from "@/redux/fetures/favorite/favorite";
@@ -27,16 +26,20 @@ import {
   HiOutlineArrowRightOnRectangle,
   HiChevronDown,
   HiOutlineCalendarDays,
+  HiOutlineBellAlert,
+  HiOutlineShieldCheck,
 } from "react-icons/hi2";
+import { mediaUrl } from "@/utils/media";
+import { useLanguage } from "@/i18n/LanguageProvider";
 
 const NAV_HEIGHT = 72;
 
 const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/property", label: "Properties", match: ["/property", "/seeAllRentHome", "/seeAllSell", "/detailsHome"] },
-  { href: "/aboutus", label: "About" },
-  { href: "/blog", label: "Blog" },
-  { href: "/contact-us", label: "Contact" },
+  { href: "/", label: "nav.home" },
+  { href: "/property", label: "nav.properties", match: ["/property", "/seeAllRentHome", "/seeAllSell", "/listing"] },
+  { href: "/aboutus", label: "nav.about" },
+  { href: "/blog", label: "nav.blog" },
+  { href: "/contact-us", label: "nav.contact" },
 ];
 
 const isActive = (pathname, link) =>
@@ -80,6 +83,7 @@ const Navbar = () => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const { data: user } = useLogedUserQuery();
+  const { lang, setLang, t } = useLanguage();
   const profile = user?.data?.attributes?.user;
   const isLandlord = profile?.role === "landlord";
   const { data: favoriteIds } = useGetFavoriteIdsQuery(undefined, { skip: !profile });
@@ -143,7 +147,7 @@ const Navbar = () => {
     }
   };
 
-  const avatarSrc = profile?.image?.url ? url + profile.image.url : undefined;
+  const avatarSrc = mediaUrl(profile?.image?.url) || undefined;
   const initial = profile?.fullName?.[0]?.toUpperCase();
 
   const userMenuItems = [
@@ -159,7 +163,7 @@ const Navbar = () => {
       ),
     },
     { type: "divider" },
-    { key: "profile", icon: <HiOutlineUser size={16} />, label: <Link href="/profile">My Profile</Link> },
+    { key: "profile", icon: <HiOutlineUser size={16} />, label: <Link href="/profile">{t("nav.myProfile")}</Link> },
     {
       key: "favorites",
       icon: <HiOutlineHeart size={16} />,
@@ -174,19 +178,23 @@ const Navbar = () => {
     },
     ...(isLandlord
       ? [
-          { key: "myproperty", icon: <HiOutlineHomeModern size={16} />, label: <Link href="/myproperty">My Properties</Link> },
-          { key: "addproperty", icon: <HiOutlinePlusCircle size={16} />, label: <Link href="/addproperty">Add Property</Link> },
+          { key: "myproperty", icon: <HiOutlineHomeModern size={16} />, label: <Link href="/myproperty">{t("nav.myProperties")}</Link> },
+          { key: "addproperty", icon: <HiOutlinePlusCircle size={16} />, label: <Link href="/addproperty">{t("nav.addProperty")}</Link> },
+          ...(profile?.isVerifiedOwner
+            ? []
+            : [{ key: "verify", icon: <HiOutlineShieldCheck size={16} />, label: <Link href="/verification">{t("nav.getVerified")}</Link> }]),
         ]
       : []),
-    { key: "viewings", icon: <HiOutlineCalendarDays size={16} />, label: <Link href="/viewings">My viewings</Link> },
-    { key: "messages", icon: <HiOutlineChatBubbleLeftRight size={16} />, label: <Link href="/messages">Messages</Link> },
-    { key: "password", icon: <HiOutlineKey size={16} />, label: "Change Password", onClick: () => setIsModalOpen(true) },
+    { key: "saved", icon: <HiOutlineBellAlert size={16} />, label: <Link href="/saved-searches">{t("nav.savedSearches")}</Link> },
+    { key: "viewings", icon: <HiOutlineCalendarDays size={16} />, label: <Link href="/viewings">{t("nav.viewings")}</Link> },
+    { key: "messages", icon: <HiOutlineChatBubbleLeftRight size={16} />, label: <Link href="/messages">{t("nav.messages")}</Link> },
+    { key: "password", icon: <HiOutlineKey size={16} />, label: t("nav.changePassword"), onClick: () => setIsModalOpen(true) },
     { type: "divider" },
     {
       key: "logout",
       danger: true,
       icon: <HiOutlineArrowRightOnRectangle size={16} />,
-      label: "Log out",
+      label: t("nav.logout"),
       onClick: () => setIsLogoutModalOpen(true),
     },
   ];
@@ -227,7 +235,7 @@ const Navbar = () => {
                       active ? "text-white" : "text-white/70 hover:text-white"
                     }`}
                   >
-                    {link.label}
+                    {t(link.label)}
                     <span
                       className={`absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 ${
                         active ? "w-5" : "w-0 group-hover:w-5"
@@ -266,7 +274,7 @@ const Navbar = () => {
                     href="/addproperty"
                     className="ml-1 hidden items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-colors hover:bg-primaryDark xl:flex"
                   >
-                    <HiOutlinePlusCircle size={18} /> List Property
+                    <HiOutlinePlusCircle size={18} /> {t("nav.listProperty")}
                   </Link>
                 )}
 
@@ -294,16 +302,26 @@ const Navbar = () => {
             ) : (
               <div className="hidden items-center gap-2 md:flex">
                 <Link href="/auth/login" className="rounded-full px-4 py-2 text-sm font-medium text-white/85 transition-colors hover:text-white">
-                  Log in
+                  {t("nav.login")}
                 </Link>
                 <Link
                   href="/auth/singup"
                   className="rounded-full bg-primary px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-colors hover:bg-primaryDark"
                 >
-                  Sign up
+                  {t("nav.signup")}
                 </Link>
               </div>
             )}
+
+            {/* English / Bangla */}
+            <button
+              type="button"
+              onClick={() => setLang(lang === "bn" ? "en" : "bn")}
+              title={lang === "bn" ? "Switch to English" : "বাংলায় দেখুন"}
+              className="ml-1 flex h-9 items-center rounded-full px-3 text-sm font-semibold text-white/85 ring-1 ring-white/20 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              {lang === "bn" ? "EN" : "বাং"}
+            </button>
 
             {/* Mobile menu button */}
             <button
@@ -357,7 +375,7 @@ const Navbar = () => {
                     isActive(pathname, link) ? "bg-primary/15 text-primary" : "text-white/75 hover:bg-white/5 hover:text-white"
                   }`}
                 >
-                  {link.label}
+                  {t(link.label)}
                 </Link>
               </li>
             ))}
@@ -365,19 +383,21 @@ const Navbar = () => {
 
           {profile && (
             <>
-              <p className="mb-2 mt-6 px-3 text-[11px] font-semibold uppercase tracking-wider text-white/40">My account</p>
+              <p className="mb-2 mt-6 px-3 text-[11px] font-semibold uppercase tracking-wider text-white/40">{t("nav.myAccount")}</p>
               <ul className="space-y-1">
                 {[
-                  { href: "/profile", label: "My Profile", icon: HiOutlineUser },
-                  { href: "/favorites", label: "Favorites", icon: HiOutlineHeart, badge: favoriteCount },
+                  { href: "/profile", label: t("nav.myProfile"), icon: HiOutlineUser },
+                  { href: "/favorites", label: t("nav.favorites"), icon: HiOutlineHeart, badge: favoriteCount },
                   ...(isLandlord
                     ? [
-                        { href: "/myproperty", label: "My Properties", icon: HiOutlineHomeModern },
-                        { href: "/addproperty", label: "Add Property", icon: HiOutlinePlusCircle },
+                        { href: "/myproperty", label: t("nav.myProperties"), icon: HiOutlineHomeModern },
+                        { href: "/addproperty", label: t("nav.addProperty"), icon: HiOutlinePlusCircle },
+                        ...(profile?.isVerifiedOwner ? [] : [{ href: "/verification", label: t("nav.getVerified"), icon: HiOutlineShieldCheck }]),
                       ]
                     : []),
-                  { href: "/viewings", label: "My viewings", icon: HiOutlineCalendarDays },
-                  { href: "/messages", label: "Messages", icon: HiOutlineChatBubbleLeftRight, badge: unreadMessages },
+                  { href: "/saved-searches", label: t("nav.savedSearches"), icon: HiOutlineBellAlert },
+                  { href: "/viewings", label: t("nav.viewings"), icon: HiOutlineCalendarDays },
+                  { href: "/messages", label: t("nav.messages"), icon: HiOutlineChatBubbleLeftRight, badge: unreadMessages },
                 ].map(({ href, label, icon: Icon, badge }) => (
                   <li key={href}>
                     <Link href={href} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/75 transition-colors hover:bg-white/5 hover:text-white">
@@ -411,8 +431,8 @@ const Navbar = () => {
             </button>
           ) : (
             <div className="grid grid-cols-2 gap-2">
-              <Link href="/auth/login" className="rounded-lg border border-white/20 py-2.5 text-center text-sm font-medium">Log in</Link>
-              <Link href="/auth/singup" className="rounded-lg bg-primary py-2.5 text-center text-sm font-semibold">Sign up</Link>
+              <Link href="/auth/login" className="rounded-lg border border-white/20 py-2.5 text-center text-sm font-medium">{t("nav.login")}</Link>
+              <Link href="/auth/singup" className="rounded-lg bg-primary py-2.5 text-center text-sm font-semibold">{t("nav.signup")}</Link>
             </div>
           )}
         </div>

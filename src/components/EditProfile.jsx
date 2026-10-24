@@ -18,9 +18,10 @@ import {
 } from "react-icons/hi2";
 import { FaWhatsapp, FaFacebook, FaLinkedin } from "react-icons/fa";
 import { useLogedUserQuery } from "@/redux/fetures/user/logedUser";
-import url from "@/redux/api/baseUrl";
 import { useEditProfileMutation } from "@/redux/fetures/user/editProfile";
 import { districtOptions, getAreaOptions, filterLocationOption } from "@/components/statesData";
+import { mediaUrl } from "@/utils/media";
+import { PROPERTY_TYPES } from "@/utils/listing";
 
 const MAX_IMAGE_MB = 5;
 const inputClass = "!h-11 !rounded-lg";
@@ -40,10 +41,7 @@ const contactOptions = [
   { value: "email", label: "Email" },
 ];
 // Same values the Add Property form uses
-const propertyTypeOptions = ["duplex", "bungalow", "studio", "flat", "self-con", "warehouse", "other"].map((t) => ({
-  value: t,
-  label: t.charAt(0).toUpperCase() + t.slice(1),
-}));
+const propertyTypeOptions = PROPERTY_TYPES;
 const flatDistrictOptions = districtOptions.flatMap((group) => group.options);
 const takaFormatter = (v) => (v ? `৳ ${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "");
 const takaParser = (v) => (v ? v.replace(/[৳,\s]/g, "") : "");
@@ -86,7 +84,7 @@ const EditProfile = () => {
       dataOfBirth: user.dataOfBirth && dayjs(user.dataOfBirth).isValid() ? dayjs(user.dataOfBirth) : null,
       languages: user.languages || [],
     });
-    if (user.image?.url) setImageUrl(url + user.image.url);
+    if (user.image?.url) setImageUrl(mediaUrl(user.image.url));
   }, [user, form]);
 
   const beforeUpload = (fileObj) => {

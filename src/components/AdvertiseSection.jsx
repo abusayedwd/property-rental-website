@@ -1,107 +1,108 @@
+"use client";
+import React, { useState } from "react";
+import Link from "next/link";
+import { Modal } from "antd";
+import { HiOutlineSparkles, HiOutlineMegaphone, HiOutlineCheckCircle, HiOutlineEnvelope } from "react-icons/hi2";
+import { useGetContactQuery } from "@/redux/fetures/information/contact";
+import { useGetPromotionPlansQuery } from "@/redux/fetures/payment/payment";
 
-import React, { useState } from 'react';
-import { Button, Modal } from 'antd';
-import { MailOutlined } from '@ant-design/icons';
-import { useGetContactQuery } from '@/redux/fetures/information/contact';
-
+// Two ways to get seen: Featured listings for owners (self-serve, paid online)
+// and home-page banners for businesses (arranged by email).
 const AdvertiseSection = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
-  // Email comes from the contact details set in the admin dashboard
+  const [bannerOpen, setBannerOpen] = useState(false);
   const { data: contact } = useGetContactQuery();
-  const emailAddress = contact?.data?.attributes?.[0]?.email || "";
-  
-  const handleEmailClick = () => {
-    // Open Gmail directly in a new tab
-    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${emailAddress}`, '_blank');
-  };
-  
-  const showModal = () => {
-    setIsModalVisible(true); // Open the modal
-  };
-  
-  const handleCancel = () => {
-    setIsModalVisible(false); // Close the modal
-  };
+  const email = contact?.data?.attributes?.[0]?.email || "";
+  const { data: plansData } = useGetPromotionPlansQuery();
+  const plans = plansData?.data?.attributes?.plans || [];
+  const cheapest = plans.length ? Math.min(...plans.map((p) => p.price)) : null;
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      <div className="flex flex-col gap-6 rounded-3xl bg-navy p-8 shadow-xl md:flex-row md:items-center md:justify-between md:p-12">
-        <div className="max-w-xl">
-          <p className="text-sm font-semibold uppercase tracking-wider text-primary">Advertise with us</p>
-          <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">Put your business in front of home seekers</h2>
-          <p className="mt-3 text-white/70">Place your banner on our home page and reach people actively looking for a new home.</p>
+      <div className="rounded-3xl bg-navy p-6 shadow-xl md:p-12">
+        <p className="text-sm font-semibold uppercase tracking-wider text-primary">Get more replies</p>
+        <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">Put your property or business in front of home seekers</h2>
+
+        <div className="mt-8 grid gap-5 md:grid-cols-2">
+          {/* Featured listings */}
+          <div className="flex flex-col rounded-2xl bg-white/[0.06] p-6 ring-1 ring-white/10">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-400 text-amber-950">
+              <HiOutlineSparkles size={22} />
+            </span>
+            <h3 className="mt-4 text-xl font-semibold text-white">Featured listing</h3>
+            <p className="mt-1 text-white/70">Your listing shows first in search and on the home page, with a Featured badge.</p>
+            {plans.length > 0 && (
+              <ul className="mt-4 space-y-2">
+                {plans.map((plan) => (
+                  <li key={plan.id} className="flex items-center justify-between rounded-lg bg-white/5 px-3 py-2 text-sm text-white">
+                    <span>{plan.days} days</span>
+                    <span className="font-semibold">৳{plan.price.toLocaleString("en-IN")}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="flex-1" />
+            <Link
+              href="/myproperty"
+              className="mt-5 flex h-12 items-center justify-center rounded-full bg-primary px-6 font-semibold text-white transition-colors hover:bg-primaryDark"
+            >
+              {cheapest ? `Promote from ৳${cheapest.toLocaleString("en-IN")}` : "Promote a listing"}
+            </Link>
+            <p className="mt-2 text-center text-xs text-white/50">Pay with bKash, Nagad, Rocket or card</p>
+          </div>
+
+          {/* Banner ads */}
+          <div className="flex flex-col rounded-2xl bg-white/[0.06] p-6 ring-1 ring-white/10">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
+              <HiOutlineMegaphone size={22} />
+            </span>
+            <h3 className="mt-4 text-xl font-semibold text-white">Home page banner</h3>
+            <p className="mt-1 text-white/70">For developers, agencies, interior designers, movers and other home businesses.</p>
+            <ul className="mt-4 space-y-2 text-sm text-white/80">
+              {["Banner on the home page for 30 days", "Links to your website or Facebook page", "Reaches people actively looking for a home"].map((x) => (
+                <li key={x} className="flex gap-2">
+                  <HiOutlineCheckCircle size={18} className="shrink-0 text-primary" /> {x}
+                </li>
+              ))}
+            </ul>
+            <div className="flex-1" />
+            <button
+              type="button"
+              onClick={() => setBannerOpen(true)}
+              className="mt-5 flex h-12 items-center justify-center rounded-full border border-white/25 px-6 font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Banner details
+            </button>
+          </div>
         </div>
-        {/* <p className="mb-4">Send us a banner of 1200 x 400.</p>
-        <p className="mb-4">Price:$ 50,000 per month.</p>
-        <p className="mb-4">
-          Send us your banner of not more than 300KB to our email - 
-          <a 
-            href={`https://mail.google.com/mail/?view=cm&fs=1&to=${emailAddress}`}
-            target="_blank" // Opens in a new tab
-            className="underline text-yellow-300 hover:text-yellow-100"
-          >
-            {emailAddress}
-          </a>
-        </p> */}
-        {/* Button to open the full details modal */}
-        <Button
-          type="primary"
-          icon={<MailOutlined />}
-          onClick={showModal} // Show the modal
-          size="large"
-          className="!h-12 shrink-0 !rounded-full !border-none !bg-primary !px-6 !font-semibold hover:!bg-primaryDark"
-        >
-          See advertising details
-        </Button>
       </div>
 
-      {/* Full Details Modal */}
-      <Modal
-        title="Full Advertisement Details"
-        open={isModalVisible}
-        onCancel={handleCancel}
-        footer={null} // No footer buttons
-        centered
-        width={720}
-        styles={{ body: { maxHeight: '75vh', overflowY: 'auto' } }}
-      >
-        <div className="p-1 sm:p-4">
-          <h2 className="text-2xl font-semibold mb-4">Looking to promote your brand or business? We’ve got you covered!</h2>
-          <p className="mb-4">Reach a highly engaged audience by placing your banner on our front page. Here are all the details you need:</p>
-          
-          <h3 className="text-lg font-semibold">What We Offer:</h3>
-          <ul className="list-disc ml-8 mb-4">
-            <li><strong>Banner Size:</strong> 320 x 100 pixels</li>
-            <li><strong>Placement:</strong> Front page for maximum visibility</li>
-            <li><strong>Duration:</strong> 30 days of impactful exposure</li>
-            <li><strong>Cost:</strong> $100,000 per 30 days</li>
-          </ul>
-
-          <h3 className="text-lg font-semibold">How to Advertise:</h3>
-          <ol className="list-decimal ml-8 mb-4">
-            <li>Design a 320 x 100-pixel banner.</li>
-            <li>Send your banner to us at <a href={`mailto:${emailAddress}`} className="underline text-primary">{emailAddress}</a></li>
-            <li>We’ll review your banner and get in touch to finalize the process.</li>
-          </ol>
-
-          <h3 className="text-lg font-semibold">Terms and Conditions:</h3>
-          <ul className="list-disc ml-8 mb-4">
-            <li>Banners must not exceed 300KB in size.</li>
-            <li>Price is $100,000 for 30 days of exposure on the front page.</li>
-            <li>The banner will be displayed for the agreed duration and location.</li>
-          </ul>
-
-          <p className="font-semibold mt-6">Let's work together to spotlight your brand in front of the audience it deserves!</p>
-
-          {/* Button to trigger email action */}
-          <Button
-            type="primary"
-            icon={<MailOutlined />}
-            onClick={handleEmailClick} // Opens Gmail in a new tab
-            className="mt-4 bg-primary hover:bg-primaryDark text-white"
-          >
-            Send Your Banner
-          </Button>
+      <Modal title="Advertise with a home page banner" open={bannerOpen} onCancel={() => setBannerOpen(false)} footer={null} centered width={560}>
+        <div className="space-y-4 text-gray-600">
+          <div>
+            <h3 className="font-semibold text-navy">What you get</h3>
+            <ul className="ml-5 mt-1 list-disc space-y-1">
+              <li>Banner size: 1200 × 400 pixels (JPG or PNG, under 300 KB)</li>
+              <li>Placement: home page slider, seen by every visitor</li>
+              <li>Duration: 30 days, with a link to your site</li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="font-semibold text-navy">How it works</h3>
+            <ol className="ml-5 mt-1 list-decimal space-y-1">
+              <li>Email us your banner and the dates you want.</li>
+              <li>We confirm the price and availability within one working day.</li>
+              <li>Your banner goes live after payment.</li>
+            </ol>
+          </div>
+          <p className="text-sm">Banners must be honest and suitable for a family audience. We may decline any ad.</p>
+          {email && (
+            <a
+              href={`mailto:${email}?subject=${encodeURIComponent("Home page banner")}`}
+              className="flex h-11 items-center justify-center gap-2 rounded-lg bg-primary font-semibold text-white hover:bg-primaryDark"
+            >
+              <HiOutlineEnvelope size={18} /> Email {email}
+            </a>
+          )}
         </div>
       </Modal>
     </section>

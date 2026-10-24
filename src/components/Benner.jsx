@@ -145,9 +145,11 @@
 import React, { useState, useEffect } from "react";
 import { Select, Button, message } from "antd";
 import { districtOptions, getAreaOptions, filterLocationOption } from "./statesData";
+import { useT } from "@/i18n/LanguageProvider";
 const { Option } = Select;
 
 const Banner = ({ onSearch }) => {
+  const t = useT();
   const [houseName, setHouseName] = useState("");
   const [selectedState, setSelectedState] = useState(null);
   const [selectedSubState, setSelectedSubState] = useState(null);
@@ -189,7 +191,7 @@ const Banner = ({ onSearch }) => {
   // District is required; area is optional (searches the whole district)
   const handleSearch = () => {
     if (!selectedState) {
-      message.error("Please choose a district to search.");
+      message.error(t("hero.chooseDistrict"));
       return;
     }
     onSearch({ houseName, selectedState, selectedSubState, transactionType });
@@ -211,13 +213,13 @@ const Banner = ({ onSearch }) => {
       <div className="mx-auto flex min-h-[560px] max-w-7xl flex-col justify-center px-4 py-14 sm:px-6 md:min-h-[620px] md:py-20 lg:min-h-[680px]">
         <div className="max-w-3xl">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white/90 backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Homes across Bangladesh
+            <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {t("hero.badge")}
           </span>
           <h1 className="mt-4 text-3xl font-bold leading-tight text-white md:text-5xl lg:text-6xl">
-            The easy way to find a home to <span className="text-primary">rent or buy</span>
+            {t("hero.title1")} <span className="text-primary">{t("hero.title2")}</span>
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/80 md:text-lg">
-            From studio flats and family apartments to duplexes and plots. Search by district and area, compare prices in Taka, and talk to owners directly.
+            {t("hero.subtitle")}
           </p>
         </div>
 
@@ -227,7 +229,7 @@ const Banner = ({ onSearch }) => {
             <Select
               size="large"
               className="w-full"
-              placeholder="District / city"
+              placeholder={t("hero.district")}
               value={selectedState}
               onChange={handleStateChange}
               options={districtOptions}
@@ -237,7 +239,7 @@ const Banner = ({ onSearch }) => {
             <Select
               size="large"
               className="w-full"
-              placeholder={selectedState ? "Area / upazila (optional)" : "Area / upazila"}
+              placeholder={selectedState ? t("hero.areaOptional") : t("hero.area")}
               value={selectedSubState}
               onChange={handleSubStateChange}
               open={openSubState}
@@ -249,8 +251,8 @@ const Banner = ({ onSearch }) => {
               filterOption={filterLocationOption}
             />
             <Select size="large" className="w-full" value={transactionType} onChange={handleTransactionChange}>
-              <Option value="rent">For rent</Option>
-              <Option value="sell">For sale</Option>
+              <Option value="rent">{t("hero.forRent")}</Option>
+              <Option value="sell">{t("hero.forSale")}</Option>
             </Select>
             <Button
               type="primary"
@@ -258,13 +260,13 @@ const Banner = ({ onSearch }) => {
               onClick={handleSearch}
               className="!h-10 w-full !border-none !bg-primary !px-8 !font-semibold hover:!bg-primaryDark lg:w-auto"
             >
-              Search
+              {t("hero.search")}
             </Button>
           </div>
         </div>
 
         <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
-          {["All 64 districts", "Prices in Taka", "Chat with owners directly"].map((item) => (
+          {[t("hero.point1"), t("hero.point2"), t("hero.point3")].map((item) => (
             <li key={item} className="flex items-center gap-2">
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white">✓</span>
               {item}

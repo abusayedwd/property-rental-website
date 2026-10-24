@@ -18,8 +18,12 @@ A full-stack platform for renting, buying and listing property across all 64 dis
 ## Features
 
 **Renters & buyers**
-- Search by district and area (all 64 districts, 500+ areas), rent or sale, property type, bedrooms and price range in Taka, with sorting and pagination
-- Property pages with photo gallery, map, key facts and similar listings
+- Search by district and area (all 64 districts, 500+ areas), rent or sale, property type, bedrooms, price in Taka, family/bachelor, furnishing and facilities (gas, lift, generator...)
+- **Map search** (Leaflet + OpenStreetMap) with price pins for the visible area
+- **Saved searches with alerts**: in-app and email when a new listing matches
+- Property pages with gallery, map pin and directions, advance/service charge, facilities, similar listings and Google structured data
+- **Call / WhatsApp the owner** (number shown to signed-in members only)
+- **Bangla / English** switch for the main pages
 - Save favourites; get notified about activity on your requests
 - **Real-time chat** with owners: typing indicator, read receipts, online status, unread counts
 - **Viewing appointments:** request a day and time slot; the owner confirms or declines with a note
@@ -27,27 +31,31 @@ A full-stack platform for renting, buying and listing property across all 64 dis
 - Report suspicious or wrong listings
 
 **Landlords**
-- Create and edit listings with up to 5 photos
+- Create and edit listings with up to 5 photos (stored on Cloudinary), a map pin and Bangladesh-specific details
+- Listings go live after an admin review; owners see the status and the reason if changes are needed
+- **Verified owner badge** after an NID check (documents stored privately and deleted after review)
 - Per-listing analytics: views, saves and pending viewing requests
 - Confirm/decline viewing requests; mark properties rented or sold
-- Promote a listing to "Featured" with **Stripe Checkout**
+- Promote a listing to "Featured" for 7/15/30 days, paid in Taka with **SSLCommerz** (bKash, Nagad, Rocket, cards)
 
 **Admins** (separate React dashboard)
 - Overview with earnings chart, user and landlord management (details, block/unblock)
-- Review reported listings; hide or restore any listing (owner is notified)
+- Approve or reject new listings with a full preview; review reported listings; hide or restore any listing (owner is notified)
+- Review owner NID verifications
 - Manage banners, contact info and site content
 
 **Quality**
 - Responsive on phone, tablet and desktop; SEO metadata per page, dynamic Open Graph images for listings, sitemap and robots.txt
-- Authorisation checks on every mutating endpoint (ownership, roles, field allow-lists)
+- Authorisation checks on every mutating endpoint (ownership, roles, field allow-lists), rate limiting, CORS allow-list, expiring one-time codes
+- Readable listing URLs (`/listing/3-bed-flat-dhanmondi-dhaka-<id>`), sitemap, Google Analytics and Meta Pixel hooks
 
 ## Tech stack
 
 | Layer | Technology |
 |---|---|
-| Website | Next.js 15 (App Router), React 19, Redux Toolkit / RTK Query, Tailwind CSS, Ant Design, Socket.io client |
+| Website | Next.js 15 (App Router), React 19, Redux Toolkit / RTK Query, Tailwind CSS, Ant Design, Leaflet, Socket.io client |
 | Admin dashboard | React 18 + Vite, Redux Toolkit, Ant Design, Recharts |
-| API | Node.js, Express, MongoDB + Mongoose, Passport JWT, Socket.io, Stripe, Nodemailer, Multer |
+| API | Node.js, Express, MongoDB Atlas + Mongoose (geo queries), Passport JWT, Socket.io, SSLCommerz, Cloudinary, Nodemailer, Multer |
 | Deployment | Vercel (website), Node server on a VPS |
 
 ## Architecture
@@ -94,6 +102,8 @@ The API must be running too (see the [API repo](https://github.com/abusayedwd/pr
 | `NEXT_PUBLIC_BASE_URL` | `http://localhost:3070` or `/backend` | API address used in the browser (`/backend` when proxied) |
 | `BACKEND_URL` | `http://168.231.67.56:3090` | Optional. Enables the `/backend` proxy (use on Vercel if the API has no https) |
 | `NEXT_PUBLIC_SITE_URL` | `https://mynexthome.vercel.app` | Public site address for share previews and the sitemap |
+| `NEXT_PUBLIC_GA_ID` / `NEXT_PUBLIC_FB_PIXEL_ID` | `G-XXXX` / `1234` | Optional analytics |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | `abc123` | Optional Google Search Console check |
 
 ## Project structure
 
@@ -110,8 +120,10 @@ src/
 
 ## Roadmap
 
-- [ ] Photo storage on Cloudinary/S3 (uploads are on the server disk today)
-- [ ] Map search with geo queries
+- [x] Photo storage on Cloudinary
+- [x] Map search with geo queries
+- [x] Saved searches with email alerts
+- [x] Bangla / English language switch (main pages)
+- [ ] Phone (SMS) OTP login
 - [ ] Automated tests (Jest + Supertest, Playwright) and GitHub Actions CI
-- [ ] Saved searches with email alerts
-- [ ] Bangla / English language switch
+- [ ] Monthly packages for agents
