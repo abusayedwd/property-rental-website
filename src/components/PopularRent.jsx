@@ -218,7 +218,7 @@ const PopularRent = ({ searchCriteria }) => {
         <div>
           <p className="text-sm font-semibold uppercase tracking-wider text-primaryDark">Featured listings</p>
           <h2 className="mt-1 text-3xl font-bold text-navy md:text-4xl">Homes for rent</h2>
-          <p className="mt-2 text-gray-500">Hand-picked rentals from verified landlords.</p>
+          <p className="mt-2 text-gray-500">Featured rentals from owners across Bangladesh.</p>
         </div>
         <Link
           href="/seeAllRentHome"
